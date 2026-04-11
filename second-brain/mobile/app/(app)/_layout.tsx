@@ -25,6 +25,7 @@ export default function AppLayout() {
       />
       <Tabs.Screen name="dump" options={{ href: null }} />
       <Tabs.Screen name="result" options={{ href: null }} />
+      <Tabs.Screen name="task/[id]" options={{ href: null }} />
     </Tabs>
   );
 }
