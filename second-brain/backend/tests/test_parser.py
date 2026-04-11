@@ -25,6 +25,7 @@ async def test_parse_dump_returns_tasks():
     assert result.today_top3[0].priority >= result.today_top3[-1].priority
     work_task = next(t for t in result.tasks if t.sphere.value == "work")
     assert work_task.deadline is not None
+    assert isinstance(work_task.deadline, datetime)
 
 @pytest.mark.anyio
 async def test_parse_dump_empty_text_raises():
