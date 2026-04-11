@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, Request
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from pydantic import BaseModel, field_validator
 from auth import get_current_user_id
 from database import get_supabase
@@ -28,6 +28,8 @@ async def save_tasks(parsed: ParsedDump, user_id: str, raw_text: str) -> tuple[s
         "raw_text": raw_text,
         "status": "done",
     }).execute()
+    if not dump_result.data:
+        raise HTTPException(status_code=500, detail="Failed to save dump")
     dump_id = dump_result.data[0]["id"]
 
     rows = [
@@ -44,16 +46,20 @@ async def save_tasks(parsed: ParsedDump, user_id: str, raw_text: str) -> tuple[s
         for t in parsed.tasks
     ]
     task_result = db.table("tasks").insert(rows).execute()
+    if not task_result.data:
+        raise HTTPException(status_code=500, detail="Failed to save tasks")
     task_ids = [r["id"] for r in task_result.data]
     return dump_id, task_ids
 
 @router.post("/text")
 async def dump_text(
-    request: Request,
     body: TextDumpRequest,
     user_id: str = Depends(get_current_user_id),
 ):
-    parsed = await parse_dump(body.text, body.user_context)
+    try:
+        parsed = await parse_dump(body.text, body.user_context)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     dump_id, task_ids = await save_tasks(parsed, user_id, body.text)
     return {
         "dump_id": dump_id,
@@ -64,7 +70,6 @@ async def dump_text(
 
 @router.post("/voice")
 async def dump_voice(
-    request: Request,
     file: UploadFile,
     user_id: str = Depends(get_current_user_id),
 ):
@@ -73,7 +78,10 @@ async def dump_voice(
         raise HTTPException(status_code=413, detail="Audio file too large (max 25MB)")
 
     transcription = await transcribe_audio_with_fallback(audio_bytes, file.filename or "audio.m4a")
-    parsed = await parse_dump(transcription, {})
+    try:
+        parsed = await parse_dump(transcription, {})
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
     dump_id, task_ids = await save_tasks(parsed, user_id, transcription)
     return {
         "dump_id": dump_id,
