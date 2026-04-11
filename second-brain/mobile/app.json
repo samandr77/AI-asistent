@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Second Brain",
+    "slug": "second-brain",
+    "scheme": "secondbrain",
+    "version": "1.0.0",
+    "newArchEnabled": true,
+    "web": { "bundler": "metro" },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "$(PRODUCT_NAME) использует микрофон для голосового ввода задач"
+        }
+      ],
+      [
+        "expo-notifications",
+        { "icon": "./assets/notification-icon.png", "color": "#ffffff" }
+      ]
+    ]
+  }
+}
