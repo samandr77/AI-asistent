@@ -58,14 +58,28 @@ export const useAppStore = create<AppState>()(
       setTodayTasks: (todayTasks) => set({ todayTasks }),
       setAllTasks: (allTasks) => set({ allTasks }),
       updateTask: (id, updates) =>
-        set((s) => ({
-          todayTasks: s.todayTasks.map((t) =>
+        set((s) => {
+          const updatedAllTasks = s.allTasks.map((t) =>
             t.id === id ? { ...t, ...updates } : t,
-          ),
-          allTasks: s.allTasks.map((t) =>
+          );
+          const updatedTask = updatedAllTasks.find((t) => t.id === id);
+
+          let updatedTodayTasks = s.todayTasks.map((t) =>
             t.id === id ? { ...t, ...updates } : t,
-          ),
-        })),
+          );
+          if (updatedTask) {
+            if (updates.is_today === false) {
+              updatedTodayTasks = updatedTodayTasks.filter((t) => t.id !== id);
+            } else if (
+              updates.is_today === true &&
+              !s.todayTasks.find((t) => t.id === id)
+            ) {
+              updatedTodayTasks = [...updatedTodayTasks, updatedTask];
+            }
+          }
+
+          return { todayTasks: updatedTodayTasks, allTasks: updatedAllTasks };
+        }),
       deleteTask: (id) =>
         set((s) => ({
           todayTasks: s.todayTasks.filter((t) => t.id !== id),

@@ -13,11 +13,23 @@ api.interceptors.request.use(async (config) => {
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (session?.access_token) {
-    config.headers.Authorization = `Bearer ${session.access_token}`;
+  if (!session?.access_token) {
+    return Promise.reject(new Error("Not authenticated"));
   }
+  config.headers.Authorization = `Bearer ${session.access_token}`;
   return config;
 });
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+    const detail = error.response?.data?.detail ?? error.message;
+    const appError = new Error(detail);
+    (appError as any).status = status;
+    return Promise.reject(appError);
+  },
+);
 
 export interface DumpTextResponse {
   dump_id: string;
