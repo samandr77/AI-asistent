@@ -24,3 +24,6 @@ async def test_patch_task_updates_fields(client):
         chain.update.return_value.eq.return_value.eq.return_value.execute.return_value.data = mock_data
         resp = await client.patch("/tasks/t1", json={"is_done": True})
     assert resp.status_code == 200
+    body = resp.json()
+    assert body["title"] == "Обновлено"
+    assert body["is_done"] is True

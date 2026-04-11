@@ -74,4 +74,6 @@ async def update_task(
 @router.delete("/{task_id}", status_code=204)
 async def delete_task(task_id: str, user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
-    db.table("tasks").delete().eq("id", task_id).eq("user_id", user_id).execute()
+    result = db.table("tasks").delete().eq("id", task_id).eq("user_id", user_id).execute()
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Task not found")
