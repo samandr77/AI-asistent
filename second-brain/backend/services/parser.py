@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timezone
+from pydantic import ValidationError
 from services.ai_router import complete, AITier
 from models.task import ParsedDump
 
@@ -38,7 +39,9 @@ async def parse_dump(text: str, user_context: dict) -> ParsedDump:
     cleaned = raw.strip()
     if cleaned.startswith("```"):
         lines = cleaned.split("\n")
-        cleaned = "\n".join(lines[1:-1])
+        start = 1
+        end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
+        cleaned = "\n".join(lines[start:end])
 
     try:
         data = json.loads(cleaned)
@@ -48,4 +51,7 @@ async def parse_dump(text: str, user_context: dict) -> ParsedDump:
     if "tasks" not in data or not isinstance(data["tasks"], list):
         raise ValueError("LLM response missing 'tasks' list")
 
-    return ParsedDump(**data)
+    try:
+        return ParsedDump(**data)
+    except ValidationError as e:
+        raise ValueError(f"LLM response failed validation: {e}") from e
