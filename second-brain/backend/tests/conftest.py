@@ -1,7 +1,5 @@
 import pytest
-from unittest.mock import AsyncMock
 from httpx import AsyncClient, ASGITransport
-import auth
 
 TEST_USER_ID = "test-user-uuid-1234"
 
@@ -10,11 +8,13 @@ def anyio_backend():
     return "asyncio"
 
 @pytest.fixture
-async def client(monkeypatch):
-    monkeypatch.setattr(auth, "get_current_user_id", AsyncMock(return_value=TEST_USER_ID))
+async def client():
     from main import app
+    import auth
+    app.dependency_overrides[auth.get_current_user_id] = lambda: TEST_USER_ID
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as c:
         yield c
+    app.dependency_overrides.clear()
 
 @pytest.fixture
 def test_user_id():

@@ -12,6 +12,7 @@ language sql stable as $$
   from public.memory_embeddings
   where
     user_id = user_id_input
+    and auth.uid() = user_id_input
     and 1 - (embedding <=> query_embedding) > match_threshold
   order by embedding <=> query_embedding
   limit match_count;
