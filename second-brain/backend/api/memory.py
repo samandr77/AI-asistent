@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from auth import get_current_user_id
 from database import get_supabase
 from services.memory_store import search_relevant_memory
@@ -7,8 +7,8 @@ from services.memory_store import search_relevant_memory
 router = APIRouter()
 
 class MemorySearchRequest(BaseModel):
-    query: str
-    limit: int = 5
+    query: str = Field(..., max_length=2000)
+    limit: int = Field(default=5, ge=1, le=100)
 
 @router.post("/search")
 async def search_memory(body: MemorySearchRequest, user_id: str = Depends(get_current_user_id)):
@@ -26,4 +26,4 @@ async def get_memory_profile(user_id: str = Depends(get_current_user_id)):
         .limit(20)
         .execute()
     )
-    return result.data
+    return result.data or []

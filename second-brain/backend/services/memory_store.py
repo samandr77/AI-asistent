@@ -12,7 +12,9 @@ async def _embed(text: str) -> list[float]:
     )
     return resp.data[0].embedding
 
-async def save_memory(user_id: str, content: str, metadata: dict = {}) -> str:
+async def save_memory(user_id: str, content: str, metadata: dict | None = None) -> str:
+    if metadata is None:
+        metadata = {}
     embedding = await _embed(content)
     db = get_supabase()
     result = db.table("memory_embeddings").insert({
@@ -39,4 +41,4 @@ async def search_relevant_memory(
         "match_count": limit,
         "match_threshold": threshold,
     }).execute()
-    return [row["content"] for row in result.data]
+    return [row["content"] for row in (result.data or [])]
