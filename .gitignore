@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+!.env.railway
+__pycache__/
+*.pyc
+node_modules/
+.expo/
