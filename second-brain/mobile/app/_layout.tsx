@@ -20,6 +20,7 @@ import { useAppStore } from "../store/useAppStore";
 import { isGoogleSignInConfigured } from "../services/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Sentry, initSentry, navigationIntegration } from "../services/sentry";
+import { startQueueListener, drainQueue } from "../services/dumpQueue";
 
 initSentry();
 
@@ -49,6 +50,12 @@ function RootLayout() {
     const removePremiumListener = addPremiumListener(setPremium);
     return removePremiumListener;
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const unsub = startQueueListener();
+    void drainQueue();
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     if (!isGoogleSignInConfigured()) return;

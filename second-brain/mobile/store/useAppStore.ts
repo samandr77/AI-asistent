@@ -59,6 +59,16 @@ export interface PremiumStatus {
   cancelled: boolean;
 }
 
+export interface PendingDump {
+  id: string;
+  kind: "text" | "voice";
+  text?: string;
+  uri?: string;
+  createdAt: number;
+  lastError?: string;
+  attempts: number;
+}
+
 export interface UserProfile {
   id: string;
   email?: string;
@@ -83,6 +93,12 @@ interface AppState {
   reflectionReminderTime: string | null;
   reflectionsLoading: boolean;
   premium: PremiumStatus;
+  pendingDumps: PendingDump[];
+  enqueueDump: (
+    dump: Omit<PendingDump, "id" | "createdAt" | "attempts">,
+  ) => string;
+  updateDump: (id: string, updates: Partial<PendingDump>) => void;
+  removeDump: (id: string) => void;
   setUser: (user: UserProfile | null) => void;
   setTodayTasks: (tasks: Task[]) => void;
   setAllTasks: (tasks: Task[]) => void;
@@ -130,6 +146,27 @@ export const useAppStore = create<AppState>()(
         store: null,
         cancelled: false,
       },
+      pendingDumps: [],
+      enqueueDump: (d) => {
+        const id = `dump_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        set((s) => ({
+          pendingDumps: [
+            ...s.pendingDumps,
+            { ...d, id, createdAt: Date.now(), attempts: 0 },
+          ],
+        }));
+        return id;
+      },
+      updateDump: (id, updates) =>
+        set((s) => ({
+          pendingDumps: s.pendingDumps.map((p) =>
+            p.id === id ? { ...p, ...updates } : p,
+          ),
+        })),
+      removeDump: (id) =>
+        set((s) => ({
+          pendingDumps: s.pendingDumps.filter((p) => p.id !== id),
+        })),
       setUser: (user) => set({ user }),
       setTodayTasks: (todayTasks) => set({ todayTasks }),
       setAllTasks: (allTasks) => set({ allTasks }),
@@ -201,6 +238,7 @@ export const useAppStore = create<AppState>()(
         reflections: state.reflections,
         reflectionReminderTime: state.reflectionReminderTime,
         premium: state.premium,
+        pendingDumps: state.pendingDumps,
       }),
     },
   ),

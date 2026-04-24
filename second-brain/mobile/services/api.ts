@@ -115,7 +115,7 @@ export async function upsertProfile(
   return data;
 }
 
-export async function dumpText(
+export async function dumpTextRaw(
   text: string,
   userContext: object = {},
 ): Promise<DumpTextResponse> {
@@ -126,7 +126,7 @@ export async function dumpText(
   return data;
 }
 
-export async function dumpVoice(uri: string): Promise<DumpVoiceResponse> {
+export async function dumpVoiceRaw(uri: string): Promise<DumpVoiceResponse> {
   const formData = new FormData();
   formData.append("file", { uri, name: "audio.m4a", type: "audio/m4a" } as any);
   const { data } = await api.post("/dump/voice", formData, {
@@ -134,6 +134,10 @@ export async function dumpVoice(uri: string): Promise<DumpVoiceResponse> {
   });
   return data;
 }
+
+// Back-compat aliases — callers should migrate to the Queue helpers in dumpQueue.ts
+export const dumpText = dumpTextRaw;
+export const dumpVoice = dumpVoiceRaw;
 
 export async function getTodayTasks(): Promise<Task[]> {
   const { data } = await api.get("/tasks/today");

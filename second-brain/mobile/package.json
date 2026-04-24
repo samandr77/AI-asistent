@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
+    "@react-native-community/netinfo": "11.4.1",
     "@react-native-google-signin/google-signin": "^14.0.2",
     "@sentry/react-native": "~6.14.0",
     "@supabase/supabase-js": "^2.103.0",

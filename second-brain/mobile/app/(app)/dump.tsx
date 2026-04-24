@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useVoiceRecorder } from "../../services/audio";
-import { dumpText, dumpVoice } from "../../services/api";
+import { enqueueTextDump, enqueueVoiceDump } from "../../services/dumpQueue";
 import VoiceWave from "../../components/VoiceWave";
 import { isVoiceRecordingSupported } from "../../services/audio";
 
@@ -38,11 +38,19 @@ export default function Dump() {
     if (!uri) return;
     setLoading(true);
     try {
-      const result = await dumpVoice(uri);
-      router.push({
-        pathname: "/(app)/result",
-        params: { data: JSON.stringify(result) },
-      });
+      const result = await enqueueVoiceDump(uri);
+      if (result) {
+        router.push({
+          pathname: "/(app)/result",
+          params: { data: JSON.stringify(result) },
+        });
+      } else {
+        Alert.alert(
+          "Сохранено в очередь",
+          "Сеть пропала — отправим когда появится связь.",
+        );
+        router.replace("/(app)/");
+      }
     } catch (e: any) {
       handleDumpError(e);
     } finally {
@@ -54,11 +62,19 @@ export default function Dump() {
     if (!text.trim()) return;
     setLoading(true);
     try {
-      const result = await dumpText(text.trim());
-      router.push({
-        pathname: "/(app)/result",
-        params: { data: JSON.stringify(result) },
-      });
+      const result = await enqueueTextDump(text.trim());
+      if (result) {
+        router.push({
+          pathname: "/(app)/result",
+          params: { data: JSON.stringify(result) },
+        });
+      } else {
+        Alert.alert(
+          "Сохранено в очередь",
+          "Сеть пропала — отправим когда появится связь.",
+        );
+        router.replace("/(app)/");
+      }
     } catch (e: any) {
       handleDumpError(e);
     } finally {
