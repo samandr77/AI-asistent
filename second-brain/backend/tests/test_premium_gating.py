@@ -118,6 +118,7 @@ async def test_dump_limit_10th_dump_allowed(client):
     with (
         patch("api.dump.get_user_premium", new=AsyncMock(return_value=_free_premium())),
         patch("api.dump.get_supabase", return_value=_mock_dump_db(9)),
+        patch("api.dump.ai_budget.has_budget", new=AsyncMock(return_value=True)),
         patch("api.dump.parse_dump", new=AsyncMock(side_effect=ValueError("stop early"))),
     ):
         resp = await client.post("/dump/text", json={"text": "hello"})
@@ -143,6 +144,7 @@ async def test_dump_limit_not_applied_for_premium(client):
     """Premium user with 100 dumps today should not be blocked."""
     with (
         patch("api.dump.get_user_premium", new=AsyncMock(return_value=_paid_premium())),
+        patch("api.dump.ai_budget.has_budget", new=AsyncMock(return_value=True)),
         patch("api.dump.parse_dump", new=AsyncMock(side_effect=ValueError("stop early"))),
     ):
         resp = await client.post("/dump/text", json={"text": "hello"})

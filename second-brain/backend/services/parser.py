@@ -1,7 +1,11 @@
 from __future__ import annotations
 import json
+import re
 from datetime import datetime, timezone
+from typing import NamedTuple
+
 from pydantic import ValidationError
+
 from services.ai_router import complete, AITier
 from models.task import ParsedDump, ParsedTask
 
@@ -19,29 +23,41 @@ PARSE_SYSTEM = """Ты — AI-ассистент для структуриров
 {"tasks": [{"title": "...", "sphere": "work", "priority": 2, "is_today": false, "deadline": null, "notes": null, "goal_id": null}]}"""
 
 _GOAL_CONFIDENCE_THRESHOLD = 2
+_JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
+
+
+class ParsedDumpWithUsage(NamedTuple):
+    parsed: ParsedDump
+    tokens: int
+
+
+def _extract_json_object(raw: str) -> str:
+    """Strip markdown fences and isolate the first {...} block from LLM prose."""
+    cleaned = raw.strip()
+    if cleaned.startswith("```"):
+        lines = cleaned.split("\n")
+        end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
+        cleaned = "\n".join(lines[1:end])
+    match = _JSON_OBJECT_RE.search(cleaned)
+    if match:
+        return match.group(0)
+    return cleaned
 
 
 def _keyword_match_score(text: str, goal_title: str) -> int:
-    """Return a match score based on how many significant goal words appear in text."""
     text_lower = text.lower()
     words = [w for w in goal_title.lower().split() if len(w) >= 4]
     return sum(1 for w in words if w in text_lower)
 
 
 def _auto_link_goals(tasks: list[ParsedTask], dump_text: str, active_goals: list[dict]) -> list[ParsedTask]:
-    """Keyword-match each task title + dump_text against active goal titles.
-
-    If match score >= threshold and task has no goal_id already, assign the best-matching goal.
-    """
     if not active_goals:
         return tasks
-
     result = []
     for task in tasks:
         if task.goal_id:
             result.append(task)
             continue
-
         combined = f"{task.title} {dump_text}"
         best_goal_id = None
         best_score = 0
@@ -52,7 +68,6 @@ def _auto_link_goals(tasks: list[ParsedTask], dump_text: str, active_goals: list
             if score > best_score:
                 best_score = score
                 best_goal_id = goal["id"]
-
         if best_score >= _GOAL_CONFIDENCE_THRESHOLD and best_goal_id:
             result.append(task.model_copy(update={"goal_id": best_goal_id}))
         else:
@@ -64,7 +79,13 @@ async def parse_dump(
     text: str,
     user_context: dict,
     active_goals: list[dict] | None = None,
-) -> ParsedDump:
+    tier_policy: list[str] | None = None,
+) -> ParsedDumpWithUsage:
+    """Parse raw dump into ParsedDump + token accounting.
+
+    On malformed JSON from the cheapest tier, retry on the next tier before failing.
+    tier_policy: optional allowlist (passed through to ai_router.complete).
+    """
     if not text or not text.strip():
         raise ValueError("Cannot parse empty text")
 
@@ -82,30 +103,32 @@ async def parse_dump(
         user_prompt += "\n".join(context_parts) + "\n"
     user_prompt += f"\nДамп пользователя:\n{text}"
 
-    raw = await complete(PARSE_SYSTEM, user_prompt, tier=AITier.cheap)
+    total_tokens = 0
+    last_error: Exception | None = None
+    for tier in (AITier.cheap, AITier.medium):
+        try:
+            result = await complete(
+                PARSE_SYSTEM, user_prompt, tier=tier, tier_policy=tier_policy
+            )
+        except RuntimeError as e:
+            # If policy/tier blocks the call, bail out with the accumulated error.
+            last_error = e
+            break
+        total_tokens += result.tokens
+        try:
+            data = json.loads(_extract_json_object(result.text))
+            if "tasks" not in data or not isinstance(data["tasks"], list):
+                raise ValueError("LLM response missing 'tasks' list")
+            parsed = ParsedDump(**data)
+        except (json.JSONDecodeError, ValidationError, ValueError) as e:
+            last_error = e
+            continue
 
-    cleaned = raw.strip()
-    if cleaned.startswith("```"):
-        lines = cleaned.split("\n")
-        start = 1
-        end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
-        cleaned = "\n".join(lines[start:end])
+        if active_goals:
+            linked = _auto_link_goals(parsed.tasks, text, active_goals)
+            parsed = ParsedDump(tasks=linked)
+        return ParsedDumpWithUsage(parsed=parsed, tokens=total_tokens)
 
-    try:
-        data = json.loads(cleaned)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"LLM returned invalid JSON: {e}")
-
-    if "tasks" not in data or not isinstance(data["tasks"], list):
-        raise ValueError("LLM response missing 'tasks' list")
-
-    try:
-        parsed = ParsedDump(**data)
-    except ValidationError as e:
-        raise ValueError(f"LLM response failed validation: {e}") from e
-
-    if active_goals:
-        linked_tasks = _auto_link_goals(parsed.tasks, text, active_goals)
-        parsed = ParsedDump(tasks=linked_tasks)
-
-    return parsed
+    raise ValueError(
+        f"LLM failed to return valid JSON after fallback: {last_error}"
+    )
