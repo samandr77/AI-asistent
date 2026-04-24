@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { Slot, useRouter, useSegments } from "expo-router";
+import {
+  Slot,
+  useNavigationContainerRef,
+  useRouter,
+  useSegments,
+} from "expo-router";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 import { getAllTasks, getMe, getTodayTasks, supabase } from "../services/api";
@@ -14,9 +19,18 @@ import { scheduleEveningReflection } from "../services/notifications";
 import { useAppStore } from "../store/useAppStore";
 import { isGoogleSignInConfigured } from "../services/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
+import { Sentry, initSentry, navigationIntegration } from "../services/sentry";
 
-export default function RootLayout() {
+initSentry();
+
+function RootLayout() {
   const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const navRef = useNavigationContainerRef();
+  useEffect(() => {
+    if (navRef) {
+      navigationIntegration.registerNavigationContainer(navRef);
+    }
+  }, [navRef]);
   const {
     isOnboarded,
     user,
@@ -209,3 +223,5 @@ export default function RootLayout() {
 
   return <Slot />;
 }
+
+export default Sentry.wrap(RootLayout);

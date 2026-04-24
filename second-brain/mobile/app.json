@@ -52,6 +52,14 @@
         {
           "iosUrlScheme": "com.googleusercontent.apps.REPLACE_WITH_REVERSED_IOS_CLIENT_ID"
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "second-brain-mobile",
+          "organization": "YOUR_ORG_SLUG"
+        }
       ]
     ],
     "extra": {
