@@ -1,7 +1,8 @@
+import { Platform } from "react-native";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { createMMKV } from "react-native-mmkv";
 import { Sphere } from "../constants/spheres";
+import { createSyncStorage } from "../services/platformStorage";
 
 export interface Task {
   id: string;
@@ -13,23 +14,75 @@ export interface Task {
   deadline?: string | null;
   reminder_at?: string | null;
   notes?: string | null;
+  goal_id?: string | null;
+}
+
+export interface Goal {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string | null;
+  target_date?: string | null;
+  status: "active" | "paused" | "achieved" | "archived";
+  sphere?: string | null;
+  progress_percent: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Reflection {
+  id: string;
+  user_id: string;
+  date: string;
+  mood: number;
+  energy: number;
+  notes: string | null;
+  completed_count: number;
+  goal_aligned_count: number;
+  active_goal_ids: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ReflectionStats {
+  current_streak: number;
+  longest_streak: number;
+  total_reflections: number;
+}
+
+export interface PremiumStatus {
+  is_premium: boolean;
+  entitlement_id: string | null;
+  expires_at: string | null;
+  period_type: string | null;
+  store: string | null;
+  cancelled: boolean;
 }
 
 export interface UserProfile {
   id: string;
+  email?: string;
   name?: string;
   language?: string;
   role?: string;
   living_with?: string;
   peak_hours?: string;
+  is_onboarded?: boolean;
 }
 
 interface AppState {
   user: UserProfile | null;
   todayTasks: Task[];
   allTasks: Task[];
+  goals: Goal[];
   isOnboarded: boolean;
   isLoading: boolean;
+  goalsLoading: boolean;
+  reflections: Reflection[];
+  reflectionStats: ReflectionStats | null;
+  reflectionReminderTime: string | null;
+  reflectionsLoading: boolean;
+  premium: PremiumStatus;
   setUser: (user: UserProfile | null) => void;
   setTodayTasks: (tasks: Task[]) => void;
   setAllTasks: (tasks: Task[]) => void;
@@ -37,14 +90,23 @@ interface AppState {
   deleteTask: (id: string) => void;
   setOnboarded: (v: boolean) => void;
   setLoading: (v: boolean) => void;
+  setGoals: (goals: Goal[]) => void;
+  addGoal: (goal: Goal) => void;
+  updateGoal: (id: string, updates: Partial<Goal>) => void;
+  removeGoal: (id: string) => void;
+  setGoalsLoading: (v: boolean) => void;
+  setReflections: (reflections: Reflection[]) => void;
+  addReflection: (reflection: Reflection) => void;
+  updateReflectionInStore: (id: string, updates: Partial<Reflection>) => void;
+  setReflectionStats: (stats: ReflectionStats | null) => void;
+  setReflectionReminderTime: (time: string | null) => void;
+  setReflectionsLoading: (v: boolean) => void;
+  setPremium: (status: PremiumStatus) => void;
 }
 
-const mmkv = createMMKV({ id: "app-store" });
-const mmkvStorage = {
-  getItem: (key: string) => mmkv.getString(key) ?? null,
-  setItem: (key: string, value: string) => mmkv.set(key, value),
-  removeItem: (key: string) => mmkv.remove(key),
-};
+const localStorageBackend = createSyncStorage(
+  Platform.OS === "web" ? "app-store-web" : "app-store",
+);
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -52,8 +114,22 @@ export const useAppStore = create<AppState>()(
       user: null,
       todayTasks: [],
       allTasks: [],
+      goals: [],
       isOnboarded: false,
       isLoading: false,
+      goalsLoading: false,
+      reflections: [],
+      reflectionStats: null,
+      reflectionReminderTime: "21:00",
+      reflectionsLoading: false,
+      premium: {
+        is_premium: false,
+        entitlement_id: null,
+        expires_at: null,
+        period_type: null,
+        store: null,
+        cancelled: false,
+      },
       setUser: (user) => set({ user }),
       setTodayTasks: (todayTasks) => set({ todayTasks }),
       setAllTasks: (allTasks) => set({ allTasks }),
@@ -87,13 +163,44 @@ export const useAppStore = create<AppState>()(
         })),
       setOnboarded: (isOnboarded) => set({ isOnboarded }),
       setLoading: (isLoading) => set({ isLoading }),
+      setGoals: (goals) => set({ goals }),
+      addGoal: (goal) => set((s) => ({ goals: [goal, ...s.goals] })),
+      updateGoal: (id, updates) =>
+        set((s) => ({
+          goals: s.goals.map((g) => (g.id === id ? { ...g, ...updates } : g)),
+        })),
+      removeGoal: (id) =>
+        set((s) => ({ goals: s.goals.filter((g) => g.id !== id) })),
+      setGoalsLoading: (goalsLoading) => set({ goalsLoading }),
+      setReflections: (reflections) => set({ reflections }),
+      addReflection: (reflection) =>
+        set((s) => {
+          const filtered = s.reflections.filter((r) => r.id !== reflection.id);
+          return { reflections: [reflection, ...filtered].slice(0, 30) };
+        }),
+      updateReflectionInStore: (id, updates) =>
+        set((s) => ({
+          reflections: s.reflections.map((r) =>
+            r.id === id ? { ...r, ...updates } : r,
+          ),
+        })),
+      setReflectionStats: (reflectionStats) => set({ reflectionStats }),
+      setReflectionReminderTime: (reflectionReminderTime) =>
+        set({ reflectionReminderTime }),
+      setReflectionsLoading: (reflectionsLoading) =>
+        set({ reflectionsLoading }),
+      setPremium: (premium) => set({ premium }),
     }),
     {
       name: "app-store",
-      storage: createJSONStorage(() => mmkvStorage),
+      storage: createJSONStorage(() => localStorageBackend),
       partialize: (state) => ({
         user: state.user,
         isOnboarded: state.isOnboarded,
+        goals: state.goals,
+        reflections: state.reflections,
+        reflectionReminderTime: state.reflectionReminderTime,
+        premium: state.premium,
       }),
     },
   ),

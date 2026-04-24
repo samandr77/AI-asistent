@@ -1,5 +1,6 @@
 from enum import Enum
 from datetime import datetime
+from typing import List, Optional
 from pydantic import BaseModel
 
 class Sphere(str, Enum):
@@ -8,6 +9,8 @@ class Sphere(str, Enum):
     study = "study"
     health = "health"
     travel = "travel"
+    finance = "finance"
+    goals = "goals"
 
 class Priority(int, Enum):
     low = 1
@@ -18,14 +21,15 @@ class ParsedTask(BaseModel):
     title: str
     sphere: Sphere
     priority: Priority = Priority.medium
-    deadline: datetime | None = None
-    notes: str | None = None
+    deadline: Optional[datetime] = None
+    notes: Optional[str] = None
     is_today: bool = False
+    goal_id: Optional[str] = None
 
 class ParsedDump(BaseModel):
-    tasks: list[ParsedTask]
+    tasks: List[ParsedTask]
 
     @property
-    def today_top3(self) -> list[ParsedTask]:
+    def today_top3(self) -> List[ParsedTask]:
         today = [t for t in self.tasks if t.is_today]
         return sorted(today, key=lambda t: t.priority, reverse=True)[:3]

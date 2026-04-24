@@ -5,21 +5,27 @@ import {
   Pressable,
   ActivityIndicator,
   StyleSheet,
+  Alert,
+  TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useVoiceRecorder } from "../../services/audio";
-import { dumpVoice } from "../../services/api";
+import { dumpText, dumpVoice, upsertProfile } from "../../services/api";
 import { useAppStore, Task } from "../../store/useAppStore";
 import { scheduleEveningReminder } from "../../services/notifications";
 import VoiceWave from "../../components/VoiceWave";
+import { isVoiceRecordingSupported } from "../../services/audio";
 
 export default function FirstDump() {
   const router = useRouter();
-  const { setTodayTasks, setAllTasks, setOnboarded, user } = useAppStore();
-  const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
+  const { setTodayTasks, setAllTasks, setOnboarded, setUser, user } =
+    useAppStore();
+  const { isRecording, error, startRecording, stopRecording } =
+    useVoiceRecorder();
   const [step, setStep] = useState(0);
   const [top3, setTop3] = useState<Task[]>([]);
   const [shownCount, setShownCount] = useState(0);
+  const [textDump, setTextDump] = useState("");
 
   async function handleStop() {
     const uri = await stopRecording();
@@ -32,31 +38,91 @@ export default function FirstDump() {
       setTop3(result.today_top3);
       setStep(3);
       setShownCount(1);
-    } catch {
+    } catch (e: any) {
+      Alert.alert(
+        "Ошибка",
+        e.message ?? "Не удалось обработать запись. Попробуй ещё раз.",
+      );
+      setStep(0);
+    }
+  }
+
+  async function handleTextSubmit() {
+    if (!textDump.trim()) return;
+    setStep(2);
+    try {
+      const result = await dumpText(textDump.trim());
+      setTodayTasks(result.today_top3);
+      setAllTasks(result.tasks);
+      setTop3(result.today_top3);
+      setStep(3);
+      setShownCount(1);
+    } catch (e: any) {
+      Alert.alert(
+        "Ошибка",
+        e.message ?? "Не удалось обработать текст. Попробуй ещё раз.",
+      );
       setStep(0);
     }
   }
 
   async function handleFinish() {
-    if (user?.name) await scheduleEveningReminder(user.name);
-    setOnboarded(true);
-    router.replace("/(app)/");
+    try {
+      const profile = await upsertProfile({ is_onboarded: true });
+      if (user?.name) await scheduleEveningReminder(user.name);
+      setOnboarded(true);
+      if (user) {
+        setUser({ ...user, ...profile, email: user.email, is_onboarded: true });
+      }
+      router.replace("/(app)/");
+    } catch (e: any) {
+      Alert.alert(
+        "Ошибка",
+        e.message ?? "Не удалось завершить онбординг. Попробуй ещё раз.",
+      );
+    }
   }
 
   if (step === 0)
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Расскажи всё что{"\n"}у тебя на уме</Text>
-        <Text style={styles.sub}>Нажми на микрофон и говори свободно</Text>
-        <Pressable
-          style={styles.mic}
-          onPress={() => {
-            startRecording();
-            setStep(1);
-          }}
-        >
-          <Text style={{ fontSize: 40 }}>🎤</Text>
-        </Pressable>
+        {isVoiceRecordingSupported ? (
+          <>
+            <Text style={styles.sub}>Нажми на микрофон и говори свободно</Text>
+            <Pressable
+              style={styles.mic}
+              onPress={async () => {
+                await startRecording();
+                if (error) {
+                  Alert.alert("Ошибка", error);
+                  return;
+                }
+                setStep(1);
+              }}
+            >
+              <Text style={{ fontSize: 40 }}>🎤</Text>
+            </Pressable>
+          </>
+        ) : (
+          <View style={styles.textBox}>
+            <Text style={styles.sub}>
+              В desktop/web версии первый dump можно сделать текстом.
+            </Text>
+            <TextInput
+              style={styles.textInput}
+              value={textDump}
+              onChangeText={setTextDump}
+              placeholder="Напиши всё, что у тебя сейчас в голове..."
+              placeholderTextColor="#555"
+              multiline
+              autoFocus
+            />
+            <Pressable style={styles.textSubmit} onPress={handleTextSubmit}>
+              <Text style={styles.textSubmitText}>Разобрать текст</Text>
+            </Pressable>
+          </View>
+        )}
       </View>
     );
 
@@ -131,6 +197,26 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sub: { color: "#888", fontSize: 16, textAlign: "center", marginBottom: 32 },
+  textBox: {
+    width: "100%",
+    gap: 16,
+  },
+  textInput: {
+    minHeight: 180,
+    backgroundColor: "#141414",
+    color: "#fff",
+    borderRadius: 18,
+    padding: 16,
+    fontSize: 16,
+    textAlignVertical: "top",
+  },
+  textSubmit: {
+    backgroundColor: "#4F8EF7",
+    borderRadius: 16,
+    padding: 16,
+    alignItems: "center",
+  },
+  textSubmitText: { color: "#fff", fontSize: 16, fontWeight: "600" },
   mic: {
     width: 100,
     height: 100,

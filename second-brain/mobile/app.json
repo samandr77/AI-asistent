@@ -5,7 +5,38 @@
     "scheme": "secondbrain",
     "version": "1.0.0",
     "newArchEnabled": true,
-    "web": { "bundler": "metro" },
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0A0A"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "ios": {
+      "bundleIdentifier": "com.secondbrain.app",
+      "supportsTablet": true,
+      "usesAppleSignIn": true
+    },
+    "android": {
+      "package": "com.secondbrain.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0A0A0A"
+      }
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "plugins": [
       "expo-router",
       [
@@ -14,10 +45,17 @@
           "microphonePermission": "$(PRODUCT_NAME) использует микрофон для голосового ввода задач"
         }
       ],
+      ["expo-notifications", { "color": "#ffffff" }],
+      "expo-apple-authentication",
       [
-        "expo-notifications",
-        { "icon": "./assets/notification-icon.png", "color": "#ffffff" }
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.REPLACE_WITH_REVERSED_IOS_CLIENT_ID"
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {}
+    }
   }
 }

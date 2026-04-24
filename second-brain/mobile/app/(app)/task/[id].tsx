@@ -28,15 +28,23 @@ export default function TaskDetail() {
   if (!task) return null;
 
   async function handleDone() {
-    await updateTask(id!, { is_done: true });
-    updateStore(id!, { is_done: true });
-    router.back();
+    try {
+      await updateTask(id!, { is_done: true });
+      updateStore(id!, { is_done: true });
+      router.back();
+    } catch (e: any) {
+      Alert.alert("Ошибка", e.message ?? "Не удалось обновить задачу");
+    }
   }
 
   async function handleSaveTitle() {
-    await updateTask(id!, { title });
-    updateStore(id!, { title });
-    setEditing(false);
+    try {
+      await updateTask(id!, { title });
+      updateStore(id!, { title });
+      setEditing(false);
+    } catch (e: any) {
+      Alert.alert("Ошибка", e.message ?? "Не удалось сохранить");
+    }
   }
 
   async function handleDelete() {
@@ -46,9 +54,14 @@ export default function TaskDetail() {
         text: "Удалить",
         style: "destructive",
         onPress: async () => {
-          await deleteTask(id!);
-          deleteStore(id!);
-          router.back();
+          if (!id) return;
+          try {
+            await deleteTask(id!);
+            deleteStore(id!);
+            router.back();
+          } catch (e: any) {
+            Alert.alert("Ошибка", e.message ?? "Не удалось удалить задачу");
+          }
         },
       },
     ]);

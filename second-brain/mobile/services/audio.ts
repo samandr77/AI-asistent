@@ -1,9 +1,12 @@
 import { useState } from "react";
+import { Platform } from "react-native";
 import {
   useAudioRecorder,
   RecordingPresets,
   requestRecordingPermissionsAsync,
 } from "expo-audio";
+
+export const isVoiceRecordingSupported = Platform.OS !== "web";
 
 export function useVoiceRecorder() {
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
@@ -14,22 +17,39 @@ export function useVoiceRecorder() {
   async function startRecording() {
     setError(null);
     setAudioUri(null);
-    const { granted } = await requestRecordingPermissionsAsync();
-    if (!granted) {
-      setError("Нет разрешения на микрофон");
+    if (!isVoiceRecordingSupported) {
+      setError("Голосовой ввод пока недоступен в desktop/web версии");
       return;
     }
-    await recorder.prepareToRecordAsync();
-    recorder.record();
-    setIsRecording(true);
+    try {
+      const { granted } = await requestRecordingPermissionsAsync();
+      if (!granted) {
+        setError("Нет разрешения на микрофон");
+        return;
+      }
+      await recorder.prepareToRecordAsync();
+      recorder.record();
+      setIsRecording(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Recording error");
+      setIsRecording(false);
+    }
   }
 
   async function stopRecording(): Promise<string | null> {
-    await recorder.stop();
-    const uri = recorder.uri ?? null;
-    setAudioUri(uri);
-    setIsRecording(false);
-    return uri;
+    if (!isVoiceRecordingSupported) {
+      return null;
+    }
+    try {
+      await recorder.stop();
+      const uri = recorder.uri ?? null;
+      setAudioUri(uri);
+      return uri;
+    } catch (e) {
+      return null;
+    } finally {
+      setIsRecording(false);
+    }
   }
 
   return { isRecording, audioUri, error, startRecording, stopRecording };

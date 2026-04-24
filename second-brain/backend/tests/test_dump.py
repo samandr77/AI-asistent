@@ -1,6 +1,8 @@
+from __future__ import annotations
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from models.task import ParsedDump, ParsedTask, Sphere, Priority
+from models.premium import PremiumStatus
 
 MOCK_PARSED = ParsedDump(tasks=[
     ParsedTask(title="Купить молоко", sphere=Sphere.family, priority=Priority.high, is_today=True),
@@ -10,8 +12,11 @@ MOCK_PARSED = ParsedDump(tasks=[
 
 @pytest.mark.anyio
 async def test_dump_text_returns_tasks(client):
-    with patch("api.dump.parse_dump", new=AsyncMock(return_value=MOCK_PARSED)), \
-         patch("api.dump.save_tasks", new=AsyncMock(return_value=("dump-id-123", ["t1","t2","t3"]))):
+    with (
+        patch("api.dump.get_user_premium", new=AsyncMock(return_value=PremiumStatus(is_premium=True))),
+        patch("api.dump.parse_dump", new=AsyncMock(return_value=MOCK_PARSED)),
+        patch("api.dump.save_tasks", new=AsyncMock(return_value=("dump-id-123", ["t1","t2","t3"]))),
+    ):
         resp = await client.post("/dump/text", json={"text": "купить молоко и сдать отчёт"})
     assert resp.status_code == 200
     body = resp.json()

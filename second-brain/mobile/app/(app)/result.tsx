@@ -16,9 +16,20 @@ import SphereTab from "../../components/SphereTab";
 export default function Result() {
   const { data } = useLocalSearchParams<{ data: string }>();
   const router = useRouter();
-  const parsed = data
-    ? JSON.parse(data)
-    : { tasks: [], today_top3: [], transcription: null };
+  let parsed: {
+    tasks: Task[];
+    today_top3: Task[];
+    transcription: string | null;
+  } = {
+    tasks: [],
+    today_top3: [],
+    transcription: null,
+  };
+  try {
+    if (data) parsed = JSON.parse(data);
+  } catch {
+    /* malformed payload — show empty state */
+  }
   const tasks: Task[] = parsed.tasks ?? [];
 
   const [selectedSphere, setSelectedSphere] = useState<Sphere | "all">("all");

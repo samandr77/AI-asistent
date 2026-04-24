@@ -1,3 +1,4 @@
+from __future__ import annotations
 from openai import AsyncOpenAI
 from database import get_supabase
 from config import settings

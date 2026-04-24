@@ -12,13 +12,24 @@ import { useRouter } from "expo-router";
 import { useVoiceRecorder } from "../../services/audio";
 import { dumpText, dumpVoice } from "../../services/api";
 import VoiceWave from "../../components/VoiceWave";
+import { isVoiceRecordingSupported } from "../../services/audio";
 
 export default function Dump() {
   const router = useRouter();
   const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
-  const [mode, setMode] = useState<"voice" | "text">("voice");
+  const [mode, setMode] = useState<"voice" | "text">(
+    isVoiceRecordingSupported ? "voice" : "text",
+  );
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
+
+  function handleDumpError(e: any) {
+    if (e?.response?.status === 402 || e?.status === 402) {
+      router.push("/(app)/paywall");
+      return;
+    }
+    Alert.alert("Ошибка", e.message ?? "Не удалось обработать");
+  }
 
   async function handleVoiceStop() {
     const uri = await stopRecording();
@@ -31,7 +42,7 @@ export default function Dump() {
         params: { data: JSON.stringify(result) },
       });
     } catch (e: any) {
-      Alert.alert("Ошибка", e.message ?? "Не удалось обработать запись");
+      handleDumpError(e);
     } finally {
       setLoading(false);
     }
@@ -47,7 +58,7 @@ export default function Dump() {
         params: { data: JSON.stringify(result) },
       });
     } catch (e: any) {
-      Alert.alert("Ошибка", e.message ?? "Не удалось обработать текст");
+      handleDumpError(e);
     } finally {
       setLoading(false);
     }
@@ -56,12 +67,14 @@ export default function Dump() {
   return (
     <View style={styles.container}>
       <View style={styles.toggle}>
-        <Pressable
-          style={[styles.tab, mode === "voice" && styles.tabActive]}
-          onPress={() => setMode("voice")}
-        >
-          <Text style={styles.tabText}>🎤 Голос</Text>
-        </Pressable>
+        {isVoiceRecordingSupported && (
+          <Pressable
+            style={[styles.tab, mode === "voice" && styles.tabActive]}
+            onPress={() => setMode("voice")}
+          >
+            <Text style={styles.tabText}>🎤 Голос</Text>
+          </Pressable>
+        )}
         <Pressable
           style={[styles.tab, mode === "text" && styles.tabActive]}
           onPress={() => setMode("text")}
@@ -69,6 +82,12 @@ export default function Dump() {
           <Text style={styles.tabText}>⌨️ Текст</Text>
         </Pressable>
       </View>
+
+      {!isVoiceRecordingSupported && (
+        <Text style={styles.desktopHint}>
+          В desktop/web версии сейчас доступен текстовый ввод.
+        </Text>
+      )}
 
       {loading ? (
         <View style={styles.center}>
@@ -125,6 +144,11 @@ const styles = StyleSheet.create({
   tab: { flex: 1, padding: 10, borderRadius: 10, alignItems: "center" },
   tabActive: { backgroundColor: "#4F8EF7" },
   tabText: { color: "#fff", fontSize: 15 },
+  desktopHint: {
+    color: "#777",
+    fontSize: 13,
+    marginBottom: 12,
+  },
   center: { flex: 1, alignItems: "center", justifyContent: "center", gap: 24 },
   mic: {
     width: 100,

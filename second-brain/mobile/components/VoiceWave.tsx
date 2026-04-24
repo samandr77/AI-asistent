@@ -7,10 +7,11 @@ interface Props {
 
 export default function VoiceWave({ isRecording }: Props) {
   const scale = useRef(new Animated.Value(1)).current;
+  const animRef = useRef<Animated.CompositeAnimation | null>(null);
 
   useEffect(() => {
     if (isRecording) {
-      Animated.loop(
+      animRef.current = Animated.loop(
         Animated.sequence([
           Animated.timing(scale, {
             toValue: 1.4,
@@ -23,11 +24,16 @@ export default function VoiceWave({ isRecording }: Props) {
             useNativeDriver: true,
           }),
         ]),
-      ).start();
+      );
+      animRef.current.start();
     } else {
-      scale.stopAnimation();
+      animRef.current?.stop();
+      animRef.current = null;
       scale.setValue(1);
     }
+    return () => {
+      animRef.current?.stop();
+    };
   }, [isRecording]);
 
   return (

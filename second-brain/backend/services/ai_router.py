@@ -1,19 +1,37 @@
+from __future__ import annotations
 import asyncio
 import logging
 from enum import Enum
-from groq import AsyncGroq
-from anthropic import AsyncAnthropic
 from config import settings
+
+try:
+    from groq import AsyncGroq
+except ModuleNotFoundError:  # pragma: no cover - optional local dependency
+    AsyncGroq = None  # type: ignore[assignment]
+
+try:
+    from anthropic import AsyncAnthropic
+except ModuleNotFoundError:  # pragma: no cover - optional local dependency
+    AsyncAnthropic = None  # type: ignore[assignment]
 
 logger = logging.getLogger(__name__)
 
 class AITier(str, Enum):
-    cheap = "cheap"      # Groq Llama 3.3 70B: $0.59/M in, $0.79/M out
+    cheap = "cheap"      # Groq if configured, otherwise Claude Haiku
     medium = "medium"    # Claude Haiku 4.5:   $0.80/M in, $4/M out
     premium = "premium"  # Claude Sonnet 4.6:  $3/M in,   $15/M out
 
-groq_client = AsyncGroq(api_key=settings.groq_api_key)
-anthropic_client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+groq_client = (
+    AsyncGroq(api_key=settings.groq_api_key)
+    if AsyncGroq and settings.groq_api_key
+    else None
+)
+anthropic_client = None
+if AsyncAnthropic and settings.anthropic_api_key:
+    anthropic_kwargs = {"api_key": settings.anthropic_api_key}
+    if settings.anthropic_base_url:
+        anthropic_kwargs["base_url"] = settings.anthropic_base_url
+    anthropic_client = AsyncAnthropic(**anthropic_kwargs)
 
 _FALLBACK: dict[AITier, AITier | None] = {
     AITier.cheap: AITier.medium,
@@ -23,6 +41,8 @@ _FALLBACK: dict[AITier, AITier | None] = {
 
 
 async def _call_groq(system: str, user: str, max_tokens: int) -> str:
+    if groq_client is None:
+        raise RuntimeError("Groq client is not configured")
     resp = await groq_client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
@@ -36,6 +56,8 @@ async def _call_groq(system: str, user: str, max_tokens: int) -> str:
 
 
 async def _call_anthropic(model: str, system: str, user: str, max_tokens: int) -> str:
+    if anthropic_client is None:
+        raise RuntimeError("Anthropic client is not installed")
     resp = await anthropic_client.messages.create(
         model=model,
         system=system,
@@ -46,7 +68,11 @@ async def _call_anthropic(model: str, system: str, user: str, max_tokens: int) -
 
 
 _CALLERS = {
-    AITier.cheap: lambda s, u, t: _call_groq(s, u, t),
+    AITier.cheap: lambda s, u, t: (
+        _call_groq(s, u, t)
+        if groq_client is not None
+        else _call_anthropic("claude-haiku-4-5-20251001", s, u, t)
+    ),
     AITier.medium: lambda s, u, t: _call_anthropic("claude-haiku-4-5-20251001", s, u, t),
     AITier.premium: lambda s, u, t: _call_anthropic("claude-sonnet-4-6", s, u, t),
 }

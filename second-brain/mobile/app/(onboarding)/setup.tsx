@@ -1,8 +1,16 @@
 import { useState } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useAppStore } from "../../store/useAppStore";
-import axios from "axios";
+import { upsertProfile } from "../../services/api";
 
 type Role = "mom" | "freelancer" | "student" | "entrepreneur" | "other";
 type PeakHours = "morning" | "afternoon" | "evening";
@@ -23,33 +31,54 @@ const PEAK_HOURS: { id: PeakHours; label: string }[] = [
 
 export default function Setup() {
   const router = useRouter();
-  const { setUser, user } = useAppStore();
+  const { setUser, setOnboarded, user } = useAppStore();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [role, setRole] = useState<Role | null>(null);
   const [peakHours, setPeakHours] = useState<PeakHours | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function handleNext() {
-    if (step < 2) {
+    if (step === 0) {
+      if (name.trim() === "") return;
       setStep(step + 1);
       return;
     }
+    if (step === 1) {
+      if (role === null) return;
+      setStep(step + 1);
+      return;
+    }
+    if (peakHours === null) return;
+    if (!user) {
+      Alert.alert("Нужно войти в аккаунт");
+      router.replace("/(onboarding)/welcome");
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/profile`, {
-        name,
-        role,
-        peak_hours: peakHours,
-      });
-      setUser({
-        ...(user ?? { id: "" }),
+      setUser({ ...user, name, role: role!, peak_hours: peakHours! });
+      setOnboarded(false);
+
+      const profile = await upsertProfile({
         name,
         role: role ?? undefined,
-        peak_hours: peakHours ?? undefined,
+        peak_hours: peakHours,
+        is_onboarded: false,
       });
-    } catch {
-      /* continue even if profile save fails */
+      setUser({
+        ...user,
+        ...profile,
+        email: user.email,
+      });
+      router.push("/(onboarding)/first-dump");
+    } catch (e: any) {
+      Alert.alert("Ошибка", e.message ?? "Не удалось сохранить профиль");
+    } finally {
+      setLoading(false);
     }
-    router.push("/(onboarding)/first-dump");
   }
 
   return (
@@ -95,10 +124,18 @@ export default function Setup() {
           ))}
         </>
       )}
-      <Pressable style={styles.next} onPress={handleNext}>
-        <Text style={styles.nextText}>
-          {step < 2 ? "Далее →" : "Поехали! 🚀"}
-        </Text>
+      <Pressable
+        style={[styles.next, loading && styles.nextDisabled]}
+        onPress={handleNext}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.nextText}>
+            {step < 2 ? "Далее →" : "Продолжить"}
+          </Text>
+        )}
       </Pressable>
     </View>
   );
@@ -136,5 +173,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 32,
   },
+  nextDisabled: { opacity: 0.7 },
   nextText: { color: "#fff", fontSize: 18, fontWeight: "600" },
 });

@@ -1,11 +1,11 @@
-import { Pressable, Text, StyleSheet } from "react-native";
+import { Platform, Pressable, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 
 export default function DumpButton() {
   const router = useRouter();
   return (
     <Pressable style={styles.fab} onPress={() => router.push("/(app)/dump")}>
-      <Text style={styles.icon}>🎤</Text>
+      <Text style={styles.icon}>{Platform.OS === "web" ? "＋" : "🎤"}</Text>
     </Pressable>
   );
 }

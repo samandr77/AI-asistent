@@ -12,7 +12,7 @@ export default function SphereTab({ sphere, count, isActive, onPress }: Props) {
   const info =
     sphere === "all"
       ? { icon: "📋", label: "Все", color: "#6b7280" }
-      : SPHERE_MAP[sphere];
+      : (SPHERE_MAP[sphere] ?? { icon: "?", label: sphere, color: "#999" });
   return (
     <Pressable
       onPress={onPress}

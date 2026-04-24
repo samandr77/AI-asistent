@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { Task, useAppStore } from "../store/useAppStore";
 import { SPHERE_MAP } from "../constants/spheres";
@@ -17,10 +18,17 @@ const PRIORITY_COLOR: Record<number, string> = {
 export default function TaskCard({ task, onPress }: Props) {
   const { updateTask: updateStore } = useAppStore();
   const sphere = SPHERE_MAP[task.sphere];
+  const isPending = useRef(false);
 
   async function handleDone() {
-    await updateTask(task.id, { is_done: true });
-    updateStore(task.id, { is_done: true });
+    if (isPending.current) return;
+    isPending.current = true;
+    try {
+      await updateTask(task.id, { is_done: true });
+      updateStore(task.id, { is_done: true });
+    } finally {
+      isPending.current = false;
+    }
   }
 
   return (
@@ -34,6 +42,7 @@ export default function TaskCard({ task, onPress }: Props) {
           <Text style={styles.sphere}>
             {sphere?.icon} {sphere?.label}
           </Text>
+          {task.goal_id && <Text style={styles.goalBadge}>🎯</Text>}
           {task.deadline && (
             <Text style={styles.deadline}>
               📅 {new Date(task.deadline).toLocaleDateString("ru")}
@@ -41,7 +50,11 @@ export default function TaskCard({ task, onPress }: Props) {
           )}
         </View>
       </View>
-      <Pressable onPress={handleDone} style={styles.doneBtn}>
+      <Pressable
+        onPress={handleDone}
+        style={styles.doneBtn}
+        onStartShouldSetResponder={() => true}
+      >
         <Text style={{ color: PRIORITY_COLOR[task.priority] }}>✓</Text>
       </Pressable>
     </Pressable>
@@ -61,6 +74,7 @@ const styles = StyleSheet.create({
   title: { color: "#fff", fontSize: 15, fontWeight: "500" },
   meta: { flexDirection: "row", gap: 12, marginTop: 4 },
   sphere: { color: "#888", fontSize: 12 },
+  goalBadge: { fontSize: 12 },
   deadline: { color: "#888", fontSize: 12 },
   doneBtn: { justifyContent: "center", paddingHorizontal: 16 },
 });
