@@ -54,11 +54,33 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+let onUnauthorized: (() => Promise<void>) | null = null;
+
+export function registerUnauthorizedHandler(handler: () => Promise<void>) {
+  onUnauthorized = handler;
+}
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const status = error.response?.status;
     const detail = error.response?.data?.detail ?? error.message;
+    if (status === 401) {
+      try {
+        const { data: refreshed, error: refreshError } =
+          await supabase.auth.refreshSession();
+        if (refreshError || !refreshed?.session) {
+          await supabase.auth.signOut();
+          if (onUnauthorized) await onUnauthorized();
+        } else if (error.config) {
+          error.config.headers.Authorization = `Bearer ${refreshed.session.access_token}`;
+          return api.request(error.config);
+        }
+      } catch {
+        await supabase.auth.signOut();
+        if (onUnauthorized) await onUnauthorized();
+      }
+    }
     const appError = new Error(detail);
     (appError as any).status = status;
     return Promise.reject(appError);

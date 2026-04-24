@@ -7,7 +7,13 @@ import {
 } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
-import { getAllTasks, getMe, getTodayTasks, supabase } from "../services/api";
+import {
+  getAllTasks,
+  getMe,
+  getTodayTasks,
+  registerUnauthorizedHandler,
+  supabase,
+} from "../services/api";
 import {
   initRevenueCat,
   logInToRevenueCat,
@@ -56,6 +62,12 @@ function RootLayout() {
     void drainQueue();
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    registerUnauthorizedHandler(async () => {
+      router.replace("/(onboarding)/welcome");
+    });
+  }, [router]);
 
   useEffect(() => {
     if (!isGoogleSignInConfigured()) return;
