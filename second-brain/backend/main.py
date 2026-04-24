@@ -1,27 +1,42 @@
+import logging
+from contextlib import asynccontextmanager
+
+import sentry_sdk
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+
+from api import auth, dump, goals, memory, premium, reflections, revenuecat_webhook, tasks
 from config import settings
-from api import dump, tasks, auth, memory, goals, reflections, premium, revenuecat_webhook
 
-try:
-    from slowapi import Limiter, _rate_limit_exceeded_handler
-    from slowapi.util import get_remote_address
-    from slowapi.errors import RateLimitExceeded
-except ModuleNotFoundError:  # pragma: no cover - local/dev fallback
-    class Limiter:  # type: ignore[override]
-        def __init__(self, key_func=None):
-            self.key_func = key_func
+logger = logging.getLogger(__name__)
 
-    def get_remote_address(*_args, **_kwargs):
-        return "127.0.0.1"
 
-    class RateLimitExceeded(Exception):
-        pass
+def _init_sentry() -> None:
+    if not settings.sentry_dsn:
+        logger.warning("Sentry DSN not set — errors will not be reported")
+        return
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        environment=settings.environment,
+        traces_sample_rate=0.2,
+        integrations=[FastApiIntegration()],
+        send_default_pii=False,
+    )
+    logger.info("Sentry initialized (env=%s)", settings.environment)
 
-    async def _rate_limit_exceeded_handler(*_args, **_kwargs):
-        return None
 
-app = FastAPI(title="Second Brain API")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+
+
+_init_sentry()
+
+app = FastAPI(title="Second Brain API", lifespan=lifespan)
 
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
@@ -29,7 +44,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins.split(","),
+    allow_origins=[o.strip() for o in settings.allowed_origins.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,6 +59,16 @@ app.include_router(reflections.router, prefix="/reflections", tags=["reflections
 app.include_router(premium.router, prefix="/premium", tags=["premium"])
 app.include_router(revenuecat_webhook.router, prefix="/webhooks", tags=["webhooks"])
 
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
+
+@app.get("/health/ready")
+async def readiness():
+    return {
+        "status": "ok",
+        "environment": settings.environment,
+        "sentry": bool(settings.sentry_dsn),
+    }
