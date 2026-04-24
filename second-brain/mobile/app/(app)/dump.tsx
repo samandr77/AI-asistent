@@ -16,7 +16,9 @@ import { isVoiceRecordingSupported } from "../../services/audio";
 
 export default function Dump() {
   const router = useRouter();
-  const { isRecording, startRecording, stopRecording } = useVoiceRecorder();
+  const { isRecording, startRecording, stopRecording, elapsedMs } =
+    useVoiceRecorder();
+  const remainingSec = Math.max(0, Math.ceil((180_000 - elapsedMs) / 1000));
   const [mode, setMode] = useState<"voice" | "text">(
     isVoiceRecordingSupported ? "voice" : "text",
   );
@@ -104,7 +106,9 @@ export default function Dump() {
             <Text style={{ fontSize: 36 }}>{isRecording ? "⏹" : "🎤"}</Text>
           </Pressable>
           <Text style={styles.hint}>
-            {isRecording ? "Нажми чтобы остановить" : "Нажми чтобы начать"}
+            {isRecording
+              ? `Осталось ${remainingSec}с — нажми чтобы остановить`
+              : "Нажми чтобы начать"}
           </Text>
         </View>
       ) : (
