@@ -1,0 +1,111 @@
+{
+  "common": {
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "save": "Сохранить",
+    "delete": "Удалить",
+    "edit": "Изменить",
+    "close": "Закрыть",
+    "retry": "Повторить",
+    "back": "Назад",
+    "next": "Далее",
+    "done": "Готово",
+    "loading": "Загрузка...",
+    "error_generic": "Что-то пошло не так",
+    "upgrade_premium": "Открыть Premium",
+    "user_fallback": "Пользователь"
+  },
+  "profile": {
+    "stats_tasks": "задач",
+    "stats_completed": "выполнено",
+    "stats_progress": "прогресс",
+    "premium_active": "Premium активен",
+    "premium_until": "до {{date}}",
+    "premium_cta": "Получить Премиум — $4.99/мес",
+    "signed_in_apple": "Вошёл через Apple",
+    "signed_in_google": "Вошёл через Google",
+    "signed_in_other": "Вошёл через {{provider}}",
+    "row_notifications": "Ежедневные напоминания",
+    "row_restore_purchases": "Восстановить покупки",
+    "row_reflection": "Рефлексия",
+    "row_sign_out": "Выйти",
+    "row_delete_account": "Удалить аккаунт",
+    "ai_context_title": "Контекст AI",
+    "notifications_granted": "Уведомления включены ✓",
+    "notifications_denied": "Нет разрешения",
+    "streak_days_short": "{{count}} дн. подряд",
+    "delete_title": "Удалить аккаунт?",
+    "delete_body": "Все ваши задачи, цели и рефлексии будут удалены навсегда через 30 дней. Восстановить данные будет невозможно.",
+    "delete_active_subscription_warning": "Важно: у вас активная подписка. Удаление аккаунта НЕ отменяет её — отмените в App Store / Google Play.",
+    "delete_confirm": "Удалить навсегда",
+    "delete_error_title": "Ошибка",
+    "delete_error_body": "Не удалось удалить аккаунт. Попробуйте позже."
+  },
+  "paywall": {
+    "title": "Premium",
+    "subtitle": "Разблокируй всё, чтобы Second Brain работал на полную",
+    "feature_unlimited_dumps": "Безлимитные дампы каждый день",
+    "feature_unlimited_goals": "Неограниченное количество целей",
+    "feature_full_history": "Полная история задач",
+    "feature_priority_ai": "Приоритетная обработка через Claude Sonnet",
+    "price_per_month": "/месяц",
+    "buy": "Начать Premium",
+    "restore": "Восстановить покупки",
+    "restore_not_found_title": "Покупки не найдены",
+    "restore_not_found_body": "Активных подписок не обнаружено.",
+    "restore_error_title": "Ошибка",
+    "restore_error_body": "Не удалось восстановить покупки",
+    "buy_error_title": "Ошибка покупки",
+    "buy_error_body": "Попробуй ещё раз",
+    "legal_footer": "Подписка автоматически продлевается. Отмена — в настройках магазина.",
+    "legal_privacy": "Политика конфиденциальности",
+    "legal_terms": "Условия"
+  },
+  "all": {
+    "cutoff_banner": "История ограничена {{days}} днями — старые задачи доступны в Premium",
+    "empty": "Задач пока нет"
+  },
+  "dump": {
+    "placeholder": "Что в голове?",
+    "record_hint": "Нажми, чтобы говорить",
+    "processing": "Обрабатываем...",
+    "error_title": "Не получилось",
+    "error_body": "Попробуй записать заново"
+  },
+  "result": {
+    "title": "Что получилось",
+    "today_top3": "Топ-3 на сегодня",
+    "all_tasks": "Все задачи",
+    "save_all": "Сохранить всё",
+    "discard": "Отклонить"
+  },
+  "onboarding": {
+    "welcome_title": "Second Brain",
+    "welcome_subtitle": "AI-помощник для тех, у кого в голове слишком много всего",
+    "welcome_cta": "Начать",
+    "sign_in_apple": "Войти через Apple",
+    "sign_in_google": "Войти через Google",
+    "sign_in_email": "Войти по email"
+  },
+  "goals": {
+    "title": "Цели",
+    "add": "Добавить цель",
+    "empty": "Целей пока нет — добавьте первую"
+  },
+  "reflection": {
+    "title": "Вечерняя рефлексия",
+    "mood_q": "Как настроение?",
+    "energy_q": "Сколько энергии?",
+    "notes_placeholder": "Что запомнилось сегодня?",
+    "submit": "Сохранить"
+  },
+  "task": {
+    "priority_high": "Высокий",
+    "priority_medium": "Средний",
+    "priority_low": "Низкий",
+    "is_today": "Сегодня",
+    "mark_done": "Отметить выполненной",
+    "mark_undone": "Вернуть в активные",
+    "deadline_label": "Дедлайн"
+  }
+}

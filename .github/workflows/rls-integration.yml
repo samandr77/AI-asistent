@@ -1,0 +1,42 @@
+name: RLS Integration Tests
+
+# Manual-only: mutates a dev Supabase project (creates/deletes test users).
+# Do NOT run on push or PR — too slow and side-effectful.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "i-understand" to confirm this will create+delete rows in dev Supabase'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  rls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ inputs.confirm == 'i-understand' }}
+    defaults:
+      run:
+        working-directory: second-brain/backend
+    env:
+      SUPABASE_URL: ${{ secrets.DEV_SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.DEV_SUPABASE_SERVICE_KEY }}
+      SUPABASE_ANON_KEY: ${{ secrets.DEV_SUPABASE_ANON_KEY }}
+      SUPABASE_JWT_SECRET: ${{ secrets.DEV_SUPABASE_JWT_SECRET }}
+      ANTHROPIC_API_KEY: "placeholder-not-used-by-rls-tests"
+      REVENUECAT_WEBHOOK_SECRET: "placeholder-not-used-by-rls-tests"
+      ADMIN_CLEANUP_SECRET: "placeholder-not-used-by-rls-tests"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run RLS integration suite
+        run: pytest -m integration -v tests/test_supabase_rls.py

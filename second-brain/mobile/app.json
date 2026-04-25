@@ -60,10 +60,13 @@
           "project": "second-brain-mobile",
           "organization": "YOUR_ORG_SLUG"
         }
-      ]
+      ],
+      "./plugins/withPrivacyManifest.js"
     ],
     "extra": {
-      "router": {}
+      "router": {},
+      "privacyUrl": "https://second-brain.app/privacy",
+      "termsUrl": "https://second-brain.app/terms"
     }
   }
 }

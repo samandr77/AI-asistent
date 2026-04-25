@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from auth import get_current_user_id
 from database import get_supabase
+from services.premium import get_history_cutoff, get_user_premium
 
 router = APIRouter()
 
@@ -21,16 +22,18 @@ class TaskUpdate(BaseModel):
 @router.get("/today")
 async def get_today_tasks(user_id: str = Depends(get_current_user_id)):
     db = get_supabase()
-    result = (
+    premium = await get_user_premium(user_id)
+    cutoff = get_history_cutoff(premium)
+    q = (
         db.table("tasks")
         .select("*")
         .eq("user_id", user_id)
         .eq("is_today", True)
         .eq("is_done", False)
-        .order("priority", desc=True)
-        .limit(3)
-        .execute()
     )
+    if cutoff is not None:
+        q = q.gte("created_at", cutoff.isoformat())
+    result = q.order("priority", desc=True).limit(3).execute()
     return result.data
 
 @router.get("/")
@@ -41,9 +44,13 @@ async def get_all_tasks(
     user_id: str = Depends(get_current_user_id),
 ):
     db = get_supabase()
+    premium = await get_user_premium(user_id)
+    cutoff = get_history_cutoff(premium)
     q = db.table("tasks").select("*").eq("user_id", user_id).eq("is_done", False)
     if sphere:
         q = q.eq("sphere", sphere)
+    if cutoff is not None:
+        q = q.gte("created_at", cutoff.isoformat())
     result = q.order("priority", desc=True).range(offset, offset + limit - 1).execute()
     return result.data
 

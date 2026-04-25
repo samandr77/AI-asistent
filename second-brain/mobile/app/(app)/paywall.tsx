@@ -6,8 +6,11 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Linking,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
+import Constants from "expo-constants";
 import {
   buyPremium,
   restorePurchases,
@@ -15,17 +18,31 @@ import {
 } from "../../services/purchases";
 import { useAppStore } from "../../store/useAppStore";
 
-const FEATURES = [
-  { label: "Безлимитные дампы каждый день" },
-  { label: "Неограниченное количество целей" },
-  { label: "Полная история задач" },
-  { label: "Приоритетная обработка через Claude Sonnet" },
-];
+const FALLBACK_PRIVACY_URL = "https://second-brain.app/privacy";
+const FALLBACK_TERMS_URL = "https://second-brain.app/terms";
+
+function getLegalUrl(key: "privacyUrl" | "termsUrl"): string {
+  const extra = Constants.expoConfig?.extra as
+    | Record<string, string>
+    | undefined;
+  const fallback =
+    key === "privacyUrl" ? FALLBACK_PRIVACY_URL : FALLBACK_TERMS_URL;
+  const value = extra?.[key];
+  return typeof value === "string" && value.length > 0 ? value : fallback;
+}
 
 export default function Paywall() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { setPremium } = useAppStore();
   const [loading, setLoading] = useState(false);
+
+  const features = [
+    t("paywall.feature_unlimited_dumps"),
+    t("paywall.feature_unlimited_goals"),
+    t("paywall.feature_full_history"),
+    t("paywall.feature_priority_ai"),
+  ];
 
   async function handleBuy() {
     setLoading(true);
@@ -37,7 +54,10 @@ export default function Paywall() {
         router.back();
       }
     } catch (e: any) {
-      Alert.alert("Ошибка покупки", e.message ?? "Попробуй ещё раз");
+      Alert.alert(
+        t("paywall.buy_error_title"),
+        e.message ?? t("paywall.buy_error_body"),
+      );
     } finally {
       setLoading(false);
     }
@@ -52,10 +72,16 @@ export default function Paywall() {
         setPremium(status);
         router.back();
       } else {
-        Alert.alert("Покупки не найдены", "Активных подписок не обнаружено.");
+        Alert.alert(
+          t("paywall.restore_not_found_title"),
+          t("paywall.restore_not_found_body"),
+        );
       }
     } catch (e: any) {
-      Alert.alert("Ошибка", e.message ?? "Не удалось восстановить покупки");
+      Alert.alert(
+        t("paywall.restore_error_title"),
+        e.message ?? t("paywall.restore_error_body"),
+      );
     } finally {
       setLoading(false);
     }
@@ -64,26 +90,24 @@ export default function Paywall() {
   return (
     <View style={styles.container}>
       <Pressable style={styles.closeBtn} onPress={() => router.back()}>
-        <Text style={styles.closeTxt}>Закрыть</Text>
+        <Text style={styles.closeTxt}>{t("common.close")}</Text>
       </Pressable>
 
-      <Text style={styles.title}>Premium</Text>
-      <Text style={styles.subtitle}>
-        Разблокируй всё, чтобы Second Brain работал на полную
-      </Text>
+      <Text style={styles.title}>{t("paywall.title")}</Text>
+      <Text style={styles.subtitle}>{t("paywall.subtitle")}</Text>
 
       <View style={styles.features}>
-        {FEATURES.map((f) => (
-          <View key={f.label} style={styles.featureRow}>
+        {features.map((label) => (
+          <View key={label} style={styles.featureRow}>
             <Text style={styles.checkmark}>✓</Text>
-            <Text style={styles.featureText}>{f.label}</Text>
+            <Text style={styles.featureText}>{label}</Text>
           </View>
         ))}
       </View>
 
       <View style={styles.pricingCard}>
         <Text style={styles.price}>$4.99</Text>
-        <Text style={styles.pricePeriod}>/месяц</Text>
+        <Text style={styles.pricePeriod}>{t("paywall.price_per_month")}</Text>
       </View>
 
       {loading ? (
@@ -91,18 +115,26 @@ export default function Paywall() {
       ) : (
         <>
           <Pressable style={styles.buyBtn} onPress={handleBuy}>
-            <Text style={styles.buyTxt}>Начать Premium</Text>
+            <Text style={styles.buyTxt}>{t("paywall.buy")}</Text>
           </Pressable>
 
           <Pressable style={styles.restoreBtn} onPress={handleRestore}>
-            <Text style={styles.restoreTxt}>Восстановить покупки</Text>
+            <Text style={styles.restoreTxt}>{t("paywall.restore")}</Text>
           </Pressable>
         </>
       )}
 
-      <Text style={styles.legal}>
-        Подписка автоматически продлевается. Отмена — в настройках магазина.
-      </Text>
+      <Text style={styles.legal}>{t("paywall.legal_footer")}</Text>
+
+      <View style={styles.legalLinks}>
+        <Pressable onPress={() => Linking.openURL(getLegalUrl("privacyUrl"))}>
+          <Text style={styles.legalLink}>{t("paywall.legal_privacy")}</Text>
+        </Pressable>
+        <Text style={styles.legalDivider}>·</Text>
+        <Pressable onPress={() => Linking.openURL(getLegalUrl("termsUrl"))}>
+          <Text style={styles.legalLink}>{t("paywall.legal_terms")}</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -162,4 +194,16 @@ const styles = StyleSheet.create({
     marginTop: 24,
     lineHeight: 16,
   },
+  legalLinks: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 12,
+  },
+  legalLink: {
+    color: "#888",
+    fontSize: 12,
+    textDecorationLine: "underline",
+  },
+  legalDivider: { color: "#444", fontSize: 12 },
 });

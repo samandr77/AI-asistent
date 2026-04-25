@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     supabase_jwt_secret: str
     anthropic_api_key: str
     revenuecat_webhook_secret: str
+    admin_cleanup_secret: str
 
     # Optional with safe defaults
     openai_api_key: str = ""

@@ -1,0 +1,5 @@
+-r requirements.txt
+
+# Dev-only: used for local cleanup-job scheduling experiments. Production uses
+# GitHub Actions cron → POST /admin/cleanup-deleted. Not a runtime dependency.
+apscheduler==3.10.4

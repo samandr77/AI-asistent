@@ -1,0 +1,111 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "retry": "Retry",
+    "back": "Back",
+    "next": "Next",
+    "done": "Done",
+    "loading": "Loading...",
+    "error_generic": "Something went wrong",
+    "upgrade_premium": "Unlock Premium",
+    "user_fallback": "User"
+  },
+  "profile": {
+    "stats_tasks": "tasks",
+    "stats_completed": "done",
+    "stats_progress": "progress",
+    "premium_active": "Premium active",
+    "premium_until": "until {{date}}",
+    "premium_cta": "Go Premium — $4.99/mo",
+    "signed_in_apple": "Signed in with Apple",
+    "signed_in_google": "Signed in with Google",
+    "signed_in_other": "Signed in with {{provider}}",
+    "row_notifications": "Daily reminders",
+    "row_restore_purchases": "Restore purchases",
+    "row_reflection": "Reflection",
+    "row_sign_out": "Sign out",
+    "row_delete_account": "Delete account",
+    "ai_context_title": "AI Context",
+    "notifications_granted": "Notifications enabled ✓",
+    "notifications_denied": "Permission denied",
+    "streak_days_short": "{{count}}-day streak",
+    "delete_title": "Delete account?",
+    "delete_body": "All your tasks, goals and reflections will be permanently erased in 30 days. There is no way to recover them.",
+    "delete_active_subscription_warning": "Note: you have an active subscription. Deleting your account does NOT cancel it — cancel it in the App Store / Google Play.",
+    "delete_confirm": "Delete forever",
+    "delete_error_title": "Error",
+    "delete_error_body": "Could not delete account. Please try again later."
+  },
+  "paywall": {
+    "title": "Premium",
+    "subtitle": "Unlock everything so Second Brain runs at full capacity",
+    "feature_unlimited_dumps": "Unlimited daily voice dumps",
+    "feature_unlimited_goals": "Unlimited goals",
+    "feature_full_history": "Full task history",
+    "feature_priority_ai": "Priority processing with Claude Sonnet",
+    "price_per_month": "/month",
+    "buy": "Start Premium",
+    "restore": "Restore purchases",
+    "restore_not_found_title": "No purchases found",
+    "restore_not_found_body": "No active subscriptions detected.",
+    "restore_error_title": "Error",
+    "restore_error_body": "Could not restore purchases",
+    "buy_error_title": "Purchase error",
+    "buy_error_body": "Please try again",
+    "legal_footer": "Subscription auto-renews. Cancel anytime in store settings.",
+    "legal_privacy": "Privacy Policy",
+    "legal_terms": "Terms"
+  },
+  "all": {
+    "cutoff_banner": "History limited to {{days}} days — older tasks are in Premium",
+    "empty": "No tasks yet"
+  },
+  "dump": {
+    "placeholder": "What's on your mind?",
+    "record_hint": "Tap to speak",
+    "processing": "Processing...",
+    "error_title": "It didn't work",
+    "error_body": "Try recording again"
+  },
+  "result": {
+    "title": "Here's what I got",
+    "today_top3": "Top 3 for today",
+    "all_tasks": "All tasks",
+    "save_all": "Save all",
+    "discard": "Discard"
+  },
+  "onboarding": {
+    "welcome_title": "Second Brain",
+    "welcome_subtitle": "AI assistant for people with too much on their mind",
+    "welcome_cta": "Get started",
+    "sign_in_apple": "Sign in with Apple",
+    "sign_in_google": "Sign in with Google",
+    "sign_in_email": "Sign in by email"
+  },
+  "goals": {
+    "title": "Goals",
+    "add": "Add goal",
+    "empty": "No goals yet — add your first"
+  },
+  "reflection": {
+    "title": "Evening reflection",
+    "mood_q": "How's your mood?",
+    "energy_q": "Energy level?",
+    "notes_placeholder": "What stood out today?",
+    "submit": "Save"
+  },
+  "task": {
+    "priority_high": "High",
+    "priority_medium": "Medium",
+    "priority_low": "Low",
+    "is_today": "Today",
+    "mark_done": "Mark as done",
+    "mark_undone": "Move back to active",
+    "deadline_label": "Deadline"
+  }
+}

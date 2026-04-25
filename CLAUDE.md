@@ -20,8 +20,14 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
 ## Структура
 - `second-brain/backend/` — FastAPI app (api/, services/, models/, tests/)
 - `second-brain/mobile/` — Expo app (app/ Router screens, services/, store/, components/)
-- `second-brain/supabase/migrations/` — SQL миграции (001–007)
+- `second-brain/supabase/migrations/` — SQL миграции (001–009; 009 — account deletion)
 - `second-brain/docs/` — setup guides (`oauth-setup.md`, `revenuecat-setup.md`)
+- `second-brain/mobile/locales/` — i18n resources (`ru.json`, `en.json`)
+- `second-brain/mobile/plugins/withPrivacyManifest.js` — Expo config plugin, копирует `ios/PrivacyInfo.xcprivacy.template.plist` в билд
+- `docs/legal/` — privacy policy + terms (RU/EN)
+- `docs/legal-site/` — Next.js сайт, рендерит `docs/legal/*.md` на `https://second-brain.app/privacy|/terms`
+- `docs/store-listing/` — App Store / Play Console тексты + placeholder-скриншоты
+- `docs/runbooks/` — operational runbooks (`account-cleanup.md`)
 - `docs/superpowers/plans/` — Superpowers-style планы (реализация + reliability)
 - `.specify/` — Spec Kit artefacts (gitignored, локально)
   - `memory/constitution.md` — v1.0.0, 7 принципов, обязательны для всех новых фич
@@ -29,6 +35,7 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
   - `specs/002-evening-reflection/` — Reflection
   - `specs/003-oauth-signin/` — OAuth
   - `specs/004-paywall-premium/` — Paywall
+  - `specs/005-production-readiness/` — Production readiness (account deletion, history cutoff, i18n, RLS tests, store listing)
 
 ## Команды
 
@@ -58,6 +65,13 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
 - EAS secrets — mobile build-time (`EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`, `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, `EXPO_PUBLIC_REVENUECAT_IOS_API_KEY`, `EXPO_PUBLIC_REVENUECAT_ANDROID_API_KEY`)
 
 ## Release checklist
-- `second-brain/RELEASE_CHECKLIST.md` — 9 шагов до прода
+- `second-brain/RELEASE_CHECKLIST.md` — 12 шагов до прода (обновлён в 005-production-readiness)
 - OAuth активация: `second-brain/docs/oauth-setup.md`
 - RevenueCat активация: `second-brain/docs/revenuecat-setup.md`
+- Cleanup-cron runbook: `docs/runbooks/account-cleanup.md`
+- Legal site deploy: `docs/legal-site/README.md`
+
+## Admin / automation
+- `DELETE /auth/account` — soft-delete, grace 30 дней. Тесты: `backend/tests/test_account_deletion.py`.
+- `POST /admin/cleanup-deleted` — hard-delete по истечении grace. Secret: `ADMIN_CLEANUP_SECRET`. Cron: `.github/workflows/cleanup-cron.yml` (ежедневно 04:15 UTC).
+- RLS integration suite: `backend/tests/test_supabase_rls.py` (marker: `integration`). Запуск вручную через `.github/workflows/rls-integration.yml`.

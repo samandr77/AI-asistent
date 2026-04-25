@@ -342,3 +342,13 @@ export async function getReflectionStats(): Promise<ReflectionStats> {
 export async function deleteReflection(id: string): Promise<void> {
   await api.delete(`/reflections/${id}`);
 }
+
+export interface AccountDeletionResponse {
+  status: "scheduled";
+  scheduled_for: string;
+}
+
+export async function deleteAccount(): Promise<AccountDeletionResponse> {
+  const { data } = await api.delete("/auth/account");
+  return data;
+}

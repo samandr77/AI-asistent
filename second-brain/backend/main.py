@@ -9,7 +9,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from api import auth, dump, goals, memory, premium, reflections, revenuecat_webhook, tasks
+from api import admin, auth, dump, goals, memory, premium, reflections, revenuecat_webhook, tasks
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -58,6 +58,7 @@ app.include_router(goals.router, prefix="/goals", tags=["goals"])
 app.include_router(reflections.router, prefix="/reflections", tags=["reflections"])
 app.include_router(premium.router, prefix="/premium", tags=["premium"])
 app.include_router(revenuecat_webhook.router, prefix="/webhooks", tags=["webhooks"])
+app.include_router(admin.router, prefix="/admin", tags=["admin"])
 
 
 @app.get("/health")

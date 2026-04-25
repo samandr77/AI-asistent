@@ -118,7 +118,33 @@ interface AppState {
   setReflectionReminderTime: (time: string | null) => void;
   setReflectionsLoading: (v: boolean) => void;
   setPremium: (status: PremiumStatus) => void;
+  resetAll: () => void;
 }
+
+const initialPremium: PremiumStatus = {
+  is_premium: false,
+  entitlement_id: null,
+  expires_at: null,
+  period_type: null,
+  store: null,
+  cancelled: false,
+};
+
+const initialAppState = {
+  user: null as UserProfile | null,
+  todayTasks: [] as Task[],
+  allTasks: [] as Task[],
+  goals: [] as Goal[],
+  isOnboarded: false,
+  isLoading: false,
+  goalsLoading: false,
+  reflections: [] as Reflection[],
+  reflectionStats: null as ReflectionStats | null,
+  reflectionReminderTime: "21:00" as string | null,
+  reflectionsLoading: false,
+  premium: initialPremium,
+  pendingDumps: [] as PendingDump[],
+};
 
 const localStorageBackend = createSyncStorage(
   Platform.OS === "web" ? "app-store-web" : "app-store",
@@ -127,26 +153,7 @@ const localStorageBackend = createSyncStorage(
 export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
-      user: null,
-      todayTasks: [],
-      allTasks: [],
-      goals: [],
-      isOnboarded: false,
-      isLoading: false,
-      goalsLoading: false,
-      reflections: [],
-      reflectionStats: null,
-      reflectionReminderTime: "21:00",
-      reflectionsLoading: false,
-      premium: {
-        is_premium: false,
-        entitlement_id: null,
-        expires_at: null,
-        period_type: null,
-        store: null,
-        cancelled: false,
-      },
-      pendingDumps: [],
+      ...initialAppState,
       enqueueDump: (d) => {
         const id = `dump_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
         set((s) => ({
@@ -227,6 +234,20 @@ export const useAppStore = create<AppState>()(
       setReflectionsLoading: (reflectionsLoading) =>
         set({ reflectionsLoading }),
       setPremium: (premium) => set({ premium }),
+      resetAll: () => {
+        set({ ...initialAppState });
+        try {
+          // Zustand persist middleware attaches .persist to the store after creation.
+          // Accessing via (useAppStore as any) avoids TS generics gymnastics.
+          (
+            useAppStore as unknown as {
+              persist?: { clearStorage?: () => void };
+            }
+          ).persist?.clearStorage?.();
+        } catch {
+          // storage may not be ready (SSR/initial mount) — safe to ignore
+        }
+      },
     }),
     {
       name: "app-store",

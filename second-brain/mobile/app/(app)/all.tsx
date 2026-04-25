@@ -9,6 +9,7 @@ import {
   Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../store/useAppStore";
 import { getAllTasks } from "../../services/api";
 import { SPHERES, Sphere } from "../../constants/spheres";
@@ -18,6 +19,7 @@ import SphereTab from "../../components/SphereTab";
 const FREE_HISTORY_DAYS = 30;
 
 export default function All() {
+  const { t } = useTranslation();
   const { allTasks, setAllTasks, isLoading, setLoading, premium } =
     useAppStore();
   const router = useRouter();
@@ -38,20 +40,13 @@ export default function All() {
     refresh();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const cutoffDate = premium.is_premium
-    ? null
-    : new Date(Date.now() - FREE_HISTORY_DAYS * 24 * 60 * 60 * 1000);
-
-  const visibleTasks = cutoffDate
-    ? allTasks.filter((t) => !t.deadline || new Date(t.deadline) >= cutoffDate)
-    : allTasks;
-
+  // Backend enforces the 30-day cutoff for free users on the server side — so
+  // `allTasks` for a free user already contains only recent tasks. We still show
+  // an upsell banner to remind users there is older data behind the paywall.
   const displayed =
-    sphere === "all"
-      ? visibleTasks
-      : visibleTasks.filter((t) => t.sphere === sphere);
+    sphere === "all" ? allTasks : allTasks.filter((t) => t.sphere === sphere);
 
-  const hiddenCount = allTasks.length - visibleTasks.length;
+  const showCutoffBanner = !premium.is_premium;
 
   return (
     <View style={styles.container}>
@@ -76,16 +71,15 @@ export default function All() {
           />
         ))}
       </ScrollView>
-      {hiddenCount > 0 && (
+      {showCutoffBanner && (
         <Pressable
           style={styles.cutoffBanner}
           onPress={() => router.push("/(app)/paywall")}
         >
           <Text style={styles.cutoffText}>
-            {hiddenCount} задач скрыто — история ограничена {FREE_HISTORY_DAYS}{" "}
-            днями
+            {t("all.cutoff_banner", { days: FREE_HISTORY_DAYS })}
           </Text>
-          <Text style={styles.cutoffCta}>Открыть Premium</Text>
+          <Text style={styles.cutoffCta}>{t("common.upgrade_premium")}</Text>
         </Pressable>
       )}
       <FlatList

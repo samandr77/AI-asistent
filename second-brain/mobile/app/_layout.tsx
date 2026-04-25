@@ -27,7 +27,9 @@ import { isGoogleSignInConfigured } from "../services/auth";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 import { Sentry, initSentry, navigationIntegration } from "../services/sentry";
 import { startQueueListener, drainQueue } from "../services/dumpQueue";
+import { initI18n } from "../services/i18n";
 
+initI18n();
 initSentry();
 
 function RootLayout() {
@@ -134,11 +136,11 @@ function RootLayout() {
     }
 
     function clearAuthenticatedUser() {
+      // Atomic wipe of every authenticated slice (user, tasks, goals,
+      // reflections, premium, pendingDumps) + MMKV persistence. This prevents
+      // leaking the previous user's data across accounts on a shared device.
+      useAppStore.getState().resetAll();
       void logOutRevenueCat();
-      setUser(null);
-      setOnboarded(false);
-      setTodayTasks([]);
-      setAllTasks([]);
       if (isActive) {
         setIsBootstrapping(false);
       }
