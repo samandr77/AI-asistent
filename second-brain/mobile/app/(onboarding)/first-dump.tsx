@@ -9,6 +9,7 @@ import {
   TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useVoiceRecorder } from "../../services/audio";
 import { dumpText, dumpVoice, upsertProfile } from "../../services/api";
 import { useAppStore, Task } from "../../store/useAppStore";
@@ -18,6 +19,7 @@ import { isVoiceRecordingSupported } from "../../services/audio";
 
 export default function FirstDump() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { setTodayTasks, setAllTasks, setOnboarded, setUser, user } =
     useAppStore();
   const { isRecording, error, startRecording, stopRecording } =
@@ -40,8 +42,8 @@ export default function FirstDump() {
       setShownCount(1);
     } catch (e: any) {
       Alert.alert(
-        "Ошибка",
-        e.message ?? "Не удалось обработать запись. Попробуй ещё раз.",
+        t("common.error_title"),
+        e.message ?? t("onboarding.first_voice_error_body"),
       );
       setStep(0);
     }
@@ -59,8 +61,8 @@ export default function FirstDump() {
       setShownCount(1);
     } catch (e: any) {
       Alert.alert(
-        "Ошибка",
-        e.message ?? "Не удалось обработать текст. Попробуй ещё раз.",
+        t("common.error_title"),
+        e.message ?? t("onboarding.first_text_error_body"),
       );
       setStep(0);
     }
@@ -77,8 +79,8 @@ export default function FirstDump() {
       router.replace("/(app)/");
     } catch (e: any) {
       Alert.alert(
-        "Ошибка",
-        e.message ?? "Не удалось завершить онбординг. Попробуй ещё раз.",
+        t("common.error_title"),
+        e.message ?? t("onboarding.first_finish_error_body"),
       );
     }
   }
@@ -86,16 +88,16 @@ export default function FirstDump() {
   if (step === 0)
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Расскажи всё что{"\n"}у тебя на уме</Text>
+        <Text style={styles.title}>{t("onboarding.first_title")}</Text>
         {isVoiceRecordingSupported ? (
           <>
-            <Text style={styles.sub}>Нажми на микрофон и говори свободно</Text>
+            <Text style={styles.sub}>{t("onboarding.first_voice_hint")}</Text>
             <Pressable
               style={styles.mic}
               onPress={async () => {
                 await startRecording();
                 if (error) {
-                  Alert.alert("Ошибка", error);
+                  Alert.alert(t("common.error_title"), error);
                   return;
                 }
                 setStep(1);
@@ -106,20 +108,20 @@ export default function FirstDump() {
           </>
         ) : (
           <View style={styles.textBox}>
-            <Text style={styles.sub}>
-              В desktop/web версии первый dump можно сделать текстом.
-            </Text>
+            <Text style={styles.sub}>{t("onboarding.first_text_only")}</Text>
             <TextInput
               style={styles.textInput}
               value={textDump}
               onChangeText={setTextDump}
-              placeholder="Напиши всё, что у тебя сейчас в голове..."
+              placeholder={t("onboarding.first_text_placeholder")}
               placeholderTextColor="#555"
               multiline
               autoFocus
             />
             <Pressable style={styles.textSubmit} onPress={handleTextSubmit}>
-              <Text style={styles.textSubmitText}>Разобрать текст</Text>
+              <Text style={styles.textSubmitText}>
+                {t("onboarding.first_text_submit")}
+              </Text>
             </Pressable>
           </View>
         )}
@@ -129,7 +131,7 @@ export default function FirstDump() {
   if (step === 1)
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Слушаю...</Text>
+        <Text style={styles.title}>{t("onboarding.first_listening")}</Text>
         <VoiceWave isRecording={isRecording} />
         <Pressable
           style={[styles.mic, { backgroundColor: "#ef4444" }]}
@@ -145,7 +147,7 @@ export default function FirstDump() {
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#4F8EF7" />
         <Text style={[styles.sub, { marginTop: 24 }]}>
-          AI разбирает твои мысли...
+          {t("onboarding.first_ai_thinking")}
         </Text>
       </View>
     );
@@ -155,23 +157,23 @@ export default function FirstDump() {
 
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Готово! 🎉</Text>
-        {top3.slice(0, shownCount).map((t, i) => (
-          <View key={t.id} style={styles.taskPreview}>
+        <Text style={styles.title}>{t("onboarding.first_ready")}</Text>
+        {top3.slice(0, shownCount).map((task, i) => (
+          <View key={task.id} style={styles.taskPreview}>
             <Text style={styles.taskNum}>{i + 1}.</Text>
-            <Text style={styles.taskTitle}>{t.title}</Text>
+            <Text style={styles.taskTitle}>{task.title}</Text>
           </View>
         ))}
         {allShown ? (
           <Pressable style={styles.cta} onPress={handleFinish}>
-            <Text style={styles.ctaText}>Поехали! 🚀</Text>
+            <Text style={styles.ctaText}>{t("onboarding.first_lets_go")}</Text>
           </Pressable>
         ) : (
           <Pressable
             style={styles.next}
             onPress={() => setShownCount((c) => c + 1)}
           >
-            <Text style={styles.nextText}>Далее →</Text>
+            <Text style={styles.nextText}>{t("common.next_arrow")}</Text>
           </Pressable>
         )}
       </View>

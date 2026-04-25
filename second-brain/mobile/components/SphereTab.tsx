@@ -1,4 +1,5 @@
 import { Pressable, Text, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Sphere, SPHERE_MAP } from "../constants/spheres";
 
 interface Props {
@@ -9,10 +10,15 @@ interface Props {
 }
 
 export default function SphereTab({ sphere, count, isActive, onPress }: Props) {
+  const { t } = useTranslation();
   const info =
     sphere === "all"
-      ? { icon: "📋", label: "Все", color: "#6b7280" }
-      : (SPHERE_MAP[sphere] ?? { icon: "?", label: sphere, color: "#999" });
+      ? { icon: "📋", labelKey: "spheres.all", color: "#6b7280" }
+      : (SPHERE_MAP[sphere] ?? {
+          icon: "?",
+          labelKey: `spheres.${sphere}`,
+          color: "#999",
+        });
   return (
     <Pressable
       onPress={onPress}
@@ -23,7 +29,7 @@ export default function SphereTab({ sphere, count, isActive, onPress }: Props) {
     >
       <Text style={styles.icon}>{info.icon}</Text>
       <Text style={[styles.label, isActive && { color: "#fff" }]}>
-        {info.label}
+        {t(info.labelKey)}
       </Text>
       {count !== undefined && <Text style={styles.count}>{count}</Text>}
     </Pressable>

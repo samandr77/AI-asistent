@@ -10,6 +10,7 @@ import {
   TextInput,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../../store/useAppStore";
 import {
   scheduleEveningReflection,
@@ -19,6 +20,7 @@ import {
 
 export default function ReflectionSettings() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { reflectionReminderTime, setReflectionReminderTime } = useAppStore();
 
   const [enabled, setEnabled] = useState(reflectionReminderTime !== null);
@@ -57,8 +59,8 @@ export default function ReflectionSettings() {
   async function handleSaveTime() {
     if (!isValidTime(timeInput)) {
       Alert.alert(
-        "Неверный формат",
-        "Введи время в формате ЧЧ:ММ, например 21:00",
+        t("reflection.settings_invalid_format_title"),
+        t("reflection.settings_invalid_format_body"),
       );
       return;
     }
@@ -71,20 +73,25 @@ export default function ReflectionSettings() {
     await scheduleEveningReflection(timeInput);
     setTime(timeInput);
     setReflectionReminderTime(timeInput);
-    Alert.alert("Сохранено", `Напоминание установлено на ${timeInput}`);
+    Alert.alert(
+      t("common.saved"),
+      t("reflection.settings_saved_body", { time: timeInput }),
+    );
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()}>
-          <Text style={styles.back}>← Назад</Text>
+          <Text style={styles.back}>{t("common.back_arrow")}</Text>
         </Pressable>
-        <Text style={styles.title}>Настройки рефлексии</Text>
+        <Text style={styles.title}>{t("reflection.settings_title")}</Text>
       </View>
 
       <View style={styles.row}>
-        <Text style={styles.rowLabel}>Ежедневное напоминание</Text>
+        <Text style={styles.rowLabel}>
+          {t("reflection.settings_daily_label")}
+        </Text>
         <Switch
           value={enabled}
           onValueChange={handleToggle}
@@ -96,15 +103,16 @@ export default function ReflectionSettings() {
       {permissionHint && (
         <View style={styles.hintBox}>
           <Text style={styles.hintText}>
-            Разрешите уведомления в Настройках устройства, чтобы получать
-            напоминания о рефлексии. Рефлексия доступна и без уведомлений.
+            {t("reflection.settings_no_permission")}
           </Text>
         </View>
       )}
 
       {enabled && (
         <View style={styles.timeBlock}>
-          <Text style={styles.rowLabel}>Время напоминания</Text>
+          <Text style={styles.rowLabel}>
+            {t("reflection.settings_time_label")}
+          </Text>
           <View style={styles.timeRow}>
             <TextInput
               style={styles.timeInput}
@@ -116,10 +124,12 @@ export default function ReflectionSettings() {
               maxLength={5}
             />
             <Pressable style={styles.saveBtn} onPress={handleSaveTime}>
-              <Text style={styles.saveBtnText}>Сохранить</Text>
+              <Text style={styles.saveBtnText}>{t("common.save")}</Text>
             </Pressable>
           </View>
-          <Text style={styles.timeHint}>Текущее: {time} · Формат ЧЧ:ММ</Text>
+          <Text style={styles.timeHint}>
+            {t("reflection.settings_current_format", { time })}
+          </Text>
         </View>
       )}
     </ScrollView>

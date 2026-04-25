@@ -2,6 +2,10 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { Platform } from "react-native";
 import { Task } from "../store/useAppStore";
+import { i18n } from "./i18n";
+
+const tr = (key: string, opts?: Record<string, unknown>) =>
+  i18n.isInitialized ? i18n.t(key, opts) : key;
 
 if (Platform.OS !== "web") {
   Notifications.setNotificationHandler({
@@ -38,7 +42,7 @@ export async function scheduleReminder(task: Task): Promise<string | null> {
   return Notifications.scheduleNotificationAsync({
     content: {
       title: task.title,
-      body: "Напоминание о задаче",
+      body: tr("notifications.task_reminder_body"),
       data: { taskId: task.id },
     },
     trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date },
@@ -60,8 +64,8 @@ export async function scheduleEveningReflection(time: string): Promise<void> {
 
   _reflectionId = await Notifications.scheduleNotificationAsync({
     content: {
-      title: "Время рефлексии",
-      body: "Как прошёл день? Двигался ли ты к целям?",
+      title: tr("notifications.evening_reflection_title"),
+      body: tr("notifications.evening_reflection_body"),
       data: { screen: "/(app)/reflection/today" },
     },
     trigger: {
@@ -95,8 +99,8 @@ export async function scheduleEveningReminder(name: string): Promise<void> {
 
   _eveningId = await Notifications.scheduleNotificationAsync({
     content: {
-      title: `${name}, как прошёл день? 🌙`,
-      body: "Пора разгрузиться перед сном.",
+      title: tr("notifications.evening_reminder_title", { name }),
+      body: tr("notifications.evening_reminder_body"),
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,
@@ -106,8 +110,8 @@ export async function scheduleEveningReminder(name: string): Promise<void> {
   });
   _morningId = await Notifications.scheduleNotificationAsync({
     content: {
-      title: `Доброе утро, ${name} ☀️`,
-      body: "Что у нас на сегодня?",
+      title: tr("notifications.morning_reminder_title", { name }),
+      body: tr("notifications.morning_reminder_body"),
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DAILY,

@@ -177,6 +177,7 @@ function RootLayout() {
       isActive = false;
       subscription.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setAllTasks, setOnboarded, setTodayTasks, setUser]);
 
   useEffect(() => {

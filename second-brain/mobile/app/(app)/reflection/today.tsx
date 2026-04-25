@@ -10,6 +10,7 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../../store/useAppStore";
 import {
   getTodaySummary,
@@ -28,6 +29,7 @@ const MAX_NOTES = 4000;
 
 export default function ReflectionToday() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { addReflection, reflectionReminderTime } = useAppStore();
 
   const [summary, setSummary] = useState<DailySummary | null>(null);
@@ -57,7 +59,7 @@ export default function ReflectionToday() {
         setNotes(data.existing_reflection.notes ?? "");
       }
     } catch (e: any) {
-      setSummaryError(e?.message ?? "Не удалось загрузить сводку");
+      setSummaryError(e?.message ?? t("reflection.today_load_error"));
     } finally {
       setLoadingSum(false);
     }
@@ -90,11 +92,16 @@ export default function ReflectionToday() {
         await scheduleEveningReflection(reflectionReminderTime);
       }
 
-      Alert.alert("Готово", "Рефлексия сохранена", [
-        { text: "OK", onPress: () => router.back() },
-      ]);
+      Alert.alert(
+        t("reflection.today_saved_title"),
+        t("reflection.today_saved_body"),
+        [{ text: "OK", onPress: () => router.back() }],
+      );
     } catch (e: any) {
-      Alert.alert("Ошибка", e?.message ?? "Не удалось сохранить рефлексию");
+      Alert.alert(
+        t("common.error_title"),
+        e?.message ?? t("reflection.today_save_error"),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -112,10 +119,12 @@ export default function ReflectionToday() {
     >
       <View style={styles.header}>
         <Pressable onPress={() => router.back()}>
-          <Text style={styles.back}>← Назад</Text>
+          <Text style={styles.back}>{t("common.back_arrow")}</Text>
         </Pressable>
         <Text style={styles.title}>
-          {isExisting ? "Обновить рефлексию" : "Вечерняя рефлексия"}
+          {isExisting
+            ? t("reflection.today_update_title")
+            : t("reflection.today_evening_title")}
         </Text>
       </View>
 
@@ -125,30 +134,38 @@ export default function ReflectionToday() {
         <View style={styles.errorBlock}>
           <Text style={styles.errorText}>{summaryError}</Text>
           <Pressable onPress={loadSummary} style={styles.retryBtn}>
-            <Text style={styles.retryText}>Повторить</Text>
+            <Text style={styles.retryText}>{t("common.retry")}</Text>
           </Pressable>
         </View>
       ) : summary ? (
         <View style={styles.summaryBlock}>
-          <Text style={styles.sectionLabel}>Итоги дня</Text>
+          <Text style={styles.sectionLabel}>
+            {t("reflection.today_section_summary")}
+          </Text>
           <View style={styles.statsRow}>
             <View style={styles.statBox}>
               <Text style={styles.statNum}>
                 {summary.completed_tasks.length}
               </Text>
-              <Text style={styles.statLabel}>задач выполнено</Text>
+              <Text style={styles.statLabel}>
+                {t("reflection.stat_tasks_done")}
+              </Text>
             </View>
             <View style={styles.statBox}>
               <Text style={styles.statNum}>
                 {summary.goal_aligned_tasks.length}
               </Text>
-              <Text style={styles.statLabel}>к целям</Text>
+              <Text style={styles.statLabel}>
+                {t("reflection.stat_to_goals")}
+              </Text>
             </View>
             <View style={styles.statBox}>
               <Text style={styles.statNum}>
                 {summary.goals_with_progress.length}
               </Text>
-              <Text style={styles.statLabel}>целей с прогрессом</Text>
+              <Text style={styles.statLabel}>
+                {t("reflection.stat_goals_progress")}
+              </Text>
             </View>
           </View>
           {summary.goals_with_progress.length > 0 && (
@@ -165,7 +182,7 @@ export default function ReflectionToday() {
         </View>
       ) : null}
 
-      <Text style={styles.sectionLabel}>Настроение</Text>
+      <Text style={styles.sectionLabel}>{t("reflection.section_mood")}</Text>
       <View style={styles.emojiRow}>
         {MOOD_EMOJI.map((emoji, i) => (
           <Pressable
@@ -179,7 +196,7 @@ export default function ReflectionToday() {
         ))}
       </View>
 
-      <Text style={styles.sectionLabel}>Энергия</Text>
+      <Text style={styles.sectionLabel}>{t("reflection.section_energy")}</Text>
       <View style={styles.emojiRow}>
         {ENERGY_EMOJI.map((emoji, i) => (
           <Pressable
@@ -194,7 +211,7 @@ export default function ReflectionToday() {
       </View>
 
       <Text style={styles.sectionLabel}>
-        Заметки{" "}
+        {t("reflection.section_notes")}{" "}
         <Text
           style={notes.length > MAX_NOTES ? styles.counterRed : styles.counter}
         >
@@ -205,19 +222,19 @@ export default function ReflectionToday() {
         style={styles.notesInput}
         value={notes}
         onChangeText={setNotes}
-        placeholder="Что было важным сегодня?"
+        placeholder={t("reflection.notes_placeholder")}
         placeholderTextColor="#555"
         multiline
         maxLength={MAX_NOTES + 1}
       />
       {notes.length > MAX_NOTES && (
-        <Text style={styles.errorText}>Максимум {MAX_NOTES} символов</Text>
+        <Text style={styles.errorText}>
+          {t("reflection.notes_max_error", { max: MAX_NOTES })}
+        </Text>
       )}
 
       {(mood === null || energy === null) && (
-        <Text style={styles.hintText}>
-          Выбери настроение и энергию чтобы сохранить
-        </Text>
+        <Text style={styles.hintText}>{t("reflection.select_mood_hint")}</Text>
       )}
 
       <Pressable
@@ -229,7 +246,9 @@ export default function ReflectionToday() {
           <ActivityIndicator color="#fff" />
         ) : (
           <Text style={styles.submitText}>
-            {isExisting ? "Обновить" : "Сохранить"}
+            {isExisting
+              ? t("reflection.submit_update")
+              : t("reflection.submit_save")}
           </Text>
         )}
       </Pressable>

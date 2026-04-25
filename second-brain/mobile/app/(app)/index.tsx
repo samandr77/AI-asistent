@@ -12,8 +12,10 @@ import { getTodayTasks } from "../../services/api";
 import TaskCard from "../../components/TaskCard";
 import DumpButton from "../../components/DumpButton";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
+  const { t, i18n } = useTranslation();
   const {
     todayTasks,
     user,
@@ -47,8 +49,11 @@ export default function Home() {
     refresh();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const greeting = user?.name ? `Привет, ${user.name} 👋` : "Привет! 👋";
-  const todayLabel = new Date().toLocaleDateString("ru", {
+  const greeting = user?.name
+    ? t("home.greeting_with_name", { name: user.name })
+    : t("home.greeting");
+  const localeTag = i18n.language === "ru" ? "ru" : "en";
+  const todayLabel = new Date().toLocaleDateString(localeTag, {
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -69,8 +74,8 @@ export default function Home() {
           >
             <Text style={styles.streakCardText}>
               {currentStreak > 0
-                ? `${currentStreak} дн. подряд — отличная работа!`
-                : "Рефлексия выполнена"}
+                ? t("home.streak_done", { count: currentStreak })
+                : t("home.reflection_done")}
             </Text>
           </Pressable>
         ) : (
@@ -79,20 +84,20 @@ export default function Home() {
             onPress={() => router.push("/(app)/reflection/today")}
           >
             <Text style={styles.reflectionCardText}>
-              Завершить день рефлексией
+              {t("home.reflection_finish_day")}
             </Text>
             <Text style={styles.reflectionCardHint}>
-              Как прошёл день? Двигался ли ты к целям?
+              {t("home.reflection_question")}
             </Text>
           </Pressable>
         ))}
 
-      <Text style={styles.section}>На сегодня</Text>
+      <Text style={styles.section}>{t("home.section_today")}</Text>
 
       {todayTasks.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>Нет задач на сегодня</Text>
-          <Text style={styles.emptyHint}>Нажми 🎤 чтобы добавить</Text>
+          <Text style={styles.emptyText}>{t("home.empty_today")}</Text>
+          <Text style={styles.emptyHint}>{t("home.empty_today_hint")}</Text>
         </View>
       ) : (
         <FlatList

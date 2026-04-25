@@ -10,18 +10,20 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../../store/useAppStore";
 import { createGoal } from "../../../services/api";
 import { SPHERES } from "../../../constants/spheres";
 
 const STATUSES = [
-  { key: "active", label: "Активна" },
-  { key: "paused", label: "Пауза" },
+  { key: "active", labelKey: "goals.status_active" },
+  { key: "paused", labelKey: "goals.status_paused" },
 ] as const;
 
 export default function NewGoal() {
   const { addGoal } = useAppStore();
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -38,20 +40,20 @@ export default function NewGoal() {
     setDateError(null);
 
     if (!title.trim()) {
-      setTitleError("Название обязательно");
+      setTitleError(t("goals.title_required"));
       valid = false;
     } else if (title.trim().length > 200) {
-      setTitleError("Не более 200 символов");
+      setTitleError(t("goals.title_too_long"));
       valid = false;
     }
 
     if (targetDate) {
       const d = new Date(targetDate);
       if (isNaN(d.getTime())) {
-        setDateError("Введите дату в формате ГГГГ-ММ-ДД");
+        setDateError(t("goals.date_format_error"));
         valid = false;
       } else if (d < new Date(new Date().toDateString())) {
-        setDateError("Дата не может быть в прошлом");
+        setDateError(t("goals.date_in_past_error"));
         valid = false;
       }
     }
@@ -73,7 +75,10 @@ export default function NewGoal() {
       addGoal(goal);
       router.back();
     } catch (e: any) {
-      Alert.alert("Ошибка", e?.message ?? "Не удалось создать цель");
+      Alert.alert(
+        t("common.error_title"),
+        e?.message ?? t("goals.create_error_body"),
+      );
     } finally {
       setLoading(false);
     }
@@ -85,12 +90,12 @@ export default function NewGoal() {
       contentContainerStyle={styles.content}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={styles.heading}>Новая цель</Text>
+      <Text style={styles.heading}>{t("goals.new_title")}</Text>
 
-      <Text style={styles.label}>Название *</Text>
+      <Text style={styles.label}>{t("goals.label_title")}</Text>
       <TextInput
         style={[styles.input, titleError ? styles.inputError : null]}
-        placeholder="Например: Запустить продукт"
+        placeholder={t("goals.title_placeholder")}
         placeholderTextColor="#555"
         value={title}
         onChangeText={(v) => {
@@ -101,10 +106,10 @@ export default function NewGoal() {
       />
       {titleError && <Text style={styles.fieldError}>{titleError}</Text>}
 
-      <Text style={styles.label}>Описание</Text>
+      <Text style={styles.label}>{t("goals.label_description")}</Text>
       <TextInput
         style={[styles.input, styles.multiline]}
-        placeholder="Зачем эта цель?"
+        placeholder={t("goals.description_placeholder")}
         placeholderTextColor="#555"
         value={description}
         onChangeText={setDescription}
@@ -113,7 +118,7 @@ export default function NewGoal() {
         maxLength={2000}
       />
 
-      <Text style={styles.label}>Целевая дата (ГГГГ-ММ-ДД)</Text>
+      <Text style={styles.label}>{t("goals.label_target_date")}</Text>
       <TextInput
         style={[styles.input, dateError ? styles.inputError : null]}
         placeholder="2026-12-31"
@@ -127,7 +132,7 @@ export default function NewGoal() {
       />
       {dateError && <Text style={styles.fieldError}>{dateError}</Text>}
 
-      <Text style={styles.label}>Сфера</Text>
+      <Text style={styles.label}>{t("goals.label_sphere")}</Text>
       <View style={styles.pillRow}>
         {SPHERES.map((s) => (
           <Pressable
@@ -141,13 +146,13 @@ export default function NewGoal() {
                 sphere === s.id && styles.pillTextActive,
               ]}
             >
-              {s.icon} {s.label}
+              {s.icon} {t(s.labelKey)}
             </Text>
           </Pressable>
         ))}
       </View>
 
-      <Text style={styles.label}>Статус</Text>
+      <Text style={styles.label}>{t("goals.label_status")}</Text>
       <View style={styles.pillRow}>
         {STATUSES.map((s) => (
           <Pressable
@@ -161,7 +166,7 @@ export default function NewGoal() {
                 status === s.key && styles.pillTextActive,
               ]}
             >
-              {s.label}
+              {t(s.labelKey)}
             </Text>
           </Pressable>
         ))}
@@ -175,12 +180,12 @@ export default function NewGoal() {
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.submitText}>Создать цель</Text>
+          <Text style={styles.submitText}>{t("goals.create_button")}</Text>
         )}
       </Pressable>
 
       <Pressable style={styles.cancelBtn} onPress={() => router.back()}>
-        <Text style={styles.cancelText}>Отмена</Text>
+        <Text style={styles.cancelText}>{t("common.cancel")}</Text>
       </Pressable>
     </ScrollView>
   );

@@ -9,28 +9,30 @@ import {
   Alert,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../store/useAppStore";
 import { upsertProfile } from "../../services/api";
 
 type Role = "mom" | "freelancer" | "student" | "entrepreneur" | "other";
 type PeakHours = "morning" | "afternoon" | "evening";
 
-const ROLES: { id: Role; label: string }[] = [
-  { id: "mom", label: "👩 Мама" },
-  { id: "freelancer", label: "💻 Фрилансер" },
-  { id: "student", label: "📚 Студент" },
-  { id: "entrepreneur", label: "🚀 Предприниматель" },
-  { id: "other", label: "👤 Другое" },
+const ROLES: { id: Role; labelKey: string }[] = [
+  { id: "mom", labelKey: "onboarding.setup_role_mom" },
+  { id: "freelancer", labelKey: "onboarding.setup_role_freelancer" },
+  { id: "student", labelKey: "onboarding.setup_role_student" },
+  { id: "entrepreneur", labelKey: "onboarding.setup_role_entrepreneur" },
+  { id: "other", labelKey: "onboarding.setup_role_other" },
 ];
 
-const PEAK_HOURS: { id: PeakHours; label: string }[] = [
-  { id: "morning", label: "☀️ Утро" },
-  { id: "afternoon", label: "🌤 День" },
-  { id: "evening", label: "🌙 Вечер" },
+const PEAK_HOURS: { id: PeakHours; labelKey: string }[] = [
+  { id: "morning", labelKey: "onboarding.setup_peak_morning" },
+  { id: "afternoon", labelKey: "onboarding.setup_peak_afternoon" },
+  { id: "evening", labelKey: "onboarding.setup_peak_evening" },
 ];
 
 export default function Setup() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { setUser, setOnboarded, user } = useAppStore();
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
@@ -51,7 +53,7 @@ export default function Setup() {
     }
     if (peakHours === null) return;
     if (!user) {
-      Alert.alert("Нужно войти в аккаунт");
+      Alert.alert(t("onboarding.setup_need_login"));
       router.replace("/(onboarding)/welcome");
       return;
     }
@@ -75,7 +77,10 @@ export default function Setup() {
       });
       router.push("/(onboarding)/first-dump");
     } catch (e: any) {
-      Alert.alert("Ошибка", e.message ?? "Не удалось сохранить профиль");
+      Alert.alert(
+        t("common.error_title"),
+        e.message ?? t("onboarding.setup_save_error"),
+      );
     } finally {
       setLoading(false);
     }
@@ -85,12 +90,12 @@ export default function Setup() {
     <View style={styles.container}>
       {step === 0 && (
         <>
-          <Text style={styles.title}>Как тебя зовут?</Text>
+          <Text style={styles.title}>{t("onboarding.setup_q_name")}</Text>
           <TextInput
             style={styles.input}
             value={name}
             onChangeText={setName}
-            placeholder="Имя"
+            placeholder={t("onboarding.setup_name_placeholder")}
             placeholderTextColor="#555"
             autoFocus
           />
@@ -98,28 +103,28 @@ export default function Setup() {
       )}
       {step === 1 && (
         <>
-          <Text style={styles.title}>Кто ты?</Text>
+          <Text style={styles.title}>{t("onboarding.setup_q_role")}</Text>
           {ROLES.map((r) => (
             <Pressable
               key={r.id}
               style={[styles.chip, role === r.id && styles.chipActive]}
               onPress={() => setRole(r.id)}
             >
-              <Text style={styles.chipText}>{r.label}</Text>
+              <Text style={styles.chipText}>{t(r.labelKey)}</Text>
             </Pressable>
           ))}
         </>
       )}
       {step === 2 && (
         <>
-          <Text style={styles.title}>Когда ты активнее?</Text>
+          <Text style={styles.title}>{t("onboarding.setup_q_peak")}</Text>
           {PEAK_HOURS.map((p) => (
             <Pressable
               key={p.id}
               style={[styles.chip, peakHours === p.id && styles.chipActive]}
               onPress={() => setPeakHours(p.id)}
             >
-              <Text style={styles.chipText}>{p.label}</Text>
+              <Text style={styles.chipText}>{t(p.labelKey)}</Text>
             </Pressable>
           ))}
         </>
@@ -133,7 +138,7 @@ export default function Setup() {
           <ActivityIndicator color="#fff" />
         ) : (
           <Text style={styles.nextText}>
-            {step < 2 ? "Далее →" : "Продолжить"}
+            {step < 2 ? t("common.next_arrow") : t("onboarding.setup_continue")}
           </Text>
         )}
       </Pressable>

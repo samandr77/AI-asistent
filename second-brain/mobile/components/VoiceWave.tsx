@@ -34,6 +34,7 @@ export default function VoiceWave({ isRecording }: Props) {
     return () => {
       animRef.current?.stop();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRecording]);
 
   return (

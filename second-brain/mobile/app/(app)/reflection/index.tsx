@@ -10,6 +10,7 @@ import {
   ListRenderItemInfo,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore, Reflection } from "../../../store/useAppStore";
 import { listReflections } from "../../../services/api";
 
@@ -20,15 +21,20 @@ const ITEM_HEIGHT = 76;
 function ReflectionRow({
   item,
   onPress,
+  locale,
 }: {
   item: Reflection;
   onPress: () => void;
+  locale: string;
 }) {
-  const dateLabel = new Date(item.date + "T00:00:00").toLocaleDateString("ru", {
-    day: "numeric",
-    month: "long",
-    weekday: "short",
-  });
+  const dateLabel = new Date(item.date + "T00:00:00").toLocaleDateString(
+    locale,
+    {
+      day: "numeric",
+      month: "long",
+      weekday: "short",
+    },
+  );
   return (
     <Pressable style={styles.row} onPress={onPress}>
       <View style={styles.rowLeft}>
@@ -62,6 +68,8 @@ export default function ReflectionList() {
     reflectionStats,
   } = useAppStore();
   const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === "ru" ? "ru" : "en";
 
   const today = new Date().toISOString().slice(0, 10);
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -96,10 +104,12 @@ export default function ReflectionList() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Рефлексии</Text>
+        <Text style={styles.title}>{t("reflection.title")}</Text>
         {reflectionStats && reflectionStats.current_streak > 0 && (
           <Text style={styles.streak}>
-            {reflectionStats.current_streak} дн. подряд
+            {t("reflection.streak_days_short", {
+              count: reflectionStats.current_streak,
+            })}
           </Text>
         )}
       </View>
@@ -110,7 +120,7 @@ export default function ReflectionList() {
           onPress={() => router.push(`/(app)/reflection/${yesterday}`)}
         >
           <Text style={styles.backfillText}>
-            + Добавить вчерашнюю рефлексию
+            {t("reflection.add_yesterday")}
           </Text>
         </Pressable>
       )}
@@ -119,13 +129,13 @@ export default function ReflectionList() {
         <ActivityIndicator color="#4F8EF7" style={{ marginTop: 40 }} />
       ) : reflections.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyText}>Нет рефлексий</Text>
-          <Text style={styles.emptyHint}>Начни рефлексировать каждый день</Text>
+          <Text style={styles.emptyText}>{t("reflection.empty")}</Text>
+          <Text style={styles.emptyHint}>{t("reflection.empty_hint")}</Text>
           <Pressable
             style={styles.ctaBtn}
             onPress={() => router.push("/(app)/reflection/today")}
           >
-            <Text style={styles.ctaText}>Начать сегодня</Text>
+            <Text style={styles.ctaText}>{t("reflection.start_today")}</Text>
           </Pressable>
         </View>
       ) : (
@@ -135,6 +145,7 @@ export default function ReflectionList() {
           renderItem={({ item }: ListRenderItemInfo<Reflection>) => (
             <ReflectionRow
               item={item}
+              locale={locale}
               onPress={() => router.push(`/(app)/reflection/${item.date}`)}
             />
           )}
@@ -151,7 +162,7 @@ export default function ReflectionList() {
         style={styles.fab}
         onPress={() => router.push("/(app)/reflection/today")}
       >
-        <Text style={styles.fabText}>+ Сегодня</Text>
+        <Text style={styles.fabText}>{t("reflection.fab_today")}</Text>
       </Pressable>
     </View>
   );

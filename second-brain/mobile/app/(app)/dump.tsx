@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useVoiceRecorder } from "../../services/audio";
 import { enqueueTextDump, enqueueVoiceDump } from "../../services/dumpQueue";
 import VoiceWave from "../../components/VoiceWave";
@@ -16,6 +17,7 @@ import { isVoiceRecordingSupported } from "../../services/audio";
 
 export default function Dump() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { isRecording, startRecording, stopRecording, elapsedMs } =
     useVoiceRecorder();
   const remainingSec = Math.max(0, Math.ceil((180_000 - elapsedMs) / 1000));
@@ -30,7 +32,7 @@ export default function Dump() {
       router.push("/(app)/paywall");
       return;
     }
-    Alert.alert("Ошибка", e.message ?? "Не удалось обработать");
+    Alert.alert(t("dump.error_title"), e.message ?? t("dump.error_body"));
   }
 
   async function handleVoiceStop() {
@@ -45,10 +47,7 @@ export default function Dump() {
           params: { data: JSON.stringify(result) },
         });
       } else {
-        Alert.alert(
-          "Сохранено в очередь",
-          "Сеть пропала — отправим когда появится связь.",
-        );
+        Alert.alert(t("dump.queued_title"), t("dump.queued_body"));
         router.replace("/(app)/");
       }
     } catch (e: any) {
@@ -69,10 +68,7 @@ export default function Dump() {
           params: { data: JSON.stringify(result) },
         });
       } else {
-        Alert.alert(
-          "Сохранено в очередь",
-          "Сеть пропала — отправим когда появится связь.",
-        );
+        Alert.alert(t("dump.queued_title"), t("dump.queued_body"));
         router.replace("/(app)/");
       }
     } catch (e: any) {
@@ -90,27 +86,25 @@ export default function Dump() {
             style={[styles.tab, mode === "voice" && styles.tabActive]}
             onPress={() => setMode("voice")}
           >
-            <Text style={styles.tabText}>🎤 Голос</Text>
+            <Text style={styles.tabText}>{t("dump.tab_voice")}</Text>
           </Pressable>
         )}
         <Pressable
           style={[styles.tab, mode === "text" && styles.tabActive]}
           onPress={() => setMode("text")}
         >
-          <Text style={styles.tabText}>⌨️ Текст</Text>
+          <Text style={styles.tabText}>{t("dump.tab_text")}</Text>
         </Pressable>
       </View>
 
       {!isVoiceRecordingSupported && (
-        <Text style={styles.desktopHint}>
-          В desktop/web версии сейчас доступен текстовый ввод.
-        </Text>
+        <Text style={styles.desktopHint}>{t("dump.web_text_only")}</Text>
       )}
 
       {loading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color="#4F8EF7" />
-          <Text style={styles.loadingText}>AI обрабатывает...</Text>
+          <Text style={styles.loadingText}>{t("dump.ai_processing")}</Text>
         </View>
       ) : mode === "voice" ? (
         <View style={styles.center}>
@@ -123,8 +117,8 @@ export default function Dump() {
           </Pressable>
           <Text style={styles.hint}>
             {isRecording
-              ? `Осталось ${remainingSec}с — нажми чтобы остановить`
-              : "Нажми чтобы начать"}
+              ? t("dump.remaining_seconds", { seconds: remainingSec })
+              : t("dump.tap_to_record")}
           </Text>
         </View>
       ) : (
@@ -133,13 +127,13 @@ export default function Dump() {
             style={styles.textInput}
             value={text}
             onChangeText={setText}
-            placeholder="Напиши всё что у тебя на уме..."
+            placeholder={t("dump.text_placeholder")}
             placeholderTextColor="#555"
             multiline
             autoFocus
           />
           <Pressable style={styles.submit} onPress={handleTextSubmit}>
-            <Text style={styles.submitText}>Отправить →</Text>
+            <Text style={styles.submitText}>{t("dump.submit")}</Text>
           </Pressable>
         </View>
       )}

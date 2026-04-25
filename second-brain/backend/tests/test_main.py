@@ -5,25 +5,49 @@ from unittest.mock import patch
 import pytest
 
 
+# Modules that hold a `from config import settings` binding at import time.
+# When `reload_main` re-imports config it creates a fresh `settings` object,
+# which leaks into other tests via the stale references in these modules.
+# We snapshot+restore them all so subsequent tests see the original instances.
+_DEPENDENT_MODULES = (
+    "main",
+    "config",
+    "api",
+    "api.admin",
+    "api.auth",
+    "api.dump",
+    "api.goals",
+    "api.memory",
+    "api.premium",
+    "api.reflections",
+    "api.revenuecat_webhook",
+    "api.tasks",
+    "auth",
+    "database",
+    "services.account_cleanup",
+    "services.ai_budget",
+    "services.ai_router",
+    "services.premium",
+)
+
+
 @pytest.fixture
 def reload_main():
     """Reload main+config under a patch, then restore to avoid test pollution."""
-    saved_main = sys.modules.get("main")
-    saved_config = sys.modules.get("config")
+    saved = {name: sys.modules.get(name) for name in _DEPENDENT_MODULES}
 
     def _reload():
-        sys.modules.pop("main", None)
-        sys.modules.pop("config", None)
+        for name in _DEPENDENT_MODULES:
+            sys.modules.pop(name, None)
         return importlib.import_module("main")
 
     yield _reload
 
-    sys.modules.pop("main", None)
-    sys.modules.pop("config", None)
-    if saved_config is not None:
-        sys.modules["config"] = saved_config
-    if saved_main is not None:
-        sys.modules["main"] = saved_main
+    for name in _DEPENDENT_MODULES:
+        sys.modules.pop(name, None)
+    for name, module in saved.items():
+        if module is not None:
+            sys.modules[name] = module
 
 
 def test_sentry_init_called_when_dsn_set(monkeypatch, reload_main):

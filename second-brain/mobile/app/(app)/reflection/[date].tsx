@@ -9,19 +9,22 @@ import {
   Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore } from "../../../store/useAppStore";
 import { getReflectionByDate, deleteReflection } from "../../../services/api";
 import { Reflection } from "../../../store/useAppStore";
 
 const MOOD_EMOJI = ["", "😞", "😕", "😐", "🙂", "😄"];
 const ENERGY_EMOJI = ["", "😴", "😒", "😌", "⚡", "🔥"];
-const MOOD_LABEL = ["", "Плохо", "Не очень", "Нейтрально", "Хорошо", "Отлично"];
-const ENERGY_LABEL = ["", "Без сил", "Вяло", "Нормально", "Бодро", "Огонь"];
 
 export default function ReflectionDetail() {
   const { date } = useLocalSearchParams<{ date: string }>();
   const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === "ru" ? "ru" : "en";
   const { reflections, updateReflectionInStore } = useAppStore();
+  const moodLabel = (m: number) => t(`reflection.mood_${m}`);
+  const energyLabel = (e: number) => t(`reflection.energy_${e}`);
 
   const [reflection, setReflection] = useState<Reflection | null>(
     reflections.find((r) => r.date === date) ?? null,
@@ -42,7 +45,7 @@ export default function ReflectionDetail() {
       const data = await getReflectionByDate(date);
       setReflection(data);
     } catch (e: any) {
-      setError(e?.message ?? "Не найдено");
+      setError(e?.message ?? t("reflection.detail_load_error"));
     } finally {
       setLoading(false);
     }
@@ -50,28 +53,35 @@ export default function ReflectionDetail() {
 
   async function handleDelete() {
     if (!reflection) return;
-    Alert.alert("Удалить рефлексию?", "Это действие нельзя отменить.", [
-      { text: "Отмена", style: "cancel" },
-      {
-        text: "Удалить",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            await deleteReflection(reflection.id);
-            router.back();
-          } catch (e: any) {
-            Alert.alert("Ошибка", e?.message ?? "Не удалось удалить");
-          }
+    Alert.alert(
+      t("reflection.detail_delete_title"),
+      t("reflection.detail_delete_body"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        {
+          text: t("common.delete"),
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteReflection(reflection.id);
+              router.back();
+            } catch (e: any) {
+              Alert.alert(
+                t("common.error_title"),
+                e?.message ?? t("reflection.detail_delete_error"),
+              );
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   }
 
   const today = new Date().toISOString().slice(0, 10);
   const isToday = date === today;
 
   const dateLabel = date
-    ? new Date(date + "T00:00:00").toLocaleDateString("ru", {
+    ? new Date(date + "T00:00:00").toLocaleDateString(locale, {
         weekday: "long",
         day: "numeric",
         month: "long",
@@ -90,12 +100,14 @@ export default function ReflectionDetail() {
   if (error || !reflection) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>{error ?? "Рефлексия не найдена"}</Text>
+        <Text style={styles.errorText}>
+          {error ?? t("reflection.detail_not_found")}
+        </Text>
         <Pressable style={styles.retryBtn} onPress={load}>
-          <Text style={styles.retryText}>Повторить</Text>
+          <Text style={styles.retryText}>{t("common.retry")}</Text>
         </Pressable>
         <Pressable onPress={() => router.back()} style={{ marginTop: 12 }}>
-          <Text style={styles.backLink}>← Назад</Text>
+          <Text style={styles.backLink}>{t("common.back_arrow")}</Text>
         </Pressable>
       </View>
     );
@@ -105,7 +117,7 @@ export default function ReflectionDetail() {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Pressable onPress={() => router.back()}>
-          <Text style={styles.back}>← Назад</Text>
+          <Text style={styles.back}>{t("common.back_arrow")}</Text>
         </Pressable>
         <View style={styles.headerRow}>
           <Text style={styles.dateLabel}>{dateLabel}</Text>
@@ -114,44 +126,54 @@ export default function ReflectionDetail() {
               style={styles.editBtn}
               onPress={() => router.push("/(app)/reflection/today")}
             >
-              <Text style={styles.editBtnText}>Редактировать</Text>
+              <Text style={styles.editBtnText}>
+                {t("reflection.detail_edit")}
+              </Text>
             </Pressable>
           )}
         </View>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardLabel}>Настроение</Text>
+        <Text style={styles.cardLabel}>{t("reflection.detail_card_mood")}</Text>
         <Text style={styles.emojiLarge}>{MOOD_EMOJI[reflection.mood]}</Text>
-        <Text style={styles.emojiLabel}>{MOOD_LABEL[reflection.mood]}</Text>
+        <Text style={styles.emojiLabel}>{moodLabel(reflection.mood)}</Text>
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardLabel}>Энергия</Text>
+        <Text style={styles.cardLabel}>
+          {t("reflection.detail_card_energy")}
+        </Text>
         <Text style={styles.emojiLarge}>{ENERGY_EMOJI[reflection.energy]}</Text>
-        <Text style={styles.emojiLabel}>{ENERGY_LABEL[reflection.energy]}</Text>
+        <Text style={styles.emojiLabel}>{energyLabel(reflection.energy)}</Text>
       </View>
 
       <View style={styles.statsRow}>
         <View style={styles.statBox}>
           <Text style={styles.statNum}>{reflection.completed_count}</Text>
-          <Text style={styles.statLabel}>задач выполнено</Text>
+          <Text style={styles.statLabel}>
+            {t("reflection.stat_tasks_done")}
+          </Text>
         </View>
         <View style={styles.statBox}>
           <Text style={styles.statNum}>{reflection.goal_aligned_count}</Text>
-          <Text style={styles.statLabel}>к целям</Text>
+          <Text style={styles.statLabel}>{t("reflection.stat_to_goals")}</Text>
         </View>
       </View>
 
       {reflection.notes ? (
         <View style={styles.notesCard}>
-          <Text style={styles.cardLabel}>Заметки</Text>
+          <Text style={styles.cardLabel}>
+            {t("reflection.detail_card_notes")}
+          </Text>
           <Text style={styles.notesText}>{reflection.notes}</Text>
         </View>
       ) : null}
 
       <Pressable style={styles.deleteBtn} onPress={handleDelete}>
-        <Text style={styles.deleteBtnText}>Удалить рефлексию</Text>
+        <Text style={styles.deleteBtnText}>
+          {t("reflection.detail_delete_btn")}
+        </Text>
       </Pressable>
     </ScrollView>
   );

@@ -8,6 +8,10 @@ import {
   statusCodes,
 } from "@react-native-google-signin/google-signin";
 import { supabase } from "./api";
+import { i18n } from "./i18n";
+
+const tr = (key: string, opts?: Record<string, unknown>) =>
+  i18n.isInitialized ? i18n.t(key, opts) : key;
 
 // ── Apple Sign In ─────────────────────────────────────────────────────────────
 
@@ -36,7 +40,7 @@ async function _appleSignInIOS(): Promise<Session | null> {
   }
 
   if (!credential.identityToken) {
-    throw new Error("Apple Sign In не вернул токен. Попробуй ещё раз.");
+    throw new Error(tr("auth.apple_no_token"));
   }
 
   const { data, error } = await supabase.auth.signInWithIdToken({
@@ -46,7 +50,7 @@ async function _appleSignInIOS(): Promise<Session | null> {
   });
 
   if (error) {
-    throw new Error(`Не удалось войти через Apple: ${error.message}`);
+    throw new Error(tr("auth.apple_failed", { error: error.message }));
   }
 
   return data.session;
@@ -55,7 +59,7 @@ async function _appleSignInIOS(): Promise<Session | null> {
 async function _appleSignInAndroid(): Promise<Session | null> {
   const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
   if (!supabaseUrl) {
-    throw new Error("EXPO_PUBLIC_SUPABASE_URL не задан");
+    throw new Error(tr("auth.supabase_url_missing"));
   }
 
   const redirectUrl = "secondbrain://auth/callback";
@@ -68,9 +72,7 @@ async function _appleSignInAndroid(): Promise<Session | null> {
   }
 
   if (result.type !== "success") {
-    throw new Error(
-      "Не удалось войти через Apple. Попробуй ещё раз или войди по email.",
-    );
+    throw new Error(tr("auth.apple_generic_error"));
   }
 
   // Supabase JS client handles session from the callback URL automatically
@@ -79,9 +81,7 @@ async function _appleSignInAndroid(): Promise<Session | null> {
   } = await supabase.auth.getSession();
 
   if (!session) {
-    throw new Error(
-      "Не удалось войти через Apple. Попробуй ещё раз или войди по email.",
-    );
+    throw new Error(tr("auth.apple_generic_error"));
   }
 
   return session;
@@ -115,9 +115,7 @@ export async function signInWithGoogle(): Promise<Session | null> {
   const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
 
   if (!webClientId) {
-    throw new Error(
-      "Google Sign In не настроен (отсутствует EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID)",
-    );
+    throw new Error(tr("auth.google_not_configured"));
   }
 
   GoogleSignin.configure({
@@ -131,9 +129,7 @@ export async function signInWithGoogle(): Promise<Session | null> {
         showPlayServicesUpdateDialog: true,
       });
     } catch {
-      throw new Error(
-        "Google Play Services недоступны. Обнови Google Play Services и попробуй снова.",
-      );
+      throw new Error(tr("auth.google_play_unavailable"));
     }
   }
 
@@ -152,14 +148,12 @@ export async function signInWithGoogle(): Promise<Session | null> {
     if (__DEV__) {
       console.warn("[auth] Google sign-in error:", e?.message ?? e);
     }
-    throw new Error(
-      "Не удалось войти через Google. Попробуй ещё раз или войди по email.",
-    );
+    throw new Error(tr("auth.google_generic_error"));
   }
 
   const idToken = userInfo.data?.idToken;
   if (!idToken) {
-    throw new Error("Google Sign In не вернул токен. Попробуй ещё раз.");
+    throw new Error(tr("auth.google_no_token"));
   }
 
   const { data, error } = await supabase.auth.signInWithIdToken({
@@ -168,7 +162,7 @@ export async function signInWithGoogle(): Promise<Session | null> {
   });
 
   if (error) {
-    throw new Error(`Не удалось войти через Google: ${error.message}`);
+    throw new Error(tr("auth.google_failed", { error: error.message }));
   }
 
   if (__DEV__) {

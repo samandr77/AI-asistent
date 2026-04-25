@@ -11,6 +11,7 @@ import {
   Image,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { signInWithEmail, signUpWithEmail } from "../../services/api";
 import {
   signInWithApple,
@@ -22,6 +23,7 @@ type OAuthProvider = "apple" | "google" | null;
 
 export default function Welcome() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [mode, setMode] = useState<"signin" | "signup">("signup");
@@ -33,7 +35,7 @@ export default function Welcome() {
   async function handleAuth() {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !password.trim()) {
-      Alert.alert("Нужно заполнить email и пароль");
+      Alert.alert(t("onboarding.fill_credentials"));
       return;
     }
 
@@ -43,8 +45,8 @@ export default function Welcome() {
         const result = await signUpWithEmail(normalizedEmail, password);
         if (!result.session) {
           Alert.alert(
-            "Почти готово",
-            "Проверь почту и подтверди регистрацию, если Supabase требует email confirmation.",
+            t("onboarding.almost_done"),
+            t("onboarding.check_email_body"),
           );
           return;
         }
@@ -54,7 +56,10 @@ export default function Welcome() {
         router.replace("/(onboarding)/setup");
       }
     } catch (e: any) {
-      Alert.alert("Ошибка входа", e.message ?? "Не удалось войти");
+      Alert.alert(
+        t("onboarding.sign_in_error_title"),
+        e.message ?? t("onboarding.sign_in_error_body"),
+      );
     } finally {
       setLoading(false);
     }
@@ -72,11 +77,14 @@ export default function Welcome() {
         message.toLowerCase().includes("network") ||
         message.toLowerCase().includes("fetch")
       ) {
-        Alert.alert("Нет подключения", "Попробуй позже или войди по email.");
+        Alert.alert(
+          t("onboarding.no_connection_title"),
+          t("onboarding.no_connection_body"),
+        );
       } else {
         Alert.alert(
-          "Ошибка входа",
-          "Не удалось авторизоваться. Попробуй ещё раз или войди по email.",
+          t("onboarding.sign_in_failed_title"),
+          t("onboarding.sign_in_failed_body"),
         );
       }
     } finally {
@@ -86,7 +94,10 @@ export default function Welcome() {
 
   async function handleGoogleSignIn() {
     if (!googleConfigured) {
-      Alert.alert("Google Sign In не настроен", "Обратитесь к разработчику.");
+      Alert.alert(
+        t("onboarding.google_not_configured_title"),
+        t("onboarding.google_not_configured_body"),
+      );
       return;
     }
     setOauthLoading("google");
@@ -102,11 +113,14 @@ export default function Welcome() {
         message.toLowerCase().includes("network") ||
         message.toLowerCase().includes("fetch")
       ) {
-        Alert.alert("Нет подключения", "Попробуй позже или войди по email.");
+        Alert.alert(
+          t("onboarding.no_connection_title"),
+          t("onboarding.no_connection_body"),
+        );
       } else {
         Alert.alert(
-          "Ошибка входа",
-          "Не удалось авторизоваться. Попробуй ещё раз или войди по email.",
+          t("onboarding.sign_in_failed_title"),
+          t("onboarding.sign_in_failed_body"),
         );
       }
     } finally {
@@ -119,10 +133,8 @@ export default function Welcome() {
   return (
     <View style={styles.container}>
       <Text style={styles.emoji}>🧠</Text>
-      <Text style={styles.title}>Привет, я твой{"\n"}Второй Мозг</Text>
-      <Text style={styles.subtitle}>
-        Скажи всё что у тебя в голове — я структурирую и напомню.
-      </Text>
+      <Text style={styles.title}>{t("onboarding.welcome_title")}</Text>
+      <Text style={styles.subtitle}>{t("onboarding.welcome_subtitle")}</Text>
 
       {/* Apple Sign In — MUST appear above Google (App Store requirement) */}
       {Platform.OS === "ios" ? (
@@ -143,7 +155,9 @@ export default function Welcome() {
           {oauthLoading === "apple" ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.appleButtonText}> Войти через Apple</Text>
+            <Text style={styles.appleButtonText}>
+              {t("onboarding.sign_in_apple")}
+            </Text>
           )}
         </Pressable>
       )}
@@ -163,7 +177,9 @@ export default function Welcome() {
           ) : (
             <>
               <GoogleLogo />
-              <Text style={styles.googleButtonText}>Войти через Google</Text>
+              <Text style={styles.googleButtonText}>
+                {t("onboarding.sign_in_google")}
+              </Text>
             </>
           )}
         </Pressable>
@@ -171,7 +187,7 @@ export default function Welcome() {
 
       <View style={styles.dividerRow}>
         <View style={styles.dividerLine} />
-        <Text style={styles.dividerText}>или по email</Text>
+        <Text style={styles.dividerText}>{t("onboarding.or_email")}</Text>
         <View style={styles.dividerLine} />
       </View>
 
@@ -183,7 +199,7 @@ export default function Welcome() {
           ]}
           onPress={() => setMode("signup")}
         >
-          <Text style={styles.toggleText}>Регистрация</Text>
+          <Text style={styles.toggleText}>{t("onboarding.register")}</Text>
         </Pressable>
         <Pressable
           style={[
@@ -192,7 +208,7 @@ export default function Welcome() {
           ]}
           onPress={() => setMode("signin")}
         >
-          <Text style={styles.toggleText}>Вход</Text>
+          <Text style={styles.toggleText}>{t("onboarding.sign_in")}</Text>
         </Pressable>
       </View>
       <TextInput
@@ -208,7 +224,7 @@ export default function Welcome() {
         style={styles.input}
         value={password}
         onChangeText={setPassword}
-        placeholder="Пароль"
+        placeholder={t("onboarding.password_placeholder")}
         placeholderTextColor="#555"
         secureTextEntry
       />
@@ -224,12 +240,14 @@ export default function Welcome() {
           <ActivityIndicator color="#fff" />
         ) : (
           <Text style={styles.primaryText}>
-            {mode === "signup" ? "Создать аккаунт" : "Войти"}
+            {mode === "signup"
+              ? t("onboarding.create_account")
+              : t("onboarding.do_sign_in")}
           </Text>
         )}
       </Pressable>
       <Text style={styles.secondaryText}>
-        Один аккаунт будет работать на iPhone, Android, Mac и Windows.
+        {t("onboarding.cross_platform_note")}
       </Text>
     </View>
   );
@@ -246,6 +264,7 @@ function AppleButtonNative({
   disabled: boolean;
   onPress: () => void;
 }) {
+  const { t } = useTranslation();
   // On iOS we use the native AppleAuthenticationButton for App Store compliance.
   // Lazy import to avoid errors on Android where the module isn't available.
   try {
@@ -270,7 +289,9 @@ function AppleButtonNative({
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={styles.appleButtonText}> Войти через Apple</Text>
+          <Text style={styles.appleButtonText}>
+            {t("onboarding.sign_in_apple")}
+          </Text>
         )}
       </Pressable>
     );

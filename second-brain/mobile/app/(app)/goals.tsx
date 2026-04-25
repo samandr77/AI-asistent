@@ -9,14 +9,15 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore, Goal } from "../../store/useAppStore";
 import { listGoals } from "../../services/api";
 
 const STATUS_TABS = [
-  { key: "active", label: "Активные" },
-  { key: "paused", label: "Пауза" },
-  { key: "achieved", label: "Достигнуты" },
-  { key: "archived", label: "Архив" },
+  { key: "active", labelKey: "goals.tab_active" },
+  { key: "paused", labelKey: "goals.tab_paused" },
+  { key: "achieved", labelKey: "goals.tab_achieved" },
+  { key: "archived", labelKey: "goals.tab_archived" },
 ] as const;
 
 type StatusTab = (typeof STATUS_TABS)[number]["key"];
@@ -31,13 +32,25 @@ function ProgressBar({ percent }: { percent: number }) {
   );
 }
 
-function GoalCard({ goal, onPress }: { goal: Goal; onPress: () => void }) {
+function GoalCard({
+  goal,
+  onPress,
+  locale,
+  t,
+}: {
+  goal: Goal;
+  onPress: () => void;
+  locale: string;
+  t: (key: string, opts?: Record<string, unknown>) => string;
+}) {
   return (
     <Pressable style={styles.card} onPress={onPress}>
       <Text style={styles.cardTitle}>{goal.title}</Text>
       {goal.target_date && (
         <Text style={styles.cardMeta}>
-          до {new Date(goal.target_date).toLocaleDateString("ru")}
+          {t("goals.until_date", {
+            date: new Date(goal.target_date).toLocaleDateString(locale),
+          })}
         </Text>
       )}
       <ProgressBar percent={goal.progress_percent} />
@@ -47,6 +60,8 @@ function GoalCard({ goal, onPress }: { goal: Goal; onPress: () => void }) {
 }
 
 export default function Goals() {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === "ru" ? "ru" : "en";
   const { goals, setGoals, goalsLoading, setGoalsLoading } = useAppStore();
   const [activeTab, setActiveTab] = useState<StatusTab>("active");
   const [error, setError] = useState<string | null>(null);
@@ -60,12 +75,12 @@ export default function Goals() {
         const data = await listGoals({ status });
         setGoals(data);
       } catch (e: any) {
-        setError(e?.message ?? "Ошибка загрузки целей");
+        setError(e?.message ?? t("goals.load_error"));
       } finally {
         setGoalsLoading(false);
       }
     },
-    [setGoals, setGoalsLoading],
+    [setGoals, setGoalsLoading, t],
   );
 
   useEffect(() => {
@@ -77,12 +92,12 @@ export default function Goals() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Цели</Text>
+        <Text style={styles.title}>{t("goals.title")}</Text>
         <Pressable
           style={styles.addBtn}
           onPress={() => router.push("/(app)/goals/new")}
         >
-          <Text style={styles.addBtnText}>+ Новая</Text>
+          <Text style={styles.addBtnText}>{t("goals.add_short")}</Text>
         </Pressable>
       </View>
 
@@ -99,7 +114,7 @@ export default function Goals() {
                 activeTab === tab.key && styles.tabTextActive,
               ]}
             >
-              {tab.label}
+              {t(tab.labelKey)}
             </Text>
           </Pressable>
         ))}
@@ -111,18 +126,18 @@ export default function Goals() {
         <View style={styles.centered}>
           <Text style={styles.errorText}>{error}</Text>
           <Pressable style={styles.retryBtn} onPress={() => load(activeTab)}>
-            <Text style={styles.retryText}>Повторить</Text>
+            <Text style={styles.retryText}>{t("common.retry")}</Text>
           </Pressable>
         </View>
       ) : filteredGoals.length === 0 ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>Нет целей в этой категории</Text>
+          <Text style={styles.emptyText}>{t("goals.empty_in_category")}</Text>
           {activeTab === "active" && (
             <Pressable
               style={styles.ctaBtn}
               onPress={() => router.push("/(app)/goals/new")}
             >
-              <Text style={styles.ctaText}>Создать первую цель</Text>
+              <Text style={styles.ctaText}>{t("goals.create_first")}</Text>
             </Pressable>
           )}
         </View>
@@ -134,6 +149,8 @@ export default function Goals() {
             <GoalCard
               goal={item}
               onPress={() => router.push(`/(app)/goals/${item.id}`)}
+              locale={locale}
+              t={t}
             />
           )}
           contentContainerStyle={{ paddingBottom: 24 }}

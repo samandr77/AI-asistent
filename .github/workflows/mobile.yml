@@ -29,17 +29,12 @@ jobs:
       - name: Jest
         run: npx jest --ci
       - name: ESLint (i18n literal-string rule)
-        continue-on-error: true  # soft gate until full i18n migration is done
         run: npx eslint app components services --max-warnings=0
       - name: No raw Cyrillic outside locales
-        continue-on-error: true  # soft gate until full i18n migration is done
         run: |
-          set +e
-          leaks=$(grep -rE '[А-Яа-я]' app components services || true)
-          leaks=$(echo "$leaks" | grep -v '/locales/' || true)
-          if [ -n "$leaks" ]; then
-            echo "::warning title=Untranslated Cyrillic strings::"
-            echo "$leaks" | head -40
-            echo ""
-            echo "Move these into locales/*.json and use t('namespace.key')."
+          set -euo pipefail
+          if leaks=$(grep -rEn '[А-Яа-я]' app components services 2>/dev/null) && [ -n "$leaks" ]; then
+            echo "::error title=Untranslated Cyrillic strings::Move them into locales/*.json and use t('namespace.key')."
+            echo "$leaks"
+            exit 1
           fi

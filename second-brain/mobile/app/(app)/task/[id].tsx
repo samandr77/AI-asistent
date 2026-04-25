@@ -8,6 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore, Task } from "../../../store/useAppStore";
 import { updateTask, deleteTask } from "../../../services/api";
 import { SPHERE_MAP } from "../../../constants/spheres";
@@ -21,6 +22,8 @@ export default function TaskDetail() {
     deleteTask: deleteStore,
   } = useAppStore();
   const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === "ru" ? "ru" : "en";
   const task = [...allTasks, ...todayTasks].find((t) => t.id === id);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task?.title ?? "");
@@ -33,7 +36,7 @@ export default function TaskDetail() {
       updateStore(id!, { is_done: true });
       router.back();
     } catch (e: any) {
-      Alert.alert("Ошибка", e.message ?? "Не удалось обновить задачу");
+      Alert.alert(t("common.error_title"), e.message ?? t("task.update_error"));
     }
   }
 
@@ -43,15 +46,15 @@ export default function TaskDetail() {
       updateStore(id!, { title });
       setEditing(false);
     } catch (e: any) {
-      Alert.alert("Ошибка", e.message ?? "Не удалось сохранить");
+      Alert.alert(t("common.error_title"), e.message ?? t("task.save_error"));
     }
   }
 
   async function handleDelete() {
-    Alert.alert("Удалить задачу?", task!.title, [
-      { text: "Отмена", style: "cancel" },
+    Alert.alert(t("task.delete_title"), task!.title, [
+      { text: t("common.cancel"), style: "cancel" },
       {
-        text: "Удалить",
+        text: t("task.delete_action"),
         style: "destructive",
         onPress: async () => {
           if (!id) return;
@@ -60,7 +63,10 @@ export default function TaskDetail() {
             deleteStore(id!);
             router.back();
           } catch (e: any) {
-            Alert.alert("Ошибка", e.message ?? "Не удалось удалить задачу");
+            Alert.alert(
+              t("common.error_title"),
+              e.message ?? t("task.delete_error"),
+            );
           }
         },
       },
@@ -72,14 +78,14 @@ export default function TaskDetail() {
   return (
     <View style={styles.container}>
       <Pressable style={styles.back} onPress={() => router.back()}>
-        <Text style={styles.backText}>← Назад</Text>
+        <Text style={styles.backText}>{t("common.back_arrow")}</Text>
       </Pressable>
 
       <View
         style={[styles.spherePill, { backgroundColor: sphere.color + "33" }]}
       >
         <Text style={{ color: sphere.color }}>
-          {sphere.icon} {sphere.label}
+          {sphere.icon} {t(sphere.labelKey)}
         </Text>
       </View>
 
@@ -92,7 +98,7 @@ export default function TaskDetail() {
             autoFocus
           />
           <Pressable onPress={handleSaveTitle}>
-            <Text style={styles.save}>Сохранить</Text>
+            <Text style={styles.save}>{t("task.save_button")}</Text>
           </Pressable>
         </>
       ) : (
@@ -104,21 +110,21 @@ export default function TaskDetail() {
       {task.notes && <Text style={styles.notes}>{task.notes}</Text>}
       {task.deadline && (
         <Text style={styles.meta}>
-          📅 {new Date(task.deadline).toLocaleString("ru")}
+          📅 {new Date(task.deadline).toLocaleString(locale)}
         </Text>
       )}
       {task.reminder_at && (
         <Text style={styles.meta}>
-          🔔 {new Date(task.reminder_at).toLocaleString("ru")}
+          🔔 {new Date(task.reminder_at).toLocaleString(locale)}
         </Text>
       )}
 
       <View style={styles.actions}>
         <Pressable style={styles.doneBtn} onPress={handleDone}>
-          <Text style={styles.doneBtnText}>✓ Выполнено</Text>
+          <Text style={styles.doneBtnText}>{t("task.done_button")}</Text>
         </Pressable>
         <Pressable style={styles.deleteBtn} onPress={handleDelete}>
-          <Text style={styles.deleteBtnText}>🗑 Удалить</Text>
+          <Text style={styles.deleteBtnText}>{t("task.delete_button")}</Text>
         </Pressable>
       </View>
     </View>

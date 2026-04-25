@@ -5,6 +5,9 @@ import {
   RecordingPresets,
   requestRecordingPermissionsAsync,
 } from "expo-audio";
+import { i18n } from "./i18n";
+
+const tr = (key: string) => (i18n.isInitialized ? i18n.t(key) : key);
 
 export const isVoiceRecordingSupported = Platform.OS !== "web";
 export const MAX_RECORDING_MS = 180_000;
@@ -54,13 +57,13 @@ export function useVoiceRecorder() {
     setAudioUri(null);
     setElapsedMs(0);
     if (!isVoiceRecordingSupported) {
-      setError("Голосовой ввод пока недоступен в desktop/web версии");
+      setError(tr("audio.web_unavailable"));
       return;
     }
     try {
       const { granted } = await requestRecordingPermissionsAsync();
       if (!granted) {
-        setError("Нет разрешения на микрофон");
+        setError(tr("audio.no_mic_permission"));
         return;
       }
       await recorder.prepareToRecordAsync();

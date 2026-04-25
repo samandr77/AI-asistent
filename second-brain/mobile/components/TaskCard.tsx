@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
+import { useTranslation } from "react-i18next";
 import { Task, useAppStore } from "../store/useAppStore";
 import { SPHERE_MAP } from "../constants/spheres";
 import { updateTask } from "../services/api";
@@ -17,6 +18,8 @@ const PRIORITY_COLOR: Record<number, string> = {
 
 export default function TaskCard({ task, onPress }: Props) {
   const { updateTask: updateStore } = useAppStore();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === "ru" ? "ru" : "en";
   const sphere = SPHERE_MAP[task.sphere];
   const isPending = useRef(false);
 
@@ -40,12 +43,12 @@ export default function TaskCard({ task, onPress }: Props) {
         <Text style={styles.title}>{task.title}</Text>
         <View style={styles.meta}>
           <Text style={styles.sphere}>
-            {sphere?.icon} {sphere?.label}
+            {sphere?.icon} {sphere ? t(sphere.labelKey) : ""}
           </Text>
           {task.goal_id && <Text style={styles.goalBadge}>🎯</Text>}
           {task.deadline && (
             <Text style={styles.deadline}>
-              📅 {new Date(task.deadline).toLocaleDateString("ru")}
+              📅 {new Date(task.deadline).toLocaleDateString(locale)}
             </Text>
           )}
         </View>
@@ -55,6 +58,7 @@ export default function TaskCard({ task, onPress }: Props) {
         style={styles.doneBtn}
         onStartShouldSetResponder={() => true}
       >
+        {/* eslint-disable-next-line i18next/no-literal-string */}
         <Text style={{ color: PRIORITY_COLOR[task.priority] }}>✓</Text>
       </Pressable>
     </Pressable>

@@ -8,6 +8,7 @@ import {
   ScrollView,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { Task } from "../../store/useAppStore";
 import { Sphere } from "../../constants/spheres";
 import TaskCard from "../../components/TaskCard";
@@ -16,6 +17,7 @@ import SphereTab from "../../components/SphereTab";
 export default function Result() {
   const { data } = useLocalSearchParams<{ data: string }>();
   const router = useRouter();
+  const { t } = useTranslation();
   let parsed: {
     tasks: Task[];
     today_top3: Task[];
@@ -46,7 +48,9 @@ export default function Result() {
     <View style={styles.container}>
       {parsed.transcription && (
         <View style={styles.transcript}>
-          <Text style={styles.transcriptLabel}>Транскрипция</Text>
+          <Text style={styles.transcriptLabel}>
+            {t("result.transcript_label")}
+          </Text>
           <Text style={styles.transcriptText} numberOfLines={3}>
             {parsed.transcription}
           </Text>
@@ -83,7 +87,7 @@ export default function Result() {
       />
 
       <Pressable style={styles.done} onPress={() => router.replace("/(app)/")}>
-        <Text style={styles.doneText}>Готово ✓</Text>
+        <Text style={styles.doneText}>{t("result.done_button")}</Text>
       </Pressable>
     </View>
   );

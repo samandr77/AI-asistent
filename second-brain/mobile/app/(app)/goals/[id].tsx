@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useTranslation } from "react-i18next";
 import { useAppStore, Goal, Task } from "../../../store/useAppStore";
 import {
   getGoal,
@@ -22,10 +23,10 @@ import {
 } from "../../../services/api";
 
 const STATUS_OPTIONS = [
-  { key: "active", label: "Активна" },
-  { key: "paused", label: "Пауза" },
-  { key: "achieved", label: "Достигнута" },
-  { key: "archived", label: "Архив" },
+  { key: "active", labelKey: "goals.status_active" },
+  { key: "paused", labelKey: "goals.status_paused" },
+  { key: "achieved", labelKey: "goals.status_achieved" },
+  { key: "archived", labelKey: "goals.status_archived" },
 ] as const;
 
 function ProgressBar({ percent }: { percent: number }) {
@@ -42,6 +43,8 @@ export default function GoalDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { updateGoal: updateStore, removeGoal } = useAppStore();
   const router = useRouter();
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language === "ru" ? "ru" : "en";
 
   const [goal, setGoal] = useState<Goal | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -57,21 +60,21 @@ export default function GoalDetail() {
     setLoading(true);
     setError(null);
     try {
-      const [g, t, p] = await Promise.all([
+      const [g, taskList, p] = await Promise.all([
         getGoal(id),
         getGoalTasks(id),
         getGoalProgress(id),
       ]);
       setGoal(g);
-      setTasks(t);
+      setTasks(taskList);
       setProgress(p);
       setTitleDraft(g.title);
     } catch (e: any) {
-      setError(e?.message ?? "Не удалось загрузить цель");
+      setError(e?.message ?? t("goals.load_detail_error"));
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, t]);
 
   useEffect(() => {
     load();
@@ -85,7 +88,7 @@ export default function GoalDetail() {
       setGoal(updated);
       updateStore(goal.id, { title: updated.title });
     } catch (e: any) {
-      Alert.alert("Ошибка", e?.message ?? "Не удалось сохранить");
+      Alert.alert(t("common.error_title"), e?.message ?? t("goals.save_error"));
     } finally {
       setSaving(false);
       setEditingTitle(false);
@@ -100,7 +103,10 @@ export default function GoalDetail() {
       setGoal(updated);
       updateStore(goal.id, { status: updated.status });
     } catch (e: any) {
-      Alert.alert("Ошибка", e?.message ?? "Не удалось изменить статус");
+      Alert.alert(
+        t("common.error_title"),
+        e?.message ?? t("goals.status_change_error"),
+      );
     } finally {
       setSaving(false);
     }
@@ -108,26 +114,25 @@ export default function GoalDetail() {
 
   async function handleDelete() {
     if (!goal) return;
-    Alert.alert(
-      "Удалить цель?",
-      "Задачи останутся, но потеряют связь с целью.",
-      [
-        { text: "Отмена", style: "cancel" },
-        {
-          text: "Удалить",
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteGoal(goal.id);
-              removeGoal(goal.id);
-              router.back();
-            } catch (e: any) {
-              Alert.alert("Ошибка", e?.message ?? "Не удалось удалить");
-            }
-          },
+    Alert.alert(t("goals.delete_title"), t("goals.delete_body"), [
+      { text: t("common.cancel"), style: "cancel" },
+      {
+        text: t("goals.delete_action"),
+        style: "destructive",
+        onPress: async () => {
+          try {
+            await deleteGoal(goal.id);
+            removeGoal(goal.id);
+            router.back();
+          } catch (e: any) {
+            Alert.alert(
+              t("common.error_title"),
+              e?.message ?? t("goals.delete_error"),
+            );
+          }
         },
-      ],
-    );
+      },
+    ]);
   }
 
   if (loading) {
@@ -141,12 +146,12 @@ export default function GoalDetail() {
   if (error || !goal) {
     return (
       <View style={styles.centered}>
-        <Text style={styles.errorText}>{error ?? "Цель не найдена"}</Text>
+        <Text style={styles.errorText}>{error ?? t("goals.not_found")}</Text>
         <Pressable style={styles.retryBtn} onPress={load}>
-          <Text style={styles.retryText}>Повторить</Text>
+          <Text style={styles.retryText}>{t("common.retry")}</Text>
         </Pressable>
         <Pressable onPress={() => router.back()} style={{ marginTop: 8 }}>
-          <Text style={styles.backText}>Назад</Text>
+          <Text style={styles.backText}>{t("common.back")}</Text>
         </Pressable>
       </View>
     );
@@ -181,29 +186,33 @@ export default function GoalDetail() {
       ) : (
         <Pressable onPress={() => setEditingTitle(true)}>
           <Text style={styles.title}>{goal.title}</Text>
-          <Text style={styles.editHint}>Нажми чтобы редактировать</Text>
+          <Text style={styles.editHint}>{t("goals.edit_hint")}</Text>
         </Pressable>
       )}
 
       {goal.target_date && (
         <Text style={styles.meta}>
-          Дедлайн: {new Date(goal.target_date).toLocaleDateString("ru")}
+          {t("goals.deadline_label", {
+            date: new Date(goal.target_date).toLocaleDateString(locale),
+          })}
         </Text>
       )}
 
       {/* Progress */}
-      <Text style={styles.sectionLabel}>Прогресс</Text>
+      <Text style={styles.sectionLabel}>{t("goals.section_progress")}</Text>
       <ProgressBar percent={displayProgress} />
       <Text style={styles.progressText}>{displayProgress}%</Text>
       {progress && (
         <Text style={styles.meta}>
-          {progress.completed_tasks_count} из {progress.linked_tasks_count}{" "}
-          задач выполнено
+          {t("goals.tasks_completed_summary", {
+            done: progress.completed_tasks_count,
+            total: progress.linked_tasks_count,
+          })}
         </Text>
       )}
 
       {/* Status */}
-      <Text style={styles.sectionLabel}>Статус</Text>
+      <Text style={styles.sectionLabel}>{t("goals.section_status")}</Text>
       <View style={styles.pillRow}>
         {STATUS_OPTIONS.map((s) => (
           <Pressable
@@ -218,29 +227,27 @@ export default function GoalDetail() {
                 goal.status === s.key && styles.pillTextActive,
               ]}
             >
-              {s.label}
+              {t(s.labelKey)}
             </Text>
           </Pressable>
         ))}
       </View>
 
       {/* Linked tasks */}
-      <Text style={styles.sectionLabel}>Связанные задачи</Text>
+      <Text style={styles.sectionLabel}>{t("goals.section_linked_tasks")}</Text>
       {tasks.length === 0 ? (
-        <Text style={styles.emptyText}>
-          Нет задач. Свяжи задачи с этой целью из карточки задачи.
-        </Text>
+        <Text style={styles.emptyText}>{t("goals.no_linked_tasks")}</Text>
       ) : (
-        tasks.map((t) => (
-          <View key={t.id} style={styles.taskRow}>
+        tasks.map((task) => (
+          <View key={task.id} style={styles.taskRow}>
             <View
               style={[
                 styles.taskDot,
-                { backgroundColor: t.is_done ? "#2ECC71" : "#555" },
+                { backgroundColor: task.is_done ? "#2ECC71" : "#555" },
               ]}
             />
-            <Text style={[styles.taskTitle, t.is_done && styles.taskDone]}>
-              {t.title}
+            <Text style={[styles.taskTitle, task.is_done && styles.taskDone]}>
+              {task.title}
             </Text>
           </View>
         ))
@@ -248,7 +255,7 @@ export default function GoalDetail() {
 
       {/* Delete */}
       <Pressable style={styles.deleteBtn} onPress={handleDelete}>
-        <Text style={styles.deleteText}>Удалить цель</Text>
+        <Text style={styles.deleteText}>{t("goals.delete_button")}</Text>
       </Pressable>
     </ScrollView>
   );

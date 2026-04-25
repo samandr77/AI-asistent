@@ -1,7 +1,9 @@
 import { Text } from "react-native";
 import { Tabs } from "expo-router";
+import { useTranslation } from "react-i18next";
 
 export default function AppLayout() {
+  const { t } = useTranslation();
   return (
     <Tabs
       screenOptions={{
@@ -13,19 +15,22 @@ export default function AppLayout() {
     >
       <Tabs.Screen
         name="index"
-        options={{ title: "Сегодня", tabBarIcon: () => <Text>🏠</Text> }}
+        options={{ title: t("tabs.today"), tabBarIcon: () => <Text>🏠</Text> }}
       />
       <Tabs.Screen
         name="all"
-        options={{ title: "Все", tabBarIcon: () => <Text>📋</Text> }}
+        options={{ title: t("tabs.all"), tabBarIcon: () => <Text>📋</Text> }}
       />
       <Tabs.Screen
         name="goals"
-        options={{ title: "Цели", tabBarIcon: () => <Text>🎯</Text> }}
+        options={{ title: t("tabs.goals"), tabBarIcon: () => <Text>🎯</Text> }}
       />
       <Tabs.Screen
         name="profile"
-        options={{ title: "Профиль", tabBarIcon: () => <Text>👤</Text> }}
+        options={{
+          title: t("tabs.profile"),
+          tabBarIcon: () => <Text>👤</Text>,
+        }}
       />
       <Tabs.Screen name="dump" options={{ href: null }} />
       <Tabs.Screen name="result" options={{ href: null }} />
@@ -36,6 +41,7 @@ export default function AppLayout() {
       <Tabs.Screen name="reflection/today" options={{ href: null }} />
       <Tabs.Screen name="reflection/[date]" options={{ href: null }} />
       <Tabs.Screen name="reflection/settings" options={{ href: null }} />
+      <Tabs.Screen name="paywall" options={{ href: null }} />
     </Tabs>
   );
 }

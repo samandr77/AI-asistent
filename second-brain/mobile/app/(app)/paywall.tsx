@@ -99,6 +99,7 @@ export default function Paywall() {
       <View style={styles.features}>
         {features.map((label) => (
           <View key={label} style={styles.featureRow}>
+            {/* eslint-disable-next-line i18next/no-literal-string */}
             <Text style={styles.checkmark}>✓</Text>
             <Text style={styles.featureText}>{label}</Text>
           </View>
