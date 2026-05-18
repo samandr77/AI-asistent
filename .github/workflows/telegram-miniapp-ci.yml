@@ -1,0 +1,32 @@
+name: telegram-miniapp
+
+on:
+  push:
+    paths:
+      - "second-brain/telegram-miniapp/**"
+      - ".github/workflows/telegram-miniapp-ci.yml"
+  pull_request:
+    paths:
+      - "second-brain/telegram-miniapp/**"
+      - ".github/workflows/telegram-miniapp-ci.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: second-brain/telegram-miniapp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: second-brain/telegram-miniapp/package-lock.json
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Vitest
+        run: npm test -- --run
+      - name: Production build
+        run: npm run build

@@ -1,6 +1,10 @@
 .env
+.env.telegram-local*
+!.env.telegram-local.example
 *.env
 __pycache__/
 *.pyc
 .DS_Store
 node_modules/
+second-brain/backend/.venv/
+second-brain/backend/.env

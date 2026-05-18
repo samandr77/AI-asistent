@@ -1,0 +1,35 @@
+name: Daily Account Cleanup
+
+on:
+  schedule:
+    # 04:15 UTC daily — low-traffic window for EU/RU users
+    - cron: "15 4 * * *"
+  workflow_dispatch: {} # allow manual run from Actions tab
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Invoke backend cleanup endpoint
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          ADMIN_CLEANUP_SECRET: ${{ secrets.ADMIN_CLEANUP_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${BACKEND_URL:-}" ] || [ -z "${ADMIN_CLEANUP_SECRET:-}" ]; then
+            echo "::error title=Missing secret::BACKEND_URL or ADMIN_CLEANUP_SECRET not set"
+            exit 1
+          fi
+          echo "POST ${BACKEND_URL}/admin/cleanup-deleted"
+          curl --silent --show-error --fail-with-body \
+            -X POST \
+            -H "Authorization: Bearer ${ADMIN_CLEANUP_SECRET}" \
+            -H "Content-Type: application/json" \
+            "${BACKEND_URL}/admin/cleanup-deleted" \
+            | tee /tmp/cleanup.json
+          echo
+          jq -e '.processed >= 0' /tmp/cleanup.json >/dev/null
