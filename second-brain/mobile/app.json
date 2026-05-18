@@ -13,7 +13,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#0A0A0A"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -22,17 +24,27 @@
     "ios": {
       "bundleIdentifier": "com.secondbrain.app",
       "supportsTablet": true,
-      "usesAppleSignIn": true
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.secondbrain.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0A0A0A"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/2a23f4d8-0b08-4211-bbaa-cbe4c715bea0"
     },
     "runtimeVersion": {
       "policy": "appVersion"
@@ -45,7 +57,12 @@
           "microphonePermission": "$(PRODUCT_NAME) использует микрофон для голосового ввода задач"
         }
       ],
-      ["expo-notifications", { "color": "#ffffff" }],
+      [
+        "expo-notifications",
+        {
+          "color": "#ffffff"
+        }
+      ],
       "expo-apple-authentication",
       [
         "@react-native-google-signin/google-signin",
@@ -66,7 +83,10 @@
     "extra": {
       "router": {},
       "privacyUrl": "https://second-brain.app/privacy",
-      "termsUrl": "https://second-brain.app/terms"
+      "termsUrl": "https://second-brain.app/terms",
+      "eas": {
+        "projectId": "2a23f4d8-0b08-4211-bbaa-cbe4c715bea0"
+      }
     }
   }
 }

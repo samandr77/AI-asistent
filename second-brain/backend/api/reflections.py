@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import date, datetime, timezone
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from auth import get_current_user_id
 from database import get_supabase
 from models.reflection import ReflectionCreate, ReflectionUpdate, Reflection, DailySummary, ReflectionStats
@@ -36,6 +36,15 @@ def _resolve_date(client_tz_offset: Optional[str]) -> date:
     return datetime.now(timezone.utc).date()
 
 
+def _resolve_summary_date(summary_date: Optional[str], client_tz_offset: Optional[str]) -> date:
+    if summary_date:
+        try:
+            return date.fromisoformat(summary_date)
+        except ValueError:
+            raise HTTPException(status_code=422, detail="date must be ISO format YYYY-MM-DD")
+    return _resolve_date(client_tz_offset)
+
+
 def _row_to_reflection(r: dict) -> Reflection:
     return Reflection(
         id=r["id"],
@@ -56,10 +65,11 @@ def _row_to_reflection(r: dict) -> Reflection:
 async def get_today_summary(
     request: Request,
     tz_offset: Optional[str] = Query(None, alias="tz_offset"),
+    summary_date: Optional[str] = Query(None, alias="date"),
     user_id: str = Depends(get_current_user_id),
 ) -> DailySummary:
     tz_header = request.headers.get("X-Timezone-Offset") or tz_offset
-    target_date = _resolve_date(tz_header)
+    target_date = _resolve_summary_date(summary_date, tz_header)
     return compute_daily_summary(user_id, target_date)
 
 
@@ -195,11 +205,11 @@ async def update_reflection(
     return _row_to_reflection(result.data[0])
 
 
-@router.delete("/{reflection_id}", status_code=204)
+@router.delete("/{reflection_id}", status_code=204, response_class=Response)
 async def delete_reflection(
     reflection_id: str,
     user_id: str = Depends(get_current_user_id),
-) -> None:
+) -> Response:
     db = get_supabase()
     result = (
         db.table("daily_reflections")
@@ -210,3 +220,4 @@ async def delete_reflection(
     )
     if not result.data:
         raise HTTPException(status_code=404, detail="Reflection not found")
+    return Response(status_code=204)

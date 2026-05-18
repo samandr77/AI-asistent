@@ -31,5 +31,6 @@ jobs:
           SUPABASE_JWT_SECRET: test
           ANTHROPIC_API_KEY: test
           REVENUECAT_WEBHOOK_SECRET: test
+          ADMIN_CLEANUP_SECRET: test
           ENVIRONMENT: test
         run: pytest -q

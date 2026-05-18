@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -113,3 +114,15 @@ async def test_delete_account_profile_not_found(authed_client):
     with patch("api.auth.get_supabase", return_value=db):
         resp = await authed_client.delete("/auth/account")
     assert resp.status_code == 404
+
+
+def test_cascade_delete_user_rpc_covers_telegram_tables():
+    migration = (
+        Path(__file__).resolve().parents[2]
+        / "supabase"
+        / "migrations"
+        / "012_telegram_reminders.sql"
+    )
+    sql = migration.read_text()
+    assert "delete from public.telegram_reminder_settings" in sql
+    assert "delete from public.telegram_accounts" in sql

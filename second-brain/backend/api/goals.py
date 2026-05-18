@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from auth import get_current_user_id
 from database import get_supabase
 from models.goal import GoalCreate, GoalUpdate
@@ -134,15 +134,16 @@ async def update_goal(
     return _assert_goal_owned(result.data, goal_id)
 
 
-@router.delete("/{goal_id}", status_code=204)
+@router.delete("/{goal_id}", status_code=204, response_class=Response)
 async def delete_goal(
     goal_id: str,
     user_id: str = Depends(get_current_user_id),
-):
+) -> Response:
     db = get_supabase()
     result = db.table("goals").delete().eq("id", goal_id).eq("user_id", user_id).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="Goal not found")
+    return Response(status_code=204)
 
 
 @router.post("/{goal_id}/tasks/{task_id}", status_code=200)

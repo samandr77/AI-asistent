@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     # Observability
     sentry_dsn: str = ""
     environment: str = "development"
+    sentry_release: str = ""
 
     # AI budget + limits
     daily_user_token_budget: int = Field(default=200_000, ge=0)
@@ -51,10 +52,21 @@ class Settings(BaseSettings):
     free_max_active_goals: int = Field(default=3, ge=1)
     free_history_days: int = Field(default=30, ge=1)
 
+    # Telegram Mini App / bot integration
+    telegram_bot_token: str = ""
+    telegram_webhook_secret: str = ""
+    telegram_bot_username: str = ""
+    telegram_miniapp_url: str = ""
+    app_session_jwt_secret: str = ""
+    telegram_init_data_max_age_seconds: int = Field(default=86_400, ge=60)
+    telegram_premium_monthly_stars: int = Field(default=499, ge=1, le=10_000)
+    telegram_dev_auth_enabled: bool = False
+
     allowed_origins: str = (
         "http://localhost:8081,"
         "http://localhost:19006,"
-        "http://localhost:3000"
+        "http://localhost:3000,"
+        "http://localhost:5174"
     )
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")

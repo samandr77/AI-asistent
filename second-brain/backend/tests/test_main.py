@@ -22,12 +22,16 @@ _DEPENDENT_MODULES = (
     "api.reflections",
     "api.revenuecat_webhook",
     "api.tasks",
+    "api.telegram_auth",
     "auth",
     "database",
     "services.account_cleanup",
     "services.ai_budget",
     "services.ai_router",
     "services.premium",
+    "services.telegram_deeplinks",
+    "services.telegram_init_data",
+    "services.telegram_users",
 )
 
 

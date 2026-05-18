@@ -1,0 +1,175 @@
+{
+  "app": {
+    "name": "Second Brain"
+  },
+  "common": {
+    "loading": "Loading...",
+    "back": "Back",
+    "retry": "Retry",
+    "save": "Save",
+    "delete": "Delete",
+    "all": "All",
+    "today": "Today",
+    "dump": "Dump",
+    "tasks": "Tasks",
+    "goals": "Goals",
+    "reflections": "Reflections",
+    "premium": "Premium",
+    "profile": "Profile"
+  },
+  "launch": {
+    "title": "Launching in Telegram",
+    "description": "Checking the Telegram session and preparing your workspace.",
+    "statusTelegram": "Telegram detected",
+    "statusBrowser": "Browser preview",
+    "initDataLength": "initData length: {{count}}",
+    "openTelegram": "Open in Telegram",
+    "error": "Could not create a Telegram session. Reopen the Mini App and try again.",
+    "unsupportedTitle": "Open the app in Telegram",
+    "unsupportedDescription": "The Mini App requires secure Telegram launch data.",
+    "unsupportedHasSession": "A local session exists, but secure Telegram launch data is only available inside Telegram."
+  },
+  "onboarding": {
+    "setupTitle": "Profile setup",
+    "firstDumpTitle": "First dump"
+  },
+  "screens": {
+    "today": "Today",
+    "dump": "Thought dump",
+    "result": "Parsed result",
+    "tasks": "All tasks",
+    "taskDetail": "Task",
+    "goals": "Goals",
+    "newGoal": "New goal",
+    "goalDetail": "Goal",
+    "reflectionList": "Reflection history",
+    "todayReflection": "Today's reflection",
+    "reflectionDetail": "Reflection",
+    "reflectionSettings": "Reminders",
+    "premium": "Telegram Stars Premium",
+    "profile": "Profile",
+    "support": "Support",
+    "accountPendingDeletion": "Account pending deletion"
+  },
+  "dump": {
+    "text": "Text",
+    "voice": "Voice",
+    "placeholder": "Write everything currently on your mind...",
+    "submit": "Parse",
+    "queued": "Saved to queue. It will be sent when the network returns.",
+    "error": "Could not process the dump.",
+    "startRecording": "Start recording",
+    "stopRecording": "Stop and send",
+    "voiceUnsupported": "Voice recording is unavailable in this Telegram client.",
+    "voiceTooLarge": "Recording is too long or too large. Keep voice dumps under 3 minutes."
+  },
+  "result": {
+    "missing": "The result is unavailable. Return to today's tasks.",
+    "transcription": "Transcription"
+  },
+  "today": {
+    "empty": "No tasks for today.",
+    "pendingDumps": "Queued dumps: {{count}}"
+  },
+  "tasks": {
+    "cutoff": "Free history is limited to recent days. Full history is available in Premium.",
+    "empty": "No tasks yet.",
+    "notFound": "Task not found.",
+    "title": "Title",
+    "markDone": "Done"
+  },
+  "goals": {
+    "add": "New",
+    "empty": "No goals yet.",
+    "create": "Create",
+    "createError": "Could not create the goal.",
+    "titleRequired": "Title is required.",
+    "titleTooLong": "Title must be 200 characters or fewer.",
+    "dateInvalid": "Enter a date as YYYY-MM-DD.",
+    "datePast": "Date cannot be in the past.",
+    "title": "Title",
+    "description": "Description",
+    "targetDate": "Target date",
+    "notFound": "Goal not found.",
+    "linkedTasks": "Linked tasks",
+    "noLinkedTasks": "No linked tasks yet.",
+    "progressSummary": "{{done}} of {{total}} tasks completed",
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "achieved": "Achieved",
+      "archived": "Archived"
+    }
+  },
+  "reflection": {
+    "today": "Today",
+    "forDate": "Reflection for {{date}}",
+    "streak": "Streak: {{count}}, total: {{total}}",
+    "empty": "No reflections yet.",
+    "addYesterday": "Add yesterday's reflection",
+    "addYesterdayHint": "Keep the streak accurate while the day is still fresh.",
+    "moodEnergy": "Mood {{mood}}, energy {{energy}}",
+    "goalAlignedShort": "{{count}} to goals",
+    "summary": "Day summary",
+    "summaryCounts": "Completed: {{completed}}, goal-aligned: {{aligned}}, dumps: {{dumps}}",
+    "mood": "Mood",
+    "energy": "Energy",
+    "notes": "Notes",
+    "notFound": "Reflection not found.",
+    "detailCounts": "Completed: {{completed}}, goal-aligned: {{aligned}}",
+    "dailyReminder": "Daily reflection",
+    "time": "Time",
+    "timeInvalid": "Enter time as HH:MM."
+  },
+  "premium": {
+    "activeTitle": "Premium is active",
+    "activeDescription": "Your current access is active until {{expires}}.",
+    "freeTitle": "Unlock the full Second Brain",
+    "freeDescription": "Buy monthly Premium with Telegram Stars inside Telegram.",
+    "noExpiry": "no expiry",
+    "benefitDumps": "Unlimited thought dumps",
+    "benefitGoals": "Unlimited active goals",
+    "benefitHistory": "Full task history",
+    "benefitAi": "Priority AI routing",
+    "buyStars": "Buy for 499 Stars",
+    "refresh": "Refresh status",
+    "checkoutError": "Could not start Telegram Stars checkout."
+  },
+  "profile": {
+    "premiumActive": "Premium active",
+    "freePlan": "Free plan",
+    "todayTasks": "Today",
+    "doneTasks": "Done",
+    "remindersHint": "Daily reflection reminder time",
+    "premiumHint": "Stars checkout and entitlement status",
+    "supportHint": "Help, privacy, payment support",
+    "privacy": "Privacy Policy",
+    "terms": "Terms",
+    "signOut": "Sign out",
+    "deleteAccount": "Delete account",
+    "deleteConfirm": "Schedule account deletion? You will have 30 days before permanent cleanup.",
+    "deletePremiumConfirm": "Schedule account deletion? Active Premium access may remain managed by Telegram Stars support, and your account data will be permanently cleaned after 30 days.",
+    "deleteError": "Could not schedule account deletion.",
+    "memoryPreview": "Memory preview",
+    "memoryEmpty": "No memory saved yet."
+  },
+  "support": {
+    "title": "We are here to help",
+    "description": "For Telegram Stars payment questions, account deletion, or product issues, contact support.",
+    "emailHint": "Payment, account, and product support"
+  },
+  "accountDeletion": {
+    "title": "Deletion scheduled",
+    "description": "Your account is locked and scheduled for permanent deletion on {{date}}.",
+    "defaultDate": "after the grace period"
+  },
+  "spheres": {
+    "work": "Work",
+    "family": "Family",
+    "study": "Study",
+    "health": "Health",
+    "travel": "Travel",
+    "finance": "Finance",
+    "goals": "Goals"
+  }
+}

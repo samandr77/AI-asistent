@@ -3,9 +3,10 @@
 ## What it does
 
 Hard-deletes users whose soft-delete (`user_profiles.deleted_at`) is more than
-30 days old. Drops all rows from: `daily_reflections`, `tasks`, `goals`,
-`dumps`, `user_ai_usage`, `user_premium`, `user_profiles`, and finally the
-`auth.users` row itself.
+30 days old. Drops all rows from: `telegram_reminder_settings`,
+`telegram_star_payments`, `telegram_accounts`, `daily_reflections`, `tasks`,
+`goals`, `dumps`, `user_ai_usage`, `user_premium`, `user_profiles`, and
+finally the `auth.users` row itself.
 
 ## Schedule
 
@@ -57,5 +58,6 @@ Rename `.github/workflows/cleanup-cron.yml` → `.disabled` (or set `schedule:` 
 ## Related
 
 - Migration 009 added `deleted_at` column + `cascade_delete_user` RPC: `supabase/migrations/009_account_deletion.sql`.
+- Migration 012 extends `cascade_delete_user` for Telegram tables: `supabase/migrations/012_telegram_reminders.sql`.
 - API endpoint: `second-brain/backend/api/admin.py::cleanup_deleted`.
 - Service: `second-brain/backend/services/account_cleanup.py::purge_due_users`.

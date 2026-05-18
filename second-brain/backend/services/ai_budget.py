@@ -26,7 +26,8 @@ async def has_budget(user_id: str) -> bool:
         .maybe_single()
         .execute()
     )
-    total = (resp.data or {}).get("total_tokens", 0)
+    data = getattr(resp, "data", None) or {}
+    total = data.get("total_tokens", 0)
     return total < settings.daily_user_token_budget
 
 

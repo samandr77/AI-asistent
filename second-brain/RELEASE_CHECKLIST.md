@@ -19,13 +19,17 @@ Numbered, in dependency order. Do not skip ahead — each step assumes the previ
    - `supabase/migrations/007_premium.sql`
    - `supabase/migrations/008_user_ai_usage.sql`
    - `supabase/migrations/009_account_deletion.sql`  ← account-deletion (new)
+   - `supabase/migrations/010_telegram_accounts.sql`
+   - `supabase/migrations/011_telegram_payments.sql`
+   - `supabase/migrations/012_telegram_reminders.sql`
+   - `supabase/migrations/013_telegram_premium_store.sql`
 3. Verify each migration applied cleanly (run `\dt public.*` equivalent or inspect tables in the Table Editor).
 4. Save four credentials for later (both `dev` and `prod`):
    - Project URL
    - Anon/Publishable key
    - Service role key
    - JWT secret
-5. Apply the same 9 migrations to the `prod` project once QA is green on dev.
+5. Apply the same migrations to the `prod` project once QA is green on dev.
 
 ## 2. Sentry
 
@@ -52,6 +56,14 @@ Numbered, in dependency order. Do not skip ahead — each step assumes the previ
    - `FREE_DAILY_DUMP_LIMIT=10`
    - `FREE_MAX_ACTIVE_GOALS=3`
    - `FREE_HISTORY_DAYS=30`
+   - `TELEGRAM_BOT_TOKEN`
+   - `TELEGRAM_WEBHOOK_SECRET`
+   - `TELEGRAM_BOT_USERNAME`
+   - `TELEGRAM_MINIAPP_URL`
+   - `APP_SESSION_JWT_SECRET`
+   - `TELEGRAM_INIT_DATA_MAX_AGE_SECONDS=86400`
+   - `TELEGRAM_PREMIUM_MONTHLY_STARS=499`
+   - `SENTRY_RELEASE`
 3. Deploy. Confirm `/health` returns 200 and `/health/ready` reports `sentry: true`.
 4. Save `BACKEND_URL` (Railway-provided URL or custom domain `api.second-brain.app`).
 
@@ -106,6 +118,20 @@ Follow `second-brain/docs/revenuecat-setup.md`:
 6. **Then** `docs/legal/*.md` files should be filled by the lawyer — `{{TODO:}}` markers flag sections that need final text.
 7. Mobile app already reads `privacyUrl` and `termsUrl` from `app.json` `expo.extra` — no code changes needed.
 
+## 7A. Telegram Mini App and bot
+
+Follow `docs/runbooks/telegram-miniapp.md` and `docs/runbooks/telegram-payments.md`:
+
+1. Deploy `second-brain/telegram-miniapp` to HTTPS static hosting.
+2. Set frontend variables:
+   - `VITE_API_URL=https://api.second-brain.app`
+   - `VITE_ENV=production`
+   - `VITE_SENTRY_DSN`
+   - `VITE_SENTRY_RELEASE`
+3. Configure BotFather Mini App URL and menu button.
+4. Configure webhook with `TELEGRAM_WEBHOOK_SECRET`.
+5. Run the Telegram smoke path: launch auth, text dump, bot text/voice dump, reminders, Stars checkout, profile deletion.
+
 ## 8. Preview build + smoke test
 
 ```
@@ -154,6 +180,7 @@ Go to repo **Settings → Secrets and variables → Actions** and set:
 Verify:
 - `.github/workflows/cleanup-cron.yml` — runs daily 04:15 UTC. Trigger once manually via Actions tab to confirm it returns a 200 report.
 - `.github/workflows/backend.yml` and `mobile.yml` — green on the production branch.
+- `.github/workflows/telegram-miniapp-ci.yml` — green on the production branch.
 - `.github/workflows/rls-integration.yml` — manual-dispatch only; run once against dev to validate.
 
 ## 12. Rollback plan
@@ -165,10 +192,14 @@ Keep printed / pinned so it is available during an incident.
 - **EAS release**: `eas build:list` → pick last-good build → download archive → re-submit via `eas submit` with that archive.
 - **Vercel legal site**: `vercel rollback` in `docs/legal-site` falls back to the previous deploy.
 - **Incident runbook**: `docs/runbooks/account-cleanup.md` for the cleanup-cron endpoint specifically.
+- **Telegram rollback**: disable webhook/menu button or point Mini App URL to maintenance per `docs/runbooks/telegram-miniapp.md`.
 
 ## Sanity checks before flipping to public
 
 - [ ] All migrations applied to prod Supabase.
+- [ ] Telegram Mini App static build deployed over HTTPS.
+- [ ] BotFather Mini App URL, menu button, profile assets, and webhook configured.
+- [ ] Telegram Stars test checkout activates `/premium/status`.
 - [ ] `curl https://api.second-brain.app/health/ready` → `{"status":"ok","environment":"production","sentry":true}`.
 - [ ] `curl -X POST -H "Authorization: Bearer $ADMIN_CLEANUP_SECRET" https://api.second-brain.app/admin/cleanup-deleted` → `{"processed":0,...}` (no users yet).
 - [ ] `https://second-brain.app/privacy?lang=en` opens in a browser and displays the English privacy policy.

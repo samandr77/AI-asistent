@@ -6,7 +6,7 @@ import hmac
 import hashlib
 import base64
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from httpx import AsyncClient, ASGITransport
 
 pytestmark = pytest.mark.skipif(

@@ -129,11 +129,49 @@ async def save_tasks(parsed: ParsedDump, user_id: str, raw_text: str) -> tuple[s
         }
         for t in parsed.tasks
     ]
+    if not rows:
+        return dump_id, []
     task_result = db.table("tasks").insert(rows).execute()
     if not task_result.data:
         raise HTTPException(status_code=500, detail="Failed to save tasks")
     task_ids = [r["id"] for r in task_result.data]
     return dump_id, task_ids
+
+
+@router.get("/{dump_id}/result")
+async def get_dump_result(
+    dump_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    db = get_supabase()
+    dump_result = (
+        db.table("dumps")
+        .select("id,status")
+        .eq("id", dump_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    if not dump_result.data:
+        raise HTTPException(status_code=404, detail="Dump not found")
+
+    tasks_result = (
+        db.table("tasks")
+        .select("*")
+        .eq("dump_id", dump_id)
+        .eq("user_id", user_id)
+        .order("priority", desc=True)
+        .execute()
+    )
+    tasks = tasks_result.data or []
+    today_top3 = [
+        task for task in tasks if task.get("is_today") and not task.get("is_done")
+    ][:3]
+    return {
+        "dump_id": dump_id,
+        "tasks": tasks,
+        "today_top3": today_top3,
+        "task_ids": [task["id"] for task in tasks],
+    }
 
 
 @router.post("/text")

@@ -1,6 +1,6 @@
 from __future__ import annotations
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 from models.task import ParsedDump, ParsedTask, Sphere, Priority
 from models.premium import PremiumStatus
 from services.parser import ParsedDumpWithUsage
@@ -55,3 +55,33 @@ async def test_dump_text_over_budget_returns_429(client):
     ):
         resp = await client.post("/dump/text", json={"text": "anything"})
     assert resp.status_code == 429
+
+
+@pytest.mark.anyio
+async def test_get_dump_result_reloads_tasks(client):
+    dump_table = MagicMock()
+    dump_table.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = [
+        {"id": "dump-1", "status": "done"}
+    ]
+    task_table = MagicMock()
+    task_table.select.return_value.eq.return_value.eq.return_value.order.return_value.execute.return_value.data = [
+        {
+            "id": "task-1",
+            "title": "Reloaded task",
+            "sphere": "work",
+            "priority": 3,
+            "is_today": True,
+            "is_done": False,
+        }
+    ]
+    db = MagicMock()
+    db.table.side_effect = [dump_table, task_table]
+
+    with patch("api.dump.get_supabase", return_value=db):
+        resp = await client.get("/dump/dump-1/result")
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["dump_id"] == "dump-1"
+    assert body["task_ids"] == ["task-1"]
+    assert body["today_top3"][0]["title"] == "Reloaded task"

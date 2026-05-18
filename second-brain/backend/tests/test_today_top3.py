@@ -1,5 +1,4 @@
 from __future__ import annotations
-import pytest
 from datetime import date, timedelta
 from models.task import ParsedTask, Sphere, Priority
 from services.goal_ranker import rank_today_top3

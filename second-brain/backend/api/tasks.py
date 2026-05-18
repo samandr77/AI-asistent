@@ -1,7 +1,7 @@
 from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel
 from auth import get_current_user_id
 from database import get_supabase
@@ -79,9 +79,13 @@ async def update_task(
         raise HTTPException(status_code=404, detail="Task not found")
     return result.data[0]
 
-@router.delete("/{task_id}", status_code=204)
-async def delete_task(task_id: str, user_id: str = Depends(get_current_user_id)):
+@router.delete("/{task_id}", status_code=204, response_class=Response)
+async def delete_task(
+    task_id: str,
+    user_id: str = Depends(get_current_user_id),
+) -> Response:
     db = get_supabase()
     result = db.table("tasks").delete().eq("id", task_id).eq("user_id", user_id).execute()
     if not result.data:
         raise HTTPException(status_code=404, detail="Task not found")
+    return Response(status_code=204)

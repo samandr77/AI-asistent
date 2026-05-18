@@ -9,7 +9,21 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-from api import admin, auth, dump, goals, memory, premium, reflections, revenuecat_webhook, tasks
+from api import (
+    admin,
+    auth,
+    dump,
+    goals,
+    memory,
+    premium,
+    reflections,
+    revenuecat_webhook,
+    tasks,
+    telegram_auth,
+    telegram_payments,
+    telegram_reminders,
+    telegram_webhook,
+)
 from config import settings
 
 logger = logging.getLogger(__name__)
@@ -22,6 +36,7 @@ def _init_sentry() -> None:
     sentry_sdk.init(
         dsn=settings.sentry_dsn,
         environment=settings.environment,
+        release=settings.sentry_release or None,
         traces_sample_rate=0.2,
         integrations=[FastApiIntegration()],
         send_default_pii=False,
@@ -57,6 +72,10 @@ app.include_router(memory.router, prefix="/memory", tags=["memory"])
 app.include_router(goals.router, prefix="/goals", tags=["goals"])
 app.include_router(reflections.router, prefix="/reflections", tags=["reflections"])
 app.include_router(premium.router, prefix="/premium", tags=["premium"])
+app.include_router(telegram_auth.router, prefix="/telegram", tags=["telegram"])
+app.include_router(telegram_payments.router, prefix="/telegram", tags=["telegram"])
+app.include_router(telegram_reminders.router, prefix="/telegram", tags=["telegram"])
+app.include_router(telegram_webhook.router, prefix="/telegram", tags=["telegram"])
 app.include_router(revenuecat_webhook.router, prefix="/webhooks", tags=["webhooks"])
 app.include_router(admin.router, prefix="/admin", tags=["admin"])
 

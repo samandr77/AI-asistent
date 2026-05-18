@@ -1,0 +1,60 @@
+services:
+  backend:
+    build:
+      context: ./second-brain/backend
+    environment:
+      PORT: "8000"
+      SUPABASE_URL: ${SUPABASE_URL:?Set SUPABASE_URL in .env.telegram-local}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY:?Set SUPABASE_SERVICE_KEY in .env.telegram-local}
+      SUPABASE_JWT_SECRET: ${SUPABASE_JWT_SECRET:?Set SUPABASE_JWT_SECRET in .env.telegram-local}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-local-placeholder}
+      ANTHROPIC_BASE_URL: ${ANTHROPIC_BASE_URL:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5174,http://127.0.0.1:5174}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+      SENTRY_RELEASE: ${SENTRY_RELEASE:-telegram-local}
+      REVENUECAT_WEBHOOK_SECRET: ${REVENUECAT_WEBHOOK_SECRET:-local-revenuecat-secret}
+      ADMIN_CLEANUP_SECRET: ${ADMIN_CLEANUP_SECRET:-local-admin-secret}
+      DAILY_USER_TOKEN_BUDGET: ${DAILY_USER_TOKEN_BUDGET:-200000}
+      DAILY_FREE_TOKEN_BUDGET: ${DAILY_FREE_TOKEN_BUDGET:-50000}
+      DAILY_PREMIUM_TOKEN_BUDGET: ${DAILY_PREMIUM_TOKEN_BUDGET:-500000}
+      FREE_DAILY_DUMP_LIMIT: ${FREE_DAILY_DUMP_LIMIT:-10}
+      FREE_MAX_ACTIVE_GOALS: ${FREE_MAX_ACTIVE_GOALS:-3}
+      FREE_HISTORY_DAYS: ${FREE_HISTORY_DAYS:-30}
+      MAX_AUDIO_SECONDS: ${MAX_AUDIO_SECONDS:-180}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TELEGRAM_WEBHOOK_SECRET:-local-webhook-secret}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME:-}
+      TELEGRAM_MINIAPP_URL: ${TELEGRAM_MINIAPP_URL:-http://localhost:5174}
+      APP_SESSION_JWT_SECRET: ${APP_SESSION_JWT_SECRET:-local-app-session-secret-change-me}
+      TELEGRAM_INIT_DATA_MAX_AGE_SECONDS: ${TELEGRAM_INIT_DATA_MAX_AGE_SECONDS:-86400}
+      TELEGRAM_PREMIUM_MONTHLY_STARS: ${TELEGRAM_PREMIUM_MONTHLY_STARS:-499}
+      TELEGRAM_DEV_AUTH_ENABLED: ${TELEGRAM_DEV_AUTH_ENABLED:-true}
+    ports:
+      - "8010:8000"
+    depends_on:
+      - redis
+
+  telegram-miniapp:
+    build:
+      context: ./second-brain/telegram-miniapp
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+      VITE_ENV: ${VITE_ENV:-development}
+      VITE_SENTRY_DSN: ${VITE_SENTRY_DSN:-}
+      VITE_SENTRY_RELEASE: ${VITE_SENTRY_RELEASE:-telegram-local}
+      VITE_TELEGRAM_DEV_MODE: ${VITE_TELEGRAM_DEV_MODE:-1}
+      VITE_TELEGRAM_DEV_START_PARAM: ${VITE_TELEGRAM_DEV_START_PARAM:-}
+    ports:
+      - "5174:5174"
+    depends_on:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6381:6379"

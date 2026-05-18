@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from datetime import date
 from httpx import AsyncClient, ASGITransport
 
@@ -94,6 +94,32 @@ async def test_today_summary_with_goal_aligned(client_a):
     assert len(body["goal_aligned_tasks"]) == 1
     assert len(body["goals_with_progress"]) == 1
     assert body["total_dumps"] == 2
+
+
+@pytest.mark.anyio
+async def test_today_summary_accepts_backfill_date(client_a):
+    with patch("api.reflections.compute_daily_summary") as mock_summary:
+        from models.reflection import DailySummary
+
+        mock_summary.return_value = DailySummary(
+            date=date(2026, 5, 1),
+            completed_tasks=[],
+            goal_aligned_tasks=[],
+            goals_with_progress=[],
+            total_dumps=0,
+            existing_reflection=None,
+        )
+        resp = await client_a.get("/reflections/today/summary?date=2026-05-01")
+
+    assert resp.status_code == 200
+    assert resp.json()["date"] == "2026-05-01"
+    mock_summary.assert_called_once_with(TEST_USER_A, date(2026, 5, 1))
+
+
+@pytest.mark.anyio
+async def test_today_summary_rejects_invalid_backfill_date(client_a):
+    resp = await client_a.get("/reflections/today/summary?date=not-a-date")
+    assert resp.status_code == 422
 
 
 @pytest.mark.anyio
