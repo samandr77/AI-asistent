@@ -8,7 +8,7 @@ openai_client = (
     AsyncOpenAI(api_key=settings.openai_api_key) if settings.openai_api_key else None
 )
 _SUPPORTED_FORMATS = {"m4a", "mp3", "wav", "webm", "ogg"}
-_HF_URL = "https://api-inference.huggingface.co/models/openai/whisper-large-v3"
+_HF_BASE_URL = "https://router.huggingface.co/hf-inference/models"
 
 
 async def transcribe_audio(
@@ -43,9 +43,11 @@ async def transcribe_audio(
 async def _transcribe_via_huggingface(audio_bytes: bytes) -> str:
     if not settings.huggingface_api_key:
         raise RuntimeError("HuggingFace STT fallback is not configured")
+    model = settings.huggingface_stt_model.strip() or "openai/whisper-large-v3"
+    url = f"{_HF_BASE_URL}/{model}"
     async with httpx.AsyncClient(timeout=30) as client:
         resp = await client.post(
-            _HF_URL,
+            url,
             content=audio_bytes,
             headers={
                 "Authorization": f"Bearer {settings.huggingface_api_key}",

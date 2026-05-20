@@ -45,7 +45,7 @@ describe("DumpScreen", () => {
     fireEvent.change(screen.getByPlaceholderText(/mind|голове/i), {
       target: { value: "Plan the launch" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /parse|разобрать/i }));
+    fireEvent.click(screen.getByRole("button", { name: /parse|анализ/i }));
 
     await waitFor(() => {
       expect(mockedEnqueueTextDump.mock.calls[0]?.[0]).toBe("Plan the launch");

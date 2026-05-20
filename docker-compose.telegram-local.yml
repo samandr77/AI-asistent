@@ -12,6 +12,7 @@ services:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY:-}
+      HUGGINGFACE_STT_MODEL: ${HUGGINGFACE_STT_MODEL:-openai/whisper-large-v3}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       ENVIRONMENT: ${ENVIRONMENT:-development}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5174,http://127.0.0.1:5174}

@@ -5,14 +5,19 @@ import { describe, expect, it } from "vitest";
 import { LaunchScreen } from "../src/screens/launch/LaunchScreen";
 
 describe("LaunchScreen", () => {
-  it("renders browser preview state without Telegram initData", () => {
+  it("renders branded splash with connecting status", () => {
     render(
       <MemoryRouter>
         <LaunchScreen />
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: /Telegram|Запуск/i })).toBeInTheDocument();
-    expect(screen.getByText("Browser preview")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /AI ASSISTANT/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: /AI Assistant/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(/Соединяемся/);
   });
 });

@@ -13,6 +13,7 @@ from api import (
     admin,
     auth,
     dump,
+    finance,
     goals,
     memory,
     premium,
@@ -70,6 +71,7 @@ app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(memory.router, prefix="/memory", tags=["memory"])
 app.include_router(goals.router, prefix="/goals", tags=["goals"])
+app.include_router(finance.router, prefix="/finance", tags=["finance"])
 app.include_router(reflections.router, prefix="/reflections", tags=["reflections"])
 app.include_router(premium.router, prefix="/premium", tags=["premium"])
 app.include_router(telegram_auth.router, prefix="/telegram", tags=["telegram"])

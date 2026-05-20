@@ -104,7 +104,7 @@ export function DumpScreen() {
         <p className="eyebrow">{t("app.name")}</p>
         <h1>{t("screens.dump")}</h1>
 
-        <div className="segmented" role="tablist" aria-label="Dump mode">
+        <div className="segmented" role="tablist" aria-label="Способ записи">
           <button
             className={mode === "text" ? "active" : ""}
             type="button"

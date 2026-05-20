@@ -5,9 +5,23 @@ from pydantic import Field, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def _resolve_dotenv_path() -> Path | None:
+    """Find a .env file by walking up from this file to the repo root."""
+    candidates: list[Path] = [Path(".env").resolve()]
+    here = Path(__file__).resolve().parent
+    for parent in (here, *here.parents):
+        candidate = parent / ".env"
+        if candidate not in candidates:
+            candidates.append(candidate)
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    return None
+
+
 def _load_dotenv_if_present() -> None:
-    env_path = Path(".env")
-    if not env_path.exists():
+    env_path = _resolve_dotenv_path()
+    if env_path is None:
         return
     for line in env_path.read_text().splitlines():
         stripped = line.strip()
@@ -25,15 +39,18 @@ class Settings(BaseSettings):
     supabase_url: str
     supabase_service_key: str
     supabase_jwt_secret: str
-    anthropic_api_key: str
-    revenuecat_webhook_secret: str
-    admin_cleanup_secret: str
+
+    # Optional in dev (required in prod, but missing keys won't crash dev startup)
+    anthropic_api_key: str = ""
+    revenuecat_webhook_secret: str = ""
+    admin_cleanup_secret: str = ""
 
     # Optional with safe defaults
     openai_api_key: str = ""
     groq_api_key: str = ""
     anthropic_base_url: str = ""
     huggingface_api_key: str = ""
+    huggingface_stt_model: str = "openai/whisper-large-v3"
     redis_url: str = "redis://localhost:6379"
 
     # Observability

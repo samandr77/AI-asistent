@@ -1,6 +1,8 @@
 .env
+.env.example
 .env.telegram-local*
 !.env.telegram-local.example
+.env.backup*
 *.env
 __pycache__/
 *.pyc
@@ -8,3 +10,4 @@ __pycache__/
 node_modules/
 second-brain/backend/.venv/
 second-brain/backend/.env
+second-brain/backend/uploads/

@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
 
 import { api } from "../services/api";
+import { isOnboardingComplete } from "../services/onboarding";
 import type {
   AccountPendingDeletionResponse,
   TelegramSessionResponse,
@@ -15,6 +16,13 @@ export class AccountPendingDeletionError extends Error {
     this.name = "AccountPendingDeletionError";
     this.scheduledFor = scheduledFor;
   }
+}
+
+export async function createDevSession(): Promise<TelegramSessionResponse> {
+  const { data } = await api.post<TelegramSessionResponse>(
+    "/telegram/auth/dev-session",
+  );
+  return data;
 }
 
 export async function createTelegramSession(
@@ -50,7 +58,11 @@ export function routeAfterTelegramSession(
   if (session.user.deleted_at) {
     return "/account/pending-deletion";
   }
-  if (session.is_new_user || !session.user.is_onboarded) {
+  if (
+    session.is_new_user ||
+    !session.user.is_onboarded ||
+    !isOnboardingComplete()
+  ) {
     return "/onboarding/setup";
   }
   return "/today";

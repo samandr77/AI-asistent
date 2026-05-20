@@ -35,7 +35,34 @@ export function TodayScreen() {
           <Link className="button secondary" to="/tasks">
             {t("common.tasks")}
           </Link>
+          <Link className="button secondary" to="/finance">
+            Финансы
+          </Link>
         </nav>
+        <section className="roadmap-panel" aria-label={t("today.roadmapTitle")}>
+          <div>
+            <h2>{t("today.roadmapTitle")}</h2>
+            <p>{t("today.roadmapIntro")}</p>
+          </div>
+          <div className="roadmap-steps">
+            <Link className="roadmap-step" to="/dump">
+              <strong>{t("today.roadmapCaptureTitle")}</strong>
+              <span>{t("today.roadmapCaptureText")}</span>
+            </Link>
+            <Link className="roadmap-step" to="/tasks">
+              <strong>{t("today.roadmapPlanTitle")}</strong>
+              <span>{t("today.roadmapPlanText")}</span>
+            </Link>
+            <Link className="roadmap-step" to="/finance">
+              <strong>{t("today.roadmapFinanceTitle")}</strong>
+              <span>{t("today.roadmapFinanceText")}</span>
+            </Link>
+            <Link className="roadmap-step" to="/reflections/today">
+              <strong>{t("today.roadmapReviewTitle")}</strong>
+              <span>{t("today.roadmapReviewText")}</span>
+            </Link>
+          </div>
+        </section>
         {pendingTextDumps.length ? (
           <p className="status">
             {t("today.pendingDumps", { count: pendingTextDumps.length })}

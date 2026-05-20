@@ -7,7 +7,7 @@ from typing import NamedTuple
 from pydantic import ValidationError
 
 from services.ai_router import complete, AITier
-from models.task import ParsedDump, ParsedTask
+from models.task import ParsedDump, ParsedTask, Priority, Sphere
 
 PARSE_SYSTEM = """Ты — AI-ассистент для структурирования задач.
 Пользователь даёт поток мыслей. Твоя задача:
@@ -24,6 +24,7 @@ PARSE_SYSTEM = """Ты — AI-ассистент для структуриров
 
 _GOAL_CONFIDENCE_THRESHOLD = 2
 _JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
+_TASK_SPLIT_RE = re.compile(r"[.;\n]+|\s+\bи\b\s+", re.IGNORECASE)
 
 
 class ParsedDumpWithUsage(NamedTuple):
@@ -75,6 +76,43 @@ def _auto_link_goals(tasks: list[ParsedTask], dump_text: str, active_goals: list
     return result
 
 
+def _fallback_parse_dump(text: str) -> ParsedDump:
+    cleaned = text.strip()
+    parts = [part.strip(" ,:-") for part in _TASK_SPLIT_RE.split(cleaned)]
+    tasks: list[ParsedTask] = []
+    lowered_all = cleaned.lower()
+    is_today = any(word in lowered_all for word in ("сегодня", "срочно", "сейчас"))
+    for part in parts:
+        if not part:
+            continue
+        title = re.sub(r"^(сегодня|завтра|надо|нужно|еще|ещё)\s+", "", part, flags=re.IGNORECASE).strip()
+        if not title:
+            continue
+        lowered = title.lower()
+        sphere = Sphere.finance if any(word in lowered for word in ("оплат", "деньг", "счет", "счёт", "чек")) else Sphere.work
+        priority = Priority.high if any(word in lowered for word in ("срочно", "важно", "дедлайн")) else Priority.medium
+        tasks.append(
+            ParsedTask(
+                title=title[:200],
+                sphere=sphere,
+                priority=priority,
+                is_today=is_today or "сегодня" in lowered,
+                notes="Создано локальным fallback-парсером после ошибки AI.",
+            )
+        )
+    if not tasks:
+        tasks.append(
+            ParsedTask(
+                title=cleaned[:200],
+                sphere=Sphere.work,
+                priority=Priority.medium,
+                is_today=is_today,
+                notes="Создано локальным fallback-парсером после ошибки AI.",
+            )
+        )
+    return ParsedDump(tasks=tasks)
+
+
 async def parse_dump(
     text: str,
     user_context: dict,
@@ -98,21 +136,29 @@ async def parse_dump(
         context_parts.append(f"Активность: {user_context['peak_hours']}")
 
     now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
-    user_prompt = f"Сейчас: {now_str}\n"
+    user_prompt = f"""Сейчас: {now_str}
+
+Контекст продукта:
+Это персональный ассистент, который принимает свободную запись пользователя и превращает ее в конкретные задачи.
+Запись может содержать бытовые дела, рабочие задачи, финансовые действия, здоровье, учебу, поездки, цели и напоминания.
+Нужно вернуть только структурированный JSON по схеме из system prompt, без markdown, без пояснений и без текста вне JSON.
+
+Пример:
+Дамп пользователя: "Сегодня оплатить интернет и купить молоко, завтра позвонить бухгалтеру"
+Ответ: {{"tasks":[{{"title":"Оплатить интернет","sphere":"finance","priority":2,"is_today":true,"deadline":null,"notes":null,"goal_id":null}},{{"title":"Купить молоко","sphere":"family","priority":2,"is_today":true,"deadline":null,"notes":null,"goal_id":null}},{{"title":"Позвонить бухгалтеру","sphere":"work","priority":2,"is_today":false,"deadline":null,"notes":null,"goal_id":null}}]}}
+"""
     if context_parts:
         user_prompt += "\n".join(context_parts) + "\n"
     user_prompt += f"\nДамп пользователя:\n{text}"
 
     total_tokens = 0
-    last_error: Exception | None = None
     for tier in (AITier.cheap, AITier.medium):
         try:
             result = await complete(
                 PARSE_SYSTEM, user_prompt, tier=tier, tier_policy=tier_policy
             )
-        except RuntimeError as e:
+        except RuntimeError:
             # If policy/tier blocks the call, bail out with the accumulated error.
-            last_error = e
             break
         total_tokens += result.tokens
         try:
@@ -120,8 +166,7 @@ async def parse_dump(
             if "tasks" not in data or not isinstance(data["tasks"], list):
                 raise ValueError("LLM response missing 'tasks' list")
             parsed = ParsedDump(**data)
-        except (json.JSONDecodeError, ValidationError, ValueError) as e:
-            last_error = e
+        except (json.JSONDecodeError, ValidationError, ValueError):
             continue
 
         if active_goals:
@@ -129,6 +174,7 @@ async def parse_dump(
             parsed = ParsedDump(tasks=linked)
         return ParsedDumpWithUsage(parsed=parsed, tokens=total_tokens)
 
-    raise ValueError(
-        f"LLM failed to return valid JSON after fallback: {last_error}"
-    )
+    parsed = _fallback_parse_dump(text)
+    if active_goals:
+        parsed = ParsedDump(tasks=_auto_link_goals(parsed.tasks, text, active_goals))
+    return ParsedDumpWithUsage(parsed=parsed, tokens=total_tokens)

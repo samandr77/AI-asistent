@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Second Brain"
+    "name": "Второй мозг"
   },
   "common": {
     "loading": "Загрузка...",
@@ -10,18 +10,20 @@
     "delete": "Удалить",
     "all": "Все",
     "today": "Сегодня",
-    "dump": "Дамп",
+    "dump": "Записать мысль",
     "tasks": "Задачи",
     "goals": "Цели",
     "reflections": "Рефлексии",
-    "premium": "Premium",
+    "premium": "Премиум",
     "profile": "Профиль"
   },
   "launch": {
+    "brand": "AI ASSISTANT",
     "title": "Запуск в Telegram",
     "description": "Проверяем Telegram-сессию и готовим рабочее пространство.",
     "statusTelegram": "Telegram обнаружен",
     "statusBrowser": "Предпросмотр в браузере",
+    "statusConnecting": "Соединяемся…",
     "initDataLength": "Длина initData: {{count}}",
     "openTelegram": "Открыть в Telegram",
     "error": "Не удалось создать Telegram-сессию. Попробуй открыть Mini App заново.",
@@ -31,11 +33,11 @@
   },
   "onboarding": {
     "setupTitle": "Настройка профиля",
-    "firstDumpTitle": "Первый дамп"
+    "firstDumpTitle": "Первая запись"
   },
   "screens": {
     "today": "Сегодня",
-    "dump": "Дамп мыслей",
+    "dump": "Записать мысль",
     "result": "Результат разбора",
     "tasks": "Все задачи",
     "taskDetail": "Задача",
@@ -46,7 +48,7 @@
     "todayReflection": "Сегодняшняя рефлексия",
     "reflectionDetail": "Рефлексия",
     "reflectionSettings": "Напоминания",
-    "premium": "Telegram Stars Premium",
+    "premium": "Премиум Telegram Stars",
     "profile": "Профиль",
     "support": "Поддержка",
     "accountPendingDeletion": "Аккаунт ожидает удаления"
@@ -54,14 +56,14 @@
   "dump": {
     "text": "Текст",
     "voice": "Голос",
-    "placeholder": "Напиши всё, что сейчас в голове...",
-    "submit": "Разобрать",
+    "placeholder": "Напиши мысль, задачу, идею или всё, что сейчас в голове...",
+    "submit": "Анализ",
     "queued": "Сохранено в очередь. Отправим, когда сеть вернётся.",
-    "error": "Не удалось обработать дамп.",
+    "error": "Не удалось обработать запись.",
     "startRecording": "Начать запись",
     "stopRecording": "Остановить и отправить",
     "voiceUnsupported": "Запись голоса недоступна в этом клиенте Telegram.",
-    "voiceTooLarge": "Запись слишком длинная или большая. Держи голосовые дампы до 3 минут."
+    "voiceTooLarge": "Запись слишком длинная или большая. Держи голосовые записи до 3 минут."
   },
   "result": {
     "missing": "Результат недоступен. Вернись к сегодняшним задачам.",
@@ -69,10 +71,20 @@
   },
   "today": {
     "empty": "На сегодня задач нет.",
-    "pendingDumps": "В очереди дампов: {{count}}"
+    "pendingDumps": "В очереди записей: {{count}}",
+    "roadmapTitle": "Как пользоваться",
+    "roadmapIntro": "Начни с быстрой записи, потом проверь план дня и обнови ключевые сферы.",
+    "roadmapCaptureTitle": "1. Запиши мысль",
+    "roadmapCaptureText": "Введи текстом или голосом всё, что нужно разобрать: задачи, идеи, покупки, тревоги.",
+    "roadmapPlanTitle": "2. Запусти анализ",
+    "roadmapPlanText": "Система разберёт запись и распределит важное по задачам, финансам, целям и другим разделам.",
+    "roadmapFinanceTitle": "3. Веди финансы",
+    "roadmapFinanceText": "Добавляй расходы, доходы, бюджеты, цели, долги и активы.",
+    "roadmapReviewTitle": "4. Закрой день",
+    "roadmapReviewText": "Вечером отметь прогресс и оставь короткую рефлексию."
   },
   "tasks": {
-    "cutoff": "Free-история ограничена последними днями. Полная история доступна в Premium.",
+    "cutoff": "В бесплатном доступе история ограничена последними днями. Полная история доступна в Премиуме.",
     "empty": "Задач пока нет.",
     "notFound": "Задача не найдена.",
     "title": "Название",
@@ -111,7 +123,7 @@
     "moodEnergy": "Настроение {{mood}}, энергия {{energy}}",
     "goalAlignedShort": "{{count}} к целям",
     "summary": "Итоги дня",
-    "summaryCounts": "Выполнено: {{completed}}, к целям: {{aligned}}, дампов: {{dumps}}",
+    "summaryCounts": "Выполнено: {{completed}}, к целям: {{aligned}}, записей: {{dumps}}",
     "mood": "Настроение",
     "energy": "Энергия",
     "notes": "Заметки",
@@ -122,33 +134,33 @@
     "timeInvalid": "Введите время в формате ЧЧ:ММ."
   },
   "premium": {
-    "activeTitle": "Premium активен",
+    "activeTitle": "Премиум активен",
     "activeDescription": "Доступ активен до {{expires}}.",
-    "freeTitle": "Открыть полный Second Brain",
-    "freeDescription": "Оплати месячный Premium через Telegram Stars внутри Telegram.",
+    "freeTitle": "Открыть полный Второй мозг",
+    "freeDescription": "Оплати месячный Премиум через Telegram Stars внутри Telegram.",
     "noExpiry": "без срока",
-    "benefitDumps": "Безлимитные дампы мыслей",
+    "benefitDumps": "Безлимитные записи мыслей",
     "benefitGoals": "Безлимитные активные цели",
     "benefitHistory": "Полная история задач",
-    "benefitAi": "Приоритетный AI routing",
+    "benefitAi": "Приоритетная маршрутизация ИИ",
     "buyStars": "Купить за 499 Stars",
     "refresh": "Обновить статус",
     "checkoutError": "Не удалось запустить оплату Telegram Stars."
   },
   "profile": {
-    "premiumActive": "Premium активен",
+    "premiumActive": "Премиум активен",
     "freePlan": "Free план",
     "todayTasks": "Сегодня",
     "doneTasks": "Готово",
     "remindersHint": "Время ежедневной рефлексии",
     "premiumHint": "Оплата Stars и статус доступа",
     "supportHint": "Помощь, privacy, поддержка оплат",
-    "privacy": "Privacy Policy",
-    "terms": "Terms",
+    "privacy": "Политика конфиденциальности",
+    "terms": "Условия использования",
     "signOut": "Выйти",
     "deleteAccount": "Удалить аккаунт",
     "deleteConfirm": "Запланировать удаление аккаунта? До окончательной очистки будет 30 дней.",
-    "deletePremiumConfirm": "Запланировать удаление аккаунта? Активный Premium может оставаться в зоне поддержки Telegram Stars, а данные аккаунта будут окончательно очищены через 30 дней.",
+    "deletePremiumConfirm": "Запланировать удаление аккаунта? Активный Премиум может оставаться в зоне поддержки Telegram Stars, а данные аккаунта будут окончательно очищены через 30 дней.",
     "deleteError": "Не удалось запланировать удаление аккаунта.",
     "memoryPreview": "Память",
     "memoryEmpty": "Память пока не сохранена."

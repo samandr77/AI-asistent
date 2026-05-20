@@ -12,15 +12,15 @@ export function PlaceholderScreen({
   return (
     <main className="screen">
       <section className="panel">
-        <p className="eyebrow">Second Brain</p>
+        <p className="eyebrow">Второй мозг</p>
         <h1>{title}</h1>
         <p className="muted">{description}</p>
-        <nav className="action-row" aria-label="Primary navigation">
+        <nav className="action-row" aria-label="Основная навигация">
           <Link className="button" to="/today">
             Сегодня
           </Link>
           <Link className="button secondary" to="/dump">
-            Дамп
+            Записать мысль
           </Link>
         </nav>
       </section>

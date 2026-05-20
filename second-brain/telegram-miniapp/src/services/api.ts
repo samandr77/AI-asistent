@@ -6,6 +6,25 @@ import type {
   AccountPendingDeletionResponse,
   AuthMeResponse,
   DailySummary,
+  FinanceAccount,
+  FinanceAsset,
+  FinanceBudget,
+  FinanceBudgetTemplate,
+  FinanceChatResponse,
+  FinanceDashboard,
+  FinanceDebt,
+  FinanceDocument,
+  FinanceGoal,
+  FinanceIncome,
+  FinanceAnalytics,
+  FinanceNetWorth,
+  FinanceNetWorthProjection,
+  FinanceRecommendation,
+  FinanceSubscription,
+  FinanceSubscriptionDetection,
+  FinanceTaxSummary,
+  FinanceTaxEvent,
+  FinanceTransaction,
   Goal,
   GoalProgressResponse,
   MemoryProfileItem,
@@ -30,7 +49,7 @@ const now = new Date().toISOString();
 const previewTasks: Task[] = [
   {
     id: "preview-task-1",
-    title: "Разобрать утренний дамп и выбрать top-3",
+    title: "Разобрать утреннюю запись и выбрать три главных дела",
     sphere: "work",
     priority: 1,
     is_done: false,
@@ -60,7 +79,7 @@ const previewGoals: Goal[] = [
   {
     id: "preview-goal-1",
     user_id: "local-preview-user",
-    title: "Запустить Second Brain в Telegram",
+    title: "Запустить Второй мозг в Telegram",
     description: "Проверить UI, auth flow, задачи, цели, рефлексию и premium.",
     target_date: today,
     status: "active",
@@ -84,6 +103,166 @@ const previewReflection: Reflection = {
   created_at: now,
   updated_at: now,
 };
+
+const previewFinanceTransactions: FinanceTransaction[] = [
+  {
+    id: "preview-finance-tx-1",
+    user_id: "local-preview-user",
+    occurred_on: today,
+    type: "expense",
+    amount_cents: 120000,
+    currency: "RUB",
+    category: "transport",
+    merchant: "Такси",
+    note: "Деловая поездка",
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "preview-finance-tx-2",
+    user_id: "local-preview-user",
+    occurred_on: today,
+    type: "income",
+    amount_cents: 25000000,
+    currency: "RUB",
+    category: "salary",
+    merchant: "Основная работа",
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "preview-finance-tx-3",
+    user_id: "local-preview-user",
+    occurred_on: today,
+    type: "expense",
+    amount_cents: 340000,
+    currency: "RUB",
+    category: "food",
+    merchant: "Продукты",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceBudgets: FinanceBudget[] = [
+  {
+    id: "preview-budget-1",
+    user_id: "local-preview-user",
+    category: "food",
+    period: "monthly",
+    limit_cents: 6000000,
+    rollover_enabled: false,
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "preview-budget-2",
+    user_id: "local-preview-user",
+    category: "transport",
+    period: "monthly",
+    limit_cents: 1800000,
+    rollover_enabled: false,
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceGoals: FinanceGoal[] = [
+  {
+    id: "preview-finance-goal-1",
+    user_id: "local-preview-user",
+    title: "Финансовая подушка",
+    target_amount_cents: 30000000,
+    saved_amount_cents: 12500000,
+    target_date: today,
+    status: "active",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceSubscriptions: FinanceSubscription[] = [
+  {
+    id: "preview-subscription-1",
+    user_id: "local-preview-user",
+    name: "ИИ-сервисы",
+    amount_cents: 129000,
+    currency: "RUB",
+    next_charge_date: today,
+    category: "subscriptions",
+    is_active: true,
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceDebts: FinanceDebt[] = [
+  {
+    id: "preview-debt-1",
+    user_id: "local-preview-user",
+    name: "Кредитная карта",
+    type: "credit_card",
+    balance_cents: 5200000,
+    interest_rate_percent: 19.9,
+    monthly_payment_cents: 250000,
+    next_payment_date: today,
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceAssets: FinanceAsset[] = [
+  {
+    id: "preview-asset-1",
+    user_id: "local-preview-user",
+    name: "Брокерский счёт",
+    type: "brokerage",
+    current_value_cents: 18500000,
+    currency: "RUB",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceIncome: FinanceIncome[] = [
+  {
+    id: "preview-income-1",
+    user_id: "local-preview-user",
+    source: "Основная работа",
+    amount_cents: 25000000,
+    currency: "RUB",
+    received_on: today,
+    category: "salary",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceTaxEvents: FinanceTaxEvent[] = [
+  {
+    id: "preview-tax-1",
+    user_id: "local-preview-user",
+    title: "НДФЛ / декларация",
+    due_date: today,
+    amount_cents: 0,
+    notes: "Проверить документы перед отправкой.",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceDocuments: FinanceDocument[] = [
+  {
+    id: "preview-document-1",
+    user_id: "local-preview-user",
+    title: "Чек на технику",
+    kind: "receipt",
+    extracted_total_cents: 890000,
+    extracted_date: today,
+    created_at: now,
+    updated_at: now,
+  },
+];
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
@@ -134,7 +313,7 @@ export async function dumpTextRaw(
   if (localPreviewMode) {
     const task: Task = {
       id: `preview-dump-${Date.now()}`,
-      title: text.trim().slice(0, 80) || "Новая задача из дампа",
+      title: text.trim().slice(0, 80) || "Новая задача из записи",
       sphere: "work",
       priority: 2,
       is_done: false,
@@ -477,5 +656,508 @@ export async function getMemoryProfile(): Promise<MemoryProfileItem[]> {
     ];
   }
   const { data } = await api.get<MemoryProfileItem[]>("/memory/profile");
+  return data;
+}
+
+export async function getFinanceDashboard(): Promise<FinanceDashboard> {
+  if (localPreviewMode) {
+    const monthlyExpense = previewFinanceTransactions
+      .filter((transaction) => transaction.type === "expense")
+      .reduce((sum, transaction) => sum + transaction.amount_cents, 0);
+    const monthlyIncome = previewFinanceTransactions
+      .filter((transaction) => transaction.type === "income")
+      .reduce((sum, transaction) => sum + transaction.amount_cents, 0);
+    const budgetLimit = previewFinanceBudgets.reduce(
+      (sum, budget) => sum + budget.limit_cents,
+      0,
+    );
+    return {
+      currency: "RUB",
+      total_balance_cents: 43800000,
+      monthly_income_cents: monthlyIncome,
+      monthly_expense_cents: monthlyExpense,
+      remaining_budget_cents: budgetLimit - monthlyExpense,
+      net_worth_cents:
+        43800000 +
+        previewFinanceAssets.reduce((sum, asset) => sum + asset.current_value_cents, 0) -
+        previewFinanceDebts.reduce((sum, debt) => sum + debt.balance_cents, 0),
+      accounts_count: 3,
+      active_goals_count: previewFinanceGoals.length,
+      subscriptions_monthly_cents: previewFinanceSubscriptions
+        .filter((subscription) => subscription.is_active)
+        .reduce((sum, subscription) => sum + subscription.amount_cents, 0),
+      recent_transactions: clone(previewFinanceTransactions),
+      budgets: clone(previewFinanceBudgets),
+      alerts: [
+        {
+          kind: "manual_mode",
+          severity: "info",
+          message: "Банковские интеграции ещё не подключены, доступен ручной учёт.",
+        },
+      ],
+    };
+  }
+  const { data } = await api.get<FinanceDashboard>("/finance/dashboard");
+  return data;
+}
+
+export async function listFinanceTransactions(params?: {
+  type?: string;
+  category?: string;
+  search?: string;
+  date_from?: string;
+  date_to?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<FinanceTransaction[]> {
+  if (localPreviewMode) return clone(previewFinanceTransactions);
+  const { data } = await api.get<FinanceTransaction[]>("/finance/transactions", {
+    params,
+  });
+  return data;
+}
+
+export async function createFinanceTransaction(body: {
+  occurred_on: string;
+  type: FinanceTransaction["type"];
+  amount_cents: number;
+  currency?: string;
+  category: string;
+  merchant?: string;
+  note?: string;
+  account_id?: string;
+}): Promise<FinanceTransaction> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-finance-tx-${Date.now()}`,
+      user_id: "local-preview-user",
+      currency: "RUB",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceTransaction>(
+    "/finance/transactions",
+    body,
+  );
+  return data;
+}
+
+export async function listFinanceBudgets(): Promise<FinanceBudget[]> {
+  if (localPreviewMode) return clone(previewFinanceBudgets);
+  const { data } = await api.get<FinanceBudget[]>("/finance/budgets");
+  return data;
+}
+
+export async function createFinanceBudget(body: {
+  category: string;
+  period?: FinanceBudget["period"];
+  limit_cents: number;
+  rollover_enabled?: boolean;
+}): Promise<FinanceBudget> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-budget-${Date.now()}`,
+      user_id: "local-preview-user",
+      period: "monthly",
+      rollover_enabled: false,
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceBudget>("/finance/budgets", body);
+  return data;
+}
+
+export async function listFinanceGoals(): Promise<FinanceGoal[]> {
+  if (localPreviewMode) return clone(previewFinanceGoals);
+  const { data } = await api.get<FinanceGoal[]>("/finance/goals");
+  return data;
+}
+
+export async function createFinanceGoal(body: {
+  title: string;
+  target_amount_cents: number;
+  saved_amount_cents?: number;
+  target_date?: string;
+  linked_account_id?: string;
+  status?: FinanceGoal["status"];
+}): Promise<FinanceGoal> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-finance-goal-${Date.now()}`,
+      user_id: "local-preview-user",
+      saved_amount_cents: 0,
+      status: "active",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceGoal>("/finance/goals", body);
+  return data;
+}
+
+export async function listFinanceSubscriptions(): Promise<FinanceSubscription[]> {
+  if (localPreviewMode) return clone(previewFinanceSubscriptions);
+  const { data } = await api.get<FinanceSubscription[]>("/finance/subscriptions");
+  return data;
+}
+
+export async function createFinanceSubscription(body: {
+  name: string;
+  amount_cents: number;
+  currency?: string;
+  next_charge_date: string;
+  category?: string;
+  is_active?: boolean;
+}): Promise<FinanceSubscription> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-subscription-${Date.now()}`,
+      user_id: "local-preview-user",
+      currency: "RUB",
+      category: "subscriptions",
+      is_active: true,
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceSubscription>(
+    "/finance/subscriptions",
+    body,
+  );
+  return data;
+}
+
+export async function getFinanceAnalytics(params?: {
+  date_from?: string;
+  date_to?: string;
+}): Promise<FinanceAnalytics> {
+  if (localPreviewMode) {
+    const income = previewFinanceTransactions
+      .filter((transaction) => transaction.type === "income")
+      .reduce((sum, transaction) => sum + transaction.amount_cents, 0);
+    const expense = previewFinanceTransactions
+      .filter((transaction) => transaction.type === "expense")
+      .reduce((sum, transaction) => sum + transaction.amount_cents, 0);
+    return {
+      period_start: today,
+      period_end: today,
+      income_cents: income,
+      expense_cents: expense,
+      cash_flow_cents: income - expense,
+      by_category: [
+        { category: "food", expense_cents: 340000 },
+        { category: "transport", expense_cents: 120000 },
+      ],
+      daily: [{ date: today, expense_cents: expense }],
+    };
+  }
+  const { data } = await api.get<FinanceAnalytics>("/finance/analytics", {
+    params,
+  });
+  return data;
+}
+
+export async function listFinanceAccounts(): Promise<FinanceAccount[]> {
+  if (localPreviewMode) {
+    return [
+      {
+        id: "preview-account-1",
+        user_id: "local-preview-user",
+        name: "Основная карта",
+        type: "card",
+        currency: "RUB",
+        balance_cents: 43800000,
+        is_archived: false,
+        created_at: now,
+        updated_at: now,
+      },
+    ];
+  }
+  const { data } = await api.get<FinanceAccount[]>("/finance/accounts");
+  return data;
+}
+
+export async function getFinanceNetWorth(): Promise<FinanceNetWorth> {
+  if (localPreviewMode) {
+    const accounts = 43800000;
+    const assets = previewFinanceAssets.reduce(
+      (sum, asset) => sum + asset.current_value_cents,
+      0,
+    );
+    const debts = previewFinanceDebts.reduce(
+      (sum, debt) => sum + debt.balance_cents,
+      0,
+    );
+    return {
+      accounts_cents: accounts,
+      assets_cents: assets,
+      debts_cents: debts,
+      net_worth_cents: accounts + assets - debts,
+    };
+  }
+  const { data } = await api.get<FinanceNetWorth>("/finance/net-worth");
+  return data;
+}
+
+export async function getFinanceNetWorthProjection(params?: {
+  years?: number;
+}): Promise<FinanceNetWorthProjection> {
+  if (localPreviewMode) {
+    const netWorth = await getFinanceNetWorth();
+    const monthlyCashFlow = 850000;
+    return {
+      current_net_worth_cents: netWorth.net_worth_cents,
+      monthly_cash_flow_cents: monthlyCashFlow,
+      years: params?.years ?? 5,
+      projected_net_worth_cents: netWorth.net_worth_cents + monthlyCashFlow * 12 * (params?.years ?? 5),
+      points: Array.from({ length: params?.years ?? 5 }, (_, index) => ({
+        date: `${new Date().getFullYear() + index + 1}-01-01`,
+        net_worth_cents: netWorth.net_worth_cents + monthlyCashFlow * 12 * (index + 1),
+        assets_cents: netWorth.assets_cents + monthlyCashFlow * 12 * (index + 1),
+        debts_cents: netWorth.debts_cents,
+      })),
+    };
+  }
+  const { data } = await api.get<FinanceNetWorthProjection>("/finance/net-worth/projection", {
+    params,
+  });
+  return data;
+}
+
+export async function listFinanceRecommendations(): Promise<FinanceRecommendation[]> {
+  if (localPreviewMode) {
+    return [
+      {
+        id: "preview-budget",
+        kind: "budget",
+        severity: "info",
+        title: "Еда близко к лимиту",
+        message: "Категория еда использовала большую часть месячного бюджета.",
+        suggested_action: "Проверить крупные покупки и задать лимит на неделю.",
+        amount_cents: 60000,
+        used_data: ["finance_budgets", "finance_transactions"],
+      },
+    ];
+  }
+  const { data } = await api.get<FinanceRecommendation[]>("/finance/recommendations");
+  return data;
+}
+
+export async function chatWithFinanceAssistant(body: {
+  message: string;
+  period_start?: string;
+  period_end?: string;
+}): Promise<FinanceChatResponse> {
+  if (localPreviewMode) {
+    return {
+      answer:
+        "За текущий период больше всего денег ушло на еду и транспорт. Подписки держатся в пределах плана.",
+      used_data: ["finance_transactions", "finance_subscriptions"],
+      recommendations: await listFinanceRecommendations(),
+      safety_note: null,
+    };
+  }
+  const { data } = await api.post<FinanceChatResponse>("/finance/chat", body);
+  return data;
+}
+
+export async function detectFinanceSubscriptions(): Promise<FinanceSubscriptionDetection[]> {
+  if (localPreviewMode) {
+    return [
+      {
+        merchant: "VPN",
+        amount_cents: 99000,
+        currency: "RUB",
+        category: "software",
+        occurrences: 3,
+        confidence: 0.85,
+        suggested_next_charge_date: today,
+        transaction_ids: ["preview-finance-tx-2"],
+      },
+    ];
+  }
+  const { data } = await api.get<FinanceSubscriptionDetection[]>("/finance/subscriptions/detect");
+  return data;
+}
+
+export async function getFinanceBudgetTemplate(params?: {
+  months?: number;
+}): Promise<FinanceBudgetTemplate> {
+  if (localPreviewMode) {
+    return {
+      period_months: params?.months ?? 3,
+      items: [
+        {
+          category: "food",
+          suggested_limit_cents: 420000,
+          average_monthly_spend_cents: 380000,
+          peak_monthly_spend_cents: 460000,
+          confidence: 0.75,
+        },
+      ],
+    };
+  }
+  const { data } = await api.get<FinanceBudgetTemplate>("/finance/budgets/suggest-template", {
+    params,
+  });
+  return data;
+}
+
+export async function getFinanceTaxSummary(params?: {
+  year?: number;
+}): Promise<FinanceTaxSummary> {
+  if (localPreviewMode) {
+    return {
+      upcoming_events: clone(previewFinanceTaxEvents),
+      deductible_candidates: [{ category: "health", amount_cents: 120000 }],
+      documents_count: previewFinanceDocuments.length,
+      safety_note: "Это предварительная сводка, налоговые решения нужно проверять отдельно.",
+    };
+  }
+  const { data } = await api.get<FinanceTaxSummary>("/finance/taxes/summary", {
+    params,
+  });
+  return data;
+}
+
+export async function listFinanceDebts(): Promise<FinanceDebt[]> {
+  if (localPreviewMode) return clone(previewFinanceDebts);
+  const { data } = await api.get<FinanceDebt[]>("/finance/debts");
+  return data;
+}
+
+export async function createFinanceDebt(body: {
+  name: string;
+  type?: FinanceDebt["type"];
+  balance_cents: number;
+  interest_rate_percent?: number;
+  monthly_payment_cents?: number;
+  next_payment_date?: string;
+}): Promise<FinanceDebt> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-debt-${Date.now()}`,
+      user_id: "local-preview-user",
+      type: "other",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceDebt>("/finance/debts", body);
+  return data;
+}
+
+export async function listFinanceAssets(): Promise<FinanceAsset[]> {
+  if (localPreviewMode) return clone(previewFinanceAssets);
+  const { data } = await api.get<FinanceAsset[]>("/finance/assets");
+  return data;
+}
+
+export async function createFinanceAsset(body: {
+  name: string;
+  type?: FinanceAsset["type"];
+  current_value_cents: number;
+  currency?: string;
+}): Promise<FinanceAsset> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-asset-${Date.now()}`,
+      user_id: "local-preview-user",
+      type: "other",
+      currency: "RUB",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceAsset>("/finance/assets", body);
+  return data;
+}
+
+export async function listFinanceIncome(): Promise<FinanceIncome[]> {
+  if (localPreviewMode) return clone(previewFinanceIncome);
+  const { data } = await api.get<FinanceIncome[]>("/finance/income");
+  return data;
+}
+
+export async function createFinanceIncome(body: {
+  source: string;
+  amount_cents: number;
+  currency?: string;
+  received_on: string;
+  category?: string;
+}): Promise<FinanceIncome> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-income-${Date.now()}`,
+      user_id: "local-preview-user",
+      currency: "RUB",
+      category: "income",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceIncome>("/finance/income", body);
+  return data;
+}
+
+export async function listFinanceTaxEvents(): Promise<FinanceTaxEvent[]> {
+  if (localPreviewMode) return clone(previewFinanceTaxEvents);
+  const { data } = await api.get<FinanceTaxEvent[]>("/finance/tax-events");
+  return data;
+}
+
+export async function createFinanceTaxEvent(body: {
+  title: string;
+  due_date: string;
+  amount_cents?: number;
+  notes?: string;
+}): Promise<FinanceTaxEvent> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-tax-${Date.now()}`,
+      user_id: "local-preview-user",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceTaxEvent>("/finance/tax-events", body);
+  return data;
+}
+
+export async function listFinanceDocuments(): Promise<FinanceDocument[]> {
+  if (localPreviewMode) return clone(previewFinanceDocuments);
+  const { data } = await api.get<FinanceDocument[]>("/finance/documents");
+  return data;
+}
+
+export async function createFinanceDocument(body: {
+  title: string;
+  kind?: string;
+  storage_path?: string;
+  linked_transaction_id?: string;
+  extracted_total_cents?: number;
+  extracted_date?: string;
+}): Promise<FinanceDocument> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-document-${Date.now()}`,
+      user_id: "local-preview-user",
+      kind: "receipt",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceDocument>("/finance/documents", body);
   return data;
 }

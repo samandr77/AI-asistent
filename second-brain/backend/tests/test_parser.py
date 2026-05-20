@@ -45,11 +45,14 @@ async def test_parse_dump_empty_text_raises():
 
 
 @pytest.mark.anyio
-async def test_parse_dump_invalid_json_after_all_tiers_raises():
+async def test_parse_dump_invalid_json_after_all_tiers_uses_local_fallback():
     bad = AIResult(text="not json", tokens=100, tier=AITier.cheap)
     with patch("services.parser.complete", new=AsyncMock(return_value=bad)):
-        with pytest.raises(ValueError):
-            await parse_dump("some text", {})
+        result = await parse_dump("some text", {})
+
+    assert result.tokens == 200
+    assert len(result.parsed.tasks) == 1
+    assert result.parsed.tasks[0].title == "some text"
 
 
 def test_extract_json_object_from_prose():

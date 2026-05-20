@@ -222,7 +222,10 @@ if HAS_MULTIPART:
                 detail=f"Audio too long (max {settings.max_audio_seconds}s, got {int(duration)}s)",
             )
 
-        transcription = await transcribe_audio_with_fallback(audio_bytes, filename)
+        try:
+            transcription = await transcribe_audio_with_fallback(audio_bytes, filename)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
         active_goals = _fetch_active_goals(user_id)
         tier_policy = get_ai_tier_policy(premium)
         try:

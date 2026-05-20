@@ -1,9 +1,10 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`.specify/specs/006-telegram-miniapp/plan.md`
+`docs/new-plan/roadmap.md`
 
-Roadmap and stage task planning also live in `docs/superpowers/plans/telegram-miniapp/`.
+Stage task planning lives in `docs/new-plan/tasks.md` and
+`docs/new-plan/stages/`.
 <!-- SPECKIT END -->
 
 # Second Brain
@@ -33,9 +34,11 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
 - `docs/store-listing/` — App Store / Play Console тексты + placeholder-скриншоты
 - `docs/runbooks/` — operational runbooks (`account-cleanup.md`)
 - `docs/superpowers/plans/` — Superpowers-style планы (реализация + reliability)
-  - `telegram-miniapp/roadmap.md` — roadmap переноса в Telegram Mini App
-  - `telegram-miniapp/stages/*.md` — подробное описание каждого этапа
-  - `telegram-miniapp/tasks.md` — полный чеклист задач для реализации системы
+- `docs/new-plan/` — новая основа декомпозиции AI Life OS
+  - `roadmap.md` — roadmap реализации
+  - `stages/*.md` — подробное описание каждого этапа
+  - `tasks.md` — полный чеклист задач для реализации системы
+  - `*-source.md` и исходные markdown-файлы — сырой продуктовый ввод
 - `.specify/` — Spec Kit artefacts (gitignored, локально)
   - `memory/constitution.md` — v1.0.0, 7 принципов, обязательны для всех новых фич
   - `specs/001-goals-first-class/` — Goals
@@ -43,7 +46,6 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
   - `specs/003-oauth-signin/` — OAuth
   - `specs/004-paywall-premium/` — Paywall
   - `specs/005-production-readiness/` — Production readiness (account deletion, history cutoff, i18n, RLS tests, store listing)
-  - `specs/006-telegram-miniapp/` — planned/current Telegram Mini App migration
 
 ## Команды
 
@@ -75,6 +77,18 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
 - **Telegram reminders:** заменить Expo local notifications на сообщения Telegram bot-а
 - **AI-вызовы:** всегда через `services/ai_router.py` с per-user token budget gating (Principle III)
 - **Premium gating:** fail-safe to FREE если `user_premium` row отсутствует — никогда не давать premium по ошибке
+
+## gstack в Codex
+- gstack установлен как Codex skills в `~/.codex/skills/gstack-*`; после установки/обновления открыть новую Codex-сессию, чтобы список skills обновился.
+- Использовать gstack как дополнительный слой к Spec Kit, а не вместо него: Spec Kit управляет фичами и задачами, gstack усиливает ревью, QA, безопасность, расследования, релиз и документацию.
+- Для продуктового/архитектурного планирования подключать `/gstack-office-hours`, `/gstack-plan-ceo-review`, `/gstack-plan-eng-review`, `/gstack-plan-design-review`, `/gstack-plan-devex-review`; результаты сверять с `docs/new-plan/roadmap.md`, `docs/new-plan/tasks.md` и `docs/new-plan/stages/`.
+- Перед завершением значимых изменений запускать `/gstack-review`; для Telegram auth, Stars payments, webhook secrets, RLS, premium gating и account deletion дополнительно запускать `/gstack-cso`.
+- Для багов и нестабильных сценариев использовать `/gstack-investigate`: сначала собрать факты, воспроизвести проблему, проверить гипотезы, потом править.
+- Для Telegram Mini App UI и пользовательских flows использовать `/gstack-qa` или `/gstack-qa-only` с реальным локальным/staging URL; после фикса повторно прогонять `npm run typecheck`, `npm test`, `npm run build` в `second-brain/telegram-miniapp`.
+- Для backend изменений после gstack-ревью/расследования запускать `cd second-brain/backend && pytest` и `cd second-brain/backend && ruff check .`; для mobile — `cd second-brain/mobile && npx tsc --noEmit` и релевантные `npx jest`.
+- Для релизных задач использовать `/gstack-ship`, `/gstack-land-and-deploy`, `/gstack-canary` только когда явно понятна целевая ветка и окружение; не пушить в `main` без явного подтверждения ветки.
+- Для документации после готовой фичи использовать `/gstack-document-release` или `/gstack-document-generate`, затем проверить, что обновления не противоречат roadmap, release checklist и legal/runbook docs.
+- Для обновления gstack использовать `/gstack-upgrade` или `cd ~/gstack && ./setup --host codex`; не коммитить сгенерированные `~/.codex/skills` или `~/gstack/.agents/skills` в этот репозиторий.
 
 ## Переменные окружения
 - `second-brain/backend/.env.example` — backend template

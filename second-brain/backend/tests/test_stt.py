@@ -24,3 +24,24 @@ async def test_transcribe_with_fallback_on_openai_error():
         from services.stt import transcribe_audio_with_fallback
         result = await transcribe_audio_with_fallback(b"audio", "audio.m4a")
     assert result == "fallback text"
+
+
+@pytest.mark.anyio
+async def test_huggingface_stt_model_comes_from_settings():
+    from services import stt
+
+    response = AsyncMock()
+    response.raise_for_status = lambda: None
+    response.json = lambda: {"text": "текст из hugging face"}
+
+    with patch("services.stt.settings") as mock_settings, \
+         patch("services.stt.httpx.AsyncClient") as mock_client:
+        mock_settings.huggingface_api_key = "hf-test"
+        mock_settings.huggingface_stt_model = "openai/whisper-large-v3-turbo"
+        mock_client.return_value.__aenter__.return_value.post = AsyncMock(return_value=response)
+
+        result = await stt._transcribe_via_huggingface(b"audio")
+
+    assert result == "текст из hugging face"
+    called_url = mock_client.return_value.__aenter__.return_value.post.await_args.args[0]
+    assert called_url.endswith("/openai/whisper-large-v3-turbo")
