@@ -5,7 +5,11 @@ export type Sphere =
   | "health"
   | "finance"
   | "travel"
-  | "goals";
+  | "goals"
+  | "mind"
+  | "personal";
+
+export type GoalLevel = "life" | "year" | "quarter" | "week";
 
 export type TaskStatus = "inbox" | "active" | "done" | "archived" | "delegated";
 
@@ -56,8 +60,125 @@ export interface Goal {
   status: "active" | "paused" | "achieved" | "archived";
   sphere?: Sphere | null;
   progress_percent: number;
+  level: GoalLevel;
+  parent_goal_id?: string | null;
+  horizon_start?: string | null;
+  horizon_end?: string | null;
+  weight: number;
   created_at: string;
   updated_at: string;
+}
+
+export type KeyResultDirection = "increase" | "decrease" | "maintain";
+export type KeyResultStatus = "on_track" | "at_risk" | "off_track" | "done";
+
+export interface KeyResult {
+  id: string;
+  goal_id: string;
+  user_id: string;
+  title: string;
+  metric?: string | null;
+  unit?: string | null;
+  start_value: number;
+  target_value: number;
+  current_value: number;
+  direction: KeyResultDirection;
+  status: KeyResultStatus;
+  due_date?: string | null;
+  progress_percent: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GoalTreeNode {
+  goal: Goal & {
+    computed_progress?: number;
+    linked_tasks_count?: number;
+    completed_tasks_count?: number;
+    key_results_count?: number;
+    key_results_done_count?: number;
+    children_count?: number;
+  };
+  children: GoalTreeNode[];
+}
+
+export interface Strategy {
+  user_id: string;
+  mission: string | null;
+  vision: string | null;
+  values: string[];
+  life_areas: string[];
+  swot_strengths: string[];
+  swot_weaknesses: string[];
+  swot_opportunities: string[];
+  swot_threats: string[];
+}
+
+export type KpiDirection = "increase" | "decrease" | "maintain";
+export type KpiStatus = "ok" | "warning" | "breach";
+
+export interface KpiHistoryEntry {
+  id: string;
+  kpi_id: string;
+  user_id: string;
+  recorded_on: string;
+  value: number;
+  note?: string | null;
+  created_at: string;
+}
+
+export interface Kpi {
+  id: string;
+  user_id: string;
+  name: string;
+  unit?: string | null;
+  sphere?: Sphere | null;
+  target_value: number | null;
+  current_value: number | null;
+  direction: KpiDirection;
+  warning_threshold: number | null;
+  is_active: boolean;
+  history: KpiHistoryEntry[];
+  trend_percent: number | null;
+  status: KpiStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WeeklyReview {
+  id: string;
+  user_id: string;
+  week_start: string;
+  highlights: string | null;
+  lessons: string | null;
+  next_week_focus: string | null;
+  okr_progress: { items?: WeeklyReviewOkrItem[] };
+  completed_tasks_count: number;
+  carried_over_count: number;
+  mood: number | null;
+  energy: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WeeklyReviewOkrItem {
+  goal_id: string;
+  title: string;
+  level: GoalLevel;
+  computed_progress: number;
+  key_results_done: number;
+  key_results_total: number;
+}
+
+export interface WeeklyReviewDraft {
+  week_start: string;
+  week_end: string;
+  completed_tasks_count: number;
+  carried_over_count: number;
+  active_goals: number;
+  okr_progress: WeeklyReviewOkrItem[];
+  top_completed: { id: string; title: string; sphere: string | null }[];
+  suggestions: string[];
 }
 
 export interface GoalProgressResponse {

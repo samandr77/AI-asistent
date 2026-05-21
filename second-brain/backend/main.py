@@ -15,10 +15,13 @@ from api import (
     dump,
     finance,
     goals,
+    kpis,
     memory,
     premium,
     reflections,
+    reviews,
     revenuecat_webhook,
+    strategy,
     task_projects,
     tasks,
     telegram_auth,
@@ -96,6 +99,9 @@ app.include_router(task_projects.router, prefix="/task-projects", tags=["task-pr
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(memory.router, prefix="/memory", tags=["memory"])
 app.include_router(goals.router, prefix="/goals", tags=["goals"])
+app.include_router(strategy.router, prefix="/strategy", tags=["strategy"])
+app.include_router(kpis.router, prefix="/kpis", tags=["kpis"])
+app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
 app.include_router(finance.router, prefix="/finance", tags=["finance"])
 app.include_router(reflections.router, prefix="/reflections", tags=["reflections"])
 app.include_router(premium.router, prefix="/premium", tags=["premium"])

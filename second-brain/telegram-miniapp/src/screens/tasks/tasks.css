@@ -1,0 +1,1578 @@
+/* ===== Задачи — Telegram Mini App (Hi-fi navy + ice white) =====
+   All rules live under .tasks-app to avoid leaking into the rest of the app. */
+
+.tasks-app {
+  --canvas-bg: #e2e9f4;
+
+  --screen-bg: #f2f6fc;
+  --screen-bg-deep: #e8eff8;
+
+  --card: #ffffff;
+  --card-soft: #eef3fb;
+  --card-tint: #f7fafe;
+
+  --ink-900: #0b1f3e;
+  --ink-800: #15294b;
+  --ink-700: #20365c;
+  --ink-600: #3e527a;
+  --ink-500: #5c6f92;
+  --ink-400: #8395b3;
+  --ink-300: #b0bcd2;
+  --ink-200: #d4dcea;
+
+  --hairline: #e3eaf4;
+  --hairline-strong: #d2dcec;
+
+  --accent: #2e5bff;
+  --accent-strong: #1e45d6;
+  --accent-soft: rgba(46, 91, 255, 0.1);
+  --accent-softer: rgba(46, 91, 255, 0.06);
+  --accent-ink: #0f2f8c;
+
+  --success: #1fa67a;
+  --success-soft: rgba(31, 166, 122, 0.12);
+  --warn: #dc8a1e;
+  --warn-soft: rgba(220, 138, 30, 0.12);
+  --danger: #dd3f52;
+  --danger-soft: rgba(221, 63, 82, 0.1);
+  --focus: #6e5bf6;
+  --focus-soft: rgba(110, 91, 246, 0.12);
+
+  --sphere-work: #2e5bff;
+  --sphere-health: #1fa67a;
+  --sphere-finance: #6e5bf6;
+  --sphere-personal: #dc8a1e;
+  --sphere-mind: #0ea5e9;
+
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+
+  --sh-1: 0 1px 2px rgba(11, 31, 62, 0.04), 0 0 0 1px rgba(11, 31, 62, 0.04);
+  --sh-2: 0 4px 14px rgba(11, 31, 62, 0.06), 0 1px 2px rgba(11, 31, 62, 0.04);
+  --sh-3: 0 12px 32px rgba(11, 31, 62, 0.1), 0 2px 4px rgba(11, 31, 62, 0.04);
+
+  font-family:
+    "Manrope",
+    -apple-system,
+    system-ui,
+    sans-serif;
+  color: var(--ink-900);
+  background: var(--screen-bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  min-height: 100vh;
+  letter-spacing: -0.01em;
+}
+
+/* ---- screen scaffold ---- */
+.tasks-app .scr {
+  background: var(--screen-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding-bottom: 110px;
+}
+
+.tasks-app .scr-head {
+  padding: 32px 20px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tasks-app .top-bar {
+  padding: 24px 18px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.tasks-app .top-bar-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+}
+.tasks-app .top-bar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tasks-app .top-bar .eyebrow {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-400);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.tasks-app .top-bar .title {
+  font-size: 27px;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ink-900);
+}
+.tasks-app .top-bar .subtitle {
+  font-size: 13px;
+  color: var(--ink-500);
+  font-weight: 500;
+}
+
+.tasks-app .scr-body {
+  flex: 1;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tasks-app .scr-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 4px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-800);
+  letter-spacing: -0.01em;
+}
+.tasks-app .scr-section-title .count {
+  font-weight: 500;
+  color: var(--ink-400);
+  font-size: 12px;
+}
+
+/* ---- cards ---- */
+.tasks-app .card {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  padding: 16px;
+}
+.tasks-app .card.flat {
+  box-shadow: none;
+  border: 1px solid var(--hairline);
+}
+.tasks-app .card.tint {
+  background: var(--card-tint);
+  box-shadow: none;
+  border: 1px solid var(--hairline);
+}
+
+/* ---- AI chip ---- */
+.tasks-app .ai-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px 10px 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(46, 91, 255, 0.08),
+    rgba(14, 165, 233, 0.06)
+  );
+  border: 1px solid rgba(46, 91, 255, 0.18);
+  border-radius: 14px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  color: var(--ink-700);
+  font-weight: 500;
+}
+.tasks-app .ai-chip .ai-dot {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent), #0ea5e9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: -0.04em;
+  box-shadow: 0 4px 10px rgba(46, 91, 255, 0.25);
+}
+.tasks-app .ai-chip b {
+  color: var(--ink-900);
+  font-weight: 700;
+}
+.tasks-app .ai-chip .ai-cta {
+  margin-left: auto;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.tasks-app .ai-panel {
+  background: linear-gradient(160deg, #ffffff 0%, #f4f8ff 60%, #eaf1ff 100%);
+  border: 1px solid rgba(46, 91, 255, 0.16);
+  border-radius: var(--r-lg);
+  padding: 16px;
+}
+
+/* ---- pills / chips ---- */
+.tasks-app .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  background: var(--card-soft);
+  color: var(--ink-700);
+  white-space: nowrap;
+}
+.tasks-app .pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.85;
+}
+.tasks-app .pill.solid {
+  background: var(--accent);
+  color: #fff;
+}
+.tasks-app .pill.accent {
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.tasks-app .pill.success {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.tasks-app .pill.warn {
+  background: var(--warn-soft);
+  color: var(--warn);
+}
+.tasks-app .pill.danger {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+.tasks-app .pill.focus {
+  background: var(--focus-soft);
+  color: var(--focus);
+}
+.tasks-app .pill.ghost {
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink-600);
+}
+
+.tasks-app .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--card-soft);
+  color: var(--ink-600);
+}
+.tasks-app .chip .sw {
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+}
+.tasks-app .chip.tag {
+  background: transparent;
+  color: var(--ink-500);
+  padding: 0;
+  height: auto;
+  font-weight: 500;
+  font-size: 11px;
+}
+.tasks-app .chip.tag::before {
+  content: "#";
+  opacity: 0.5;
+  margin-right: 1px;
+}
+.tasks-app .chip.ctx {
+  background: var(--accent-softer);
+  color: var(--accent-ink);
+}
+.tasks-app .chip.ctx::before {
+  content: "@";
+  opacity: 0.7;
+  margin-right: 1px;
+}
+
+/* ---- task row ---- */
+.tasks-app .task {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: var(--card);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-1);
+  text-align: left;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+.tasks-app .task .check {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1.5px solid var(--ink-300);
+  margin-top: 1px;
+  position: relative;
+  background: #fff;
+}
+.tasks-app .task .check.done {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.tasks-app .task .check.done::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 22 22' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5 11.5l4 4 8-8' stroke='white' stroke-width='2.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center/contain no-repeat;
+}
+.tasks-app .task .body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tasks-app .task .name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--ink-900);
+  line-height: 1.3;
+}
+.tasks-app .task .name.done {
+  color: var(--ink-400);
+  text-decoration: line-through;
+}
+.tasks-app .task .meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tasks-app .task .meta .time {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--ink-500);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+/* ---- buttons ---- */
+.tasks-app .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--card-soft);
+  color: var(--ink-800);
+  border: none;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+.tasks-app .btn.primary {
+  background: var(--accent);
+  color: #fff;
+}
+.tasks-app .btn.dark {
+  background: var(--ink-900);
+  color: #fff;
+}
+.tasks-app .btn.ghost {
+  background: transparent;
+  border: 1px solid var(--hairline-strong);
+  color: var(--ink-700);
+}
+.tasks-app .btn.tiny {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  border-radius: 8px;
+}
+.tasks-app .btn.lg {
+  height: 48px;
+  padding: 0 20px;
+  font-size: 15px;
+  border-radius: 14px;
+}
+.tasks-app .btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ---- quick add ---- */
+.tasks-app .quick-add {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 92px;
+  background: var(--ink-900);
+  color: #fff;
+  border-radius: 18px;
+  padding: 10px 10px 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow:
+    0 18px 40px rgba(11, 31, 62, 0.22),
+    0 4px 10px rgba(11, 31, 62, 0.12);
+  z-index: 30;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.tasks-app .quick-add input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+}
+.tasks-app .quick-add input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+.tasks-app .qa-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+.tasks-app .qa-mic {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+}
+.tasks-app .qa-send {
+  background: var(--accent);
+  color: #fff;
+}
+.tasks-app .qa-send:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- tab bar ---- */
+.tasks-app .tabbar {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 16px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: 22px;
+  box-shadow:
+    0 14px 30px rgba(11, 31, 62, 0.1),
+    0 0 0 1px rgba(11, 31, 62, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 8px;
+  z-index: 30;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.tasks-app .tabbar .tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--ink-400);
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+}
+.tasks-app .tabbar .tab.active {
+  color: var(--accent);
+}
+.tasks-app .tabbar .tab.fab {
+  width: 48px;
+  height: 48px;
+  background: var(--ink-900);
+  color: #fff;
+  border-radius: 16px;
+  justify-content: center;
+  padding: 0;
+}
+
+/* ---- progress ---- */
+.tasks-app .bar {
+  height: 6px;
+  background: var(--card-soft);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+.tasks-app .bar > i {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+/* ---- icon button ---- */
+.tasks-app .icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--card-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-700);
+  border: none;
+  cursor: pointer;
+}
+.tasks-app .icon-btn.on-card {
+  background: #fff;
+  box-shadow: var(--sh-1);
+}
+
+/* ---- avatar ---- */
+.tasks-app .avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), #0ea5e9);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border: 2px solid #fff;
+}
+.tasks-app .avatars {
+  display: inline-flex;
+}
+.tasks-app .avatars .avatar + .avatar {
+  margin-left: -8px;
+}
+
+/* ---- segmented control ---- */
+.tasks-app .seg {
+  display: inline-flex;
+  padding: 3px;
+  background: var(--card-soft);
+  border-radius: 12px;
+  gap: 2px;
+  overflow-x: auto;
+}
+.tasks-app .seg .s {
+  padding: 7px 14px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink-500);
+  border: none;
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.tasks-app .seg .s.active {
+  background: #fff;
+  color: var(--ink-900);
+  box-shadow: var(--sh-1);
+}
+
+/* ---- date strip ---- */
+.tasks-app .date-strip {
+  display: flex;
+  gap: 6px;
+  padding: 2px 0;
+}
+.tasks-app .date-cell {
+  flex: 1;
+  padding: 10px 0;
+  text-align: center;
+  background: #fff;
+  color: var(--ink-600);
+  border-radius: 14px;
+  box-shadow: var(--sh-1);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.tasks-app .date-cell.active {
+  background: var(--ink-900);
+  color: #fff;
+  box-shadow: var(--sh-2);
+}
+.tasks-app .date-cell .dow {
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: 0.6;
+}
+.tasks-app .date-cell .day {
+  font-size: 17px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+.tasks-app .date-cell .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--accent);
+  margin: 4px auto 0;
+}
+.tasks-app .date-cell.active .dot {
+  background: #fff;
+}
+
+/* ---- inbox bar (Today) ---- */
+.tasks-app .inbox-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: var(--card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  text-decoration: none;
+  color: inherit;
+}
+.tasks-app .inbox-bar .ico {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tasks-app .inbox-bar .title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-900);
+}
+.tasks-app .inbox-bar .sub {
+  font-size: 11.5px;
+  color: var(--ink-500);
+  font-weight: 500;
+}
+
+/* ---- big three number badge ---- */
+.tasks-app .big-three-wrap {
+  position: relative;
+}
+.tasks-app .big-three-badge {
+  position: absolute;
+  top: 14px;
+  left: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--ink-900);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* ---- bars-mini ---- */
+.tasks-app .bars-mini {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 36px;
+}
+.tasks-app .bars-mini .b {
+  flex: 1;
+  background: var(--accent-soft);
+  border-radius: 3px;
+}
+.tasks-app .bars-mini .b.active {
+  background: var(--accent);
+}
+
+/* ---- inbox card item ---- */
+.tasks-app .inbox-item {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  overflow: hidden;
+}
+.tasks-app .inbox-item .head {
+  padding: 14px 16px 10px;
+}
+.tasks-app .inbox-item .src {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--ink-400);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.tasks-app .inbox-item .raw {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: var(--ink-800);
+}
+.tasks-app .inbox-item .ai-strip {
+  margin: 0 12px 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(46, 91, 255, 0.06),
+    rgba(14, 165, 233, 0.04)
+  );
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid rgba(46, 91, 255, 0.12);
+}
+.tasks-app .inbox-item .ai-strip .label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.tasks-app .inbox-item .ai-strip .row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tasks-app .inbox-item .actions {
+  display: flex;
+  gap: 6px;
+  padding: 0 12px 12px;
+  overflow-x: auto;
+}
+
+/* ---- task detail ---- */
+.tasks-app .raw-quote {
+  background: var(--card-tint);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--ink-500);
+  font-style: italic;
+  line-height: 1.4;
+  border-left: 3px solid var(--accent);
+}
+.tasks-app .raw-quote .label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+  font-style: normal;
+}
+.tasks-app .meta-grid {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  padding: 0;
+  overflow: hidden;
+}
+.tasks-app .meta-grid .row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--hairline);
+}
+.tasks-app .meta-grid .row:last-child {
+  border-bottom: none;
+}
+.tasks-app .meta-grid .row .ico {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--card-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tasks-app .meta-grid .row .l {
+  font-size: 11px;
+  color: var(--ink-400);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.tasks-app .meta-grid .row .v {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink-900);
+  margin-top: 2px;
+}
+
+/* ---- sticky CTA ---- */
+.tasks-app .sticky-cta {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 92px;
+  display: flex;
+  gap: 8px;
+  z-index: 25;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* ---- AI chat ---- */
+.tasks-app .ai-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.tasks-app .ai-msg .ai-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #0ea5e9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 28px;
+  box-shadow: 0 4px 10px rgba(46, 91, 255, 0.25);
+}
+.tasks-app .ai-msg .bubble {
+  background: #fff;
+  border-radius: 4px 16px 16px 16px;
+  padding: 12px 14px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--ink-800);
+  box-shadow: var(--sh-1);
+  flex: 1;
+}
+.tasks-app .me-msg {
+  display: flex;
+  justify-content: flex-end;
+}
+.tasks-app .me-msg .bubble {
+  background: var(--ink-900);
+  color: #fff;
+  border-radius: 16px 16px 4px 16px;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  line-height: 1.4;
+  max-width: 78%;
+}
+.tasks-app .ai-suggestion {
+  background: #fff;
+  border: 1px dashed var(--hairline-strong);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tasks-app .prompt-chip {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  background: #fff;
+  border-radius: 999px;
+  border: 1px solid var(--hairline);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.tasks-app .chat-input {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 92px;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 22px;
+  padding: 8px 8px 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: var(--sh-2);
+  z-index: 25;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.tasks-app .chat-input input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  color: var(--ink-900);
+  font-family: inherit;
+}
+.tasks-app .chat-input input::placeholder {
+  color: var(--ink-400);
+  font-weight: 500;
+}
+
+/* ---- matrix ---- */
+.tasks-app .matrix-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  position: relative;
+}
+.tasks-app .quadrant {
+  padding: 12px;
+  min-height: 188px;
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid;
+}
+.tasks-app .quadrant .head .sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.tasks-app .quadrant .head .sub .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+}
+.tasks-app .quadrant .head .title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-900);
+  margin-top: 2px;
+  letter-spacing: -0.01em;
+}
+.tasks-app .quadrant .mini-task {
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px 8px 8px 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  box-shadow: 0 1px 2px rgba(11, 31, 62, 0.05);
+}
+.tasks-app .quadrant .mini-task .stripe {
+  width: 3px;
+  align-self: stretch;
+  border-radius: 999px;
+  margin-top: 1px;
+}
+.tasks-app .quadrant .mini-task .name {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1.25;
+}
+.tasks-app .quadrant .mini-task .sub {
+  font-size: 9.5px;
+  color: var(--ink-400);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.tasks-app .quadrant .foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--ink-400);
+  font-weight: 600;
+}
+
+/* ---- big three card ---- */
+.tasks-app .big-three-card {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  border-left: 4px solid;
+}
+.tasks-app .big-three-card .num {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 14px;
+  background: var(--ink-900);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: -0.02em;
+}
+.tasks-app .big-three-card .flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 4px;
+}
+.tasks-app .big-three-card .name {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--ink-900);
+}
+.tasks-app .big-three-card .why {
+  font-size: 12px;
+  color: var(--ink-500);
+  font-weight: 500;
+  margin-top: 4px;
+  line-height: 1.4;
+  font-style: italic;
+}
+.tasks-app .candidate {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px dashed var(--hairline-strong);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tasks-app .candidate .stripe {
+  width: 6px;
+  height: 28px;
+  border-radius: 999px;
+  opacity: 0.6;
+}
+
+/* ---- time block ---- */
+.tasks-app .summary-row {
+  display: flex;
+  gap: 8px;
+}
+.tasks-app .summary-row .stat {
+  flex: 1;
+  padding: 10px;
+}
+.tasks-app .summary-row .stat .l {
+  font-size: 9.5px;
+  color: var(--ink-400);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.tasks-app .summary-row .stat .v {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 3px;
+  letter-spacing: -0.02em;
+}
+.tasks-app .timeline {
+  padding: 12px 4px 12px 12px;
+}
+.tasks-app .timeline-track {
+  position: relative;
+}
+.tasks-app .timeline-hour {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 44px;
+  border-top: 1px dashed var(--hairline);
+  display: flex;
+  padding-left: 0;
+}
+.tasks-app .timeline-hour .lbl {
+  width: 38px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-400);
+  letter-spacing: 0.04em;
+  padding-top: 4px;
+}
+.tasks-app .now-line {
+  position: absolute;
+  left: 36px;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  z-index: 2;
+}
+.tasks-app .now-line .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+.tasks-app .now-line .line {
+  flex: 1;
+  height: 1.5px;
+  background: var(--accent);
+}
+.tasks-app .now-line .badge {
+  position: absolute;
+  right: -2px;
+  top: -8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+.tasks-app .tb-block {
+  position: absolute;
+  left: 42px;
+  right: 4px;
+  border-radius: 8px;
+  padding: 5px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-left-width: 3px;
+  border-left-style: solid;
+}
+.tasks-app .tb-block .label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-900);
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.tasks-app .tb-block .time {
+  font-size: 9.5px;
+  color: var(--ink-500);
+  font-weight: 600;
+}
+
+/* ---- pomodoro ---- */
+.tasks-app .scr.bg-deep {
+  background: var(--screen-bg-deep);
+}
+.tasks-app .pomo-task {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tasks-app .pomo-task .stripe {
+  width: 6px;
+  height: 36px;
+  border-radius: 999px;
+}
+.tasks-app .pomo-timer {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 12px auto 6px;
+}
+.tasks-app .pomo-timer .center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.tasks-app .pomo-timer .center .time {
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--ink-900);
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin-top: 6px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+.tasks-app .pomo-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+.tasks-app .pomo-dots .d {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ink-200);
+}
+.tasks-app .pomo-dots .d.on {
+  background: var(--accent);
+}
+.tasks-app .pomo-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+.tasks-app .pomo-controls .play-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  background: var(--ink-900);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 30px rgba(11, 31, 62, 0.2);
+  border: none;
+  cursor: pointer;
+}
+.tasks-app .pomo-controls .side-btn {
+  width: 48px;
+  height: 48px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: var(--sh-1);
+}
+
+/* ---- habits ---- */
+.tasks-app .habit-chain {
+  display: grid;
+  grid-template-columns: repeat(28, 1fr);
+  gap: 3px;
+}
+.tasks-app .habit-chain .cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: var(--card-soft);
+}
+.tasks-app .habit-chain .cell.on {
+  background: rgba(46, 91, 255, 0.6);
+}
+.tasks-app .week-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.tasks-app .week-grid .col {
+  text-align: center;
+}
+.tasks-app .week-grid .col .bar-wrap {
+  height: 56px;
+  margin-top: 4px;
+  border-radius: 10px;
+  background: var(--card-soft);
+  overflow: hidden;
+  position: relative;
+}
+.tasks-app .week-grid .col .bar-wrap.today {
+  border: 1.5px solid var(--accent);
+}
+.tasks-app .week-grid .col .fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* ---- projects ---- */
+.tasks-app .project-card {
+  background: var(--card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.tasks-app .project-card .head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.tasks-app .project-card .head .ico {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 42px;
+}
+.tasks-app .project-card .name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-900);
+  letter-spacing: -0.015em;
+}
+.tasks-app .project-card .next {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card-tint);
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+/* ---- contexts ---- */
+.tasks-app .ctx-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.tasks-app .ctx-card {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #fff;
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-1);
+  border: none;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  color: inherit;
+}
+.tasks-app .ctx-card.active {
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(46, 91, 255, 0.25);
+}
+.tasks-app .ctx-card .ico {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--card-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tasks-app .ctx-card.active .ico {
+  background: rgba(255, 255, 255, 0.18);
+}
+.tasks-app .ctx-card .at {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--ink-400);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.5;
+}
+.tasks-app .ctx-card.active .at {
+  color: #fff;
+  opacity: 0.7;
+}
+.tasks-app .ctx-card .lbl {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.tasks-app .ctx-card .cnt {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-500);
+  margin-top: 1px;
+}
+.tasks-app .ctx-card.active .cnt {
+  color: #fff;
+  opacity: 0.75;
+}
+
+.tasks-app .smart-row {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.tasks-app .smart-row .ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tasks-app .saved-filter {
+  padding: 12px;
+}
+.tasks-app .saved-filter .q {
+  margin-top: 6px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--ink-500);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: -0.01em;
+}
+
+/* ---- analytics ---- */
+.tasks-app .hero-dark {
+  background: var(--ink-900);
+  color: #fff;
+  padding: 16px;
+  border-radius: var(--r-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.tasks-app .hero-dark .lbl {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.tasks-app .hero-dark .big {
+  font-size: 42px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  margin-top: 4px;
+}
+.tasks-app .hero-dark .sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  margin-top: 6px;
+}
+.tasks-app .hero-dark .week-bars {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  align-items: flex-end;
+}
+.tasks-app .hero-dark .wbar {
+  width: 100%;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.tasks-app .hero-dark .wbar .fill {
+  border-radius: 0 0 6px 6px;
+}
+.tasks-app .estimate-row {
+  margin-top: 0;
+}
+.tasks-app .est-bar {
+  position: relative;
+  height: 8px;
+  margin-top: 4px;
+  background: var(--card-soft);
+  border-radius: 999px;
+}
+.tasks-app .est-bar > i {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  border-radius: 999px;
+}
+
+/* ---- more hub ---- */
+.tasks-app .hub-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.tasks-app .hub-card {
+  background: #fff;
+  border-radius: var(--r-lg);
+  padding: 14px;
+  box-shadow: var(--sh-1);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+  min-height: 110px;
+}
+.tasks-app .hub-card .ico {
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tasks-app .hub-card .name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-900);
+  letter-spacing: -0.01em;
+}
+.tasks-app .hub-card .sub {
+  font-size: 11px;
+  color: var(--ink-500);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+/* ---- error / empty ---- */
+.tasks-app .empty-state {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--ink-500);
+  font-size: 13px;
+  font-weight: 500;
+}
+.tasks-app .error-line {
+  color: var(--danger);
+  font-size: 12.5px;
+  font-weight: 600;
+  margin-top: -6px;
+}

@@ -32,6 +32,112 @@ def update_project(project_id: str, body: TaskProjectUpdate, user_id: str) -> di
     return update_user_row("task_projects", project_id, body, user_id, "Task project not found")
 
 
+def get_project(project_id: str, user_id: str) -> dict:
+    result = (
+        get_supabase()
+        .table("task_projects")
+        .select("*")
+        .eq("id", project_id)
+        .eq("user_id", user_id)
+        .limit(1)
+        .execute()
+    )
+    project = assert_found(result.data or [], "Task project not found")
+    project.update(project_progress(user_id, [project_id]).get(project_id, {"progress_percent": 0, "tasks_count": 0, "done_count": 0}))
+    return project
+
+
+def list_project_tasks(project_id: str, user_id: str) -> list[dict]:
+    get_project(project_id, user_id)
+    result = (
+        get_supabase()
+        .table("tasks")
+        .select("*")
+        .eq("project_id", project_id)
+        .eq("user_id", user_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return result.data or []
+
+
+def add_task_to_project(project_id: str, task_id: str, user_id: str) -> dict:
+    get_project(project_id, user_id)
+    result = (
+        get_supabase()
+        .table("tasks")
+        .update({"project_id": project_id, "updated_at": now_iso()})
+        .eq("id", task_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return assert_found(result.data or [], "Task not found")
+
+
+def remove_task_from_project(project_id: str, task_id: str, user_id: str) -> dict:
+    get_project(project_id, user_id)
+    result = (
+        get_supabase()
+        .table("tasks")
+        .update({"project_id": None, "updated_at": now_iso()})
+        .eq("id", task_id)
+        .eq("project_id", project_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return assert_found(result.data or [], "Task not found in project")
+
+
+def archive_project(project_id: str, user_id: str) -> dict:
+    body = TaskProjectUpdate(status="archived")
+    return update_project(project_id, body, user_id)
+
+
+def delete_project(project_id: str, user_id: str) -> None:
+    get_project(project_id, user_id)
+    get_supabase().table("tasks").update({"project_id": None, "updated_at": now_iso()}).eq(
+        "project_id", project_id
+    ).eq("user_id", user_id).execute()
+    result = (
+        get_supabase()
+        .table("task_projects")
+        .delete()
+        .eq("id", project_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    assert_found(result.data or [], "Task project not found")
+
+
+def create_template(body: TaskProjectCreate, user_id: str) -> dict:
+    row = payload_from_model(body)
+    row.update({"user_id": user_id, "created_at": now_iso(), "updated_at": now_iso()})
+    result = get_supabase().table("task_project_templates").insert(row).execute()
+    if not result.data:
+        raise HTTPException(status_code=500, detail="Failed to create task project template")
+    return result.data[0]
+
+
+def create_from_template(template_id: str, user_id: str) -> dict:
+    result = (
+        get_supabase()
+        .table("task_project_templates")
+        .select("*")
+        .eq("id", template_id)
+        .eq("user_id", user_id)
+        .limit(1)
+        .execute()
+    )
+    template = assert_found(result.data or [], "Task project template not found")
+    body = TaskProjectCreate(
+        title=template["title"],
+        description=template.get("description"),
+        goal_id=template.get("goal_id"),
+        deadline=template.get("deadline"),
+    )
+    return create_project(body, user_id)
+
+
 def project_progress(user_id: str, project_ids: list[str]) -> dict[str, dict]:
     if not project_ids:
         return {}

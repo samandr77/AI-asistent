@@ -6,6 +6,18 @@ import { Link } from "react-router-dom";
 import { getInboxTasks, processTask } from "../../services/api";
 import type { Task, TaskProcessAction } from "../../types/api";
 
+import { Icon } from "./components/Icon";
+import {
+  AIChip,
+  BackBtn,
+  IconBtn,
+  Screen,
+  ScreenBody,
+  TabBar,
+  TasksApp,
+  TopBar,
+} from "./components/shell";
+
 interface InboxCardProps {
   task: Task;
   onAction: (id: string, action: TaskProcessAction) => void;
@@ -15,25 +27,89 @@ interface InboxCardProps {
 
 function InboxCard({ task, onAction, pending, alreadyNotice }: InboxCardProps) {
   const { t } = useTranslation();
+  const [delegateOpen, setDelegateOpen] = useState(false);
   const [delegateName, setDelegateName] = useState("");
 
+  const createdAt = task.deadline ?? "";
+  const sourceLabel = task.raw_text ? "Быстрый ввод" : "Без исходного текста";
+
   return (
-    <article className="task-card task-card--inbox">
+    <article className="inbox-item">
       <Link
-        className="task-card__body"
         to={`/tasks/${task.id}`}
         state={{ task }}
+        className="head"
+        style={{ display: "block", textDecoration: "none", color: "inherit" }}
       >
-        <h2>{task.title}</h2>
-        {task.raw_text ? (
-          <p className="muted">
-            <strong>{t("tasks.inbox.originalLabel")}</strong> {task.raw_text}
-          </p>
-        ) : null}
+        <div className="src">
+          <Icon name="plus" size={13} color="var(--ink-500)" strokeWidth={2} />
+          {sourceLabel}
+          {createdAt
+            ? ` · ${new Date(createdAt).toLocaleDateString("ru-RU")}`
+            : null}
+        </div>
+        <h2
+          style={{
+            margin: 0,
+            marginTop: 8,
+            fontSize: 15,
+            fontWeight: 700,
+            color: "var(--ink-900)",
+            lineHeight: 1.3,
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {task.title}
+        </h2>
+        {task.raw_text ? <div className="raw">«{task.raw_text}»</div> : null}
       </Link>
-      <div className="action-row">
+
+      <div className="ai-strip">
+        <div className="label">
+          <Icon name="sparkle" size={12} color="var(--accent)" /> AI предлагает
+        </div>
+        <div className="row">
+          {task.deadline ? (
+            <span className="chip">
+              <Icon
+                name="calendar"
+                size={10}
+                color="var(--ink-500)"
+                strokeWidth={2}
+              />
+              {new Date(task.deadline).toLocaleDateString("ru-RU")}
+            </span>
+          ) : null}
+          {task.sphere ? (
+            <span className="chip">
+              <Icon
+                name="folder"
+                size={10}
+                color="var(--ink-500)"
+                strokeWidth={2}
+              />
+              {task.sphere}
+            </span>
+          ) : null}
+          <span className="chip">
+            <Icon
+              name="flag"
+              size={10}
+              color="var(--ink-500)"
+              strokeWidth={2}
+            />
+            {task.priority === 1
+              ? "Высокий"
+              : task.priority === 2
+                ? "Средний"
+                : "Низкий"}
+          </span>
+        </div>
+      </div>
+
+      <div className="actions">
         <button
-          className="button"
+          className="btn primary tiny"
           type="button"
           disabled={pending}
           onClick={() =>
@@ -43,36 +119,23 @@ function InboxCard({ task, onAction, pending, alreadyNotice }: InboxCardProps) {
           {t("tasks.inbox.process.scheduleToday")}
         </button>
         <button
-          className="button secondary"
+          className="btn tiny"
           type="button"
           disabled={pending}
           onClick={() => onAction(task.id, { action: "schedule" })}
         >
           {t("tasks.inbox.process.scheduleLater")}
         </button>
-        <input
-          type="text"
-          value={delegateName}
-          onChange={(e) => setDelegateName(e.target.value)}
-          placeholder={t("tasks.inbox.delegateToPlaceholder")}
-          aria-label={t("tasks.inbox.delegateToPlaceholder")}
-          disabled={pending}
-        />
         <button
-          className="button secondary"
+          className="btn tiny"
           type="button"
           disabled={pending}
-          onClick={() =>
-            onAction(task.id, {
-              action: "delegate",
-              delegate_to: delegateName.trim() || undefined,
-            })
-          }
+          onClick={() => setDelegateOpen((v) => !v)}
         >
           {t("tasks.inbox.process.delegate")}
         </button>
         <button
-          className="button secondary"
+          className="btn tiny"
           type="button"
           disabled={pending}
           onClick={() => onAction(task.id, { action: "convert_project" })}
@@ -80,7 +143,7 @@ function InboxCard({ task, onAction, pending, alreadyNotice }: InboxCardProps) {
           {t("tasks.inbox.process.convertProject")}
         </button>
         <button
-          className="button danger"
+          className="btn ghost tiny"
           type="button"
           disabled={pending}
           onClick={() => onAction(task.id, { action: "delete" })}
@@ -88,7 +151,55 @@ function InboxCard({ task, onAction, pending, alreadyNotice }: InboxCardProps) {
           {t("tasks.inbox.process.delete")}
         </button>
       </div>
-      {alreadyNotice ? <p className="muted">{alreadyNotice}</p> : null}
+
+      {delegateOpen ? (
+        <div style={{ padding: "0 12px 12px", display: "flex", gap: 6 }}>
+          <input
+            type="text"
+            value={delegateName}
+            onChange={(e) => setDelegateName(e.target.value)}
+            placeholder={t("tasks.inbox.delegateToPlaceholder")}
+            aria-label={t("tasks.inbox.delegateToPlaceholder")}
+            disabled={pending}
+            style={{
+              flex: 1,
+              padding: "8px 12px",
+              borderRadius: 10,
+              border: "1px solid var(--hairline-strong)",
+              fontSize: 13,
+              fontFamily: "inherit",
+              outline: "none",
+            }}
+          />
+          <button
+            className="btn primary tiny"
+            type="button"
+            disabled={pending}
+            onClick={() => {
+              onAction(task.id, {
+                action: "delegate",
+                delegate_to: delegateName.trim() || undefined,
+              });
+              setDelegateOpen(false);
+              setDelegateName("");
+            }}
+          >
+            OK
+          </button>
+        </div>
+      ) : null}
+
+      {alreadyNotice ? (
+        <div
+          style={{
+            padding: "0 16px 12px",
+            fontSize: 11.5,
+            color: "var(--ink-400)",
+          }}
+        >
+          {alreadyNotice}
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -121,38 +232,81 @@ export function InboxScreen() {
     mutation.mutate({ id, action });
   }
 
-  return (
-    <main className="screen">
-      <section className="panel stack">
-        <p className="eyebrow">{t("app.name")}</p>
-        <h1>{t("tasks.inbox.title")}</h1>
-        <p className="muted">{t("tasks.inbox.subtitle")}</p>
+  const count = data?.length ?? 0;
 
-        {isLoading ? <p className="muted">{t("common.loading")}</p> : null}
-        {error ? (
-          <button
-            className="button secondary"
-            type="button"
-            onClick={() => void refetch()}
-          >
-            {t("common.retry")}
-          </button>
-        ) : null}
-        {data && data.length === 0 ? (
-          <p className="muted">{t("tasks.inbox.empty")}</p>
-        ) : null}
-        <div className="task-list">
-          {data?.map((task) => (
-            <InboxCard
-              key={task.id}
-              task={task}
-              onAction={handleAction}
-              pending={mutation.isPending}
-              alreadyNotice={alreadyNotice}
+  return (
+    <TasksApp>
+      <Screen>
+        <TopBar
+          left={<BackBtn to="/tasks" />}
+          right={<IconBtn name="filter" variant="on-card" ariaLabel="Фильтр" />}
+          eyebrow="Обработка входящих"
+          title={t("tasks.inbox.title")}
+          subtitle={t("tasks.inbox.subtitle")}
+        />
+
+        <ScreenBody>
+          {count > 0 ? (
+            <AIChip
+              text={
+                <>
+                  В Inbox{" "}
+                  <b>
+                    {count} {count === 1 ? "задача" : "задач"}
+                  </b>
+                  . Запустить быструю обработку?
+                </>
+              }
+              cta="Запустить"
             />
-          ))}
-        </div>
-      </section>
-    </main>
+          ) : null}
+
+          {isLoading ? (
+            <div className="empty-state">{t("common.loading")}</div>
+          ) : null}
+          {error ? (
+            <button
+              className="btn ghost"
+              type="button"
+              onClick={() => void refetch()}
+            >
+              {t("common.retry")}
+            </button>
+          ) : null}
+          {data && data.length === 0 && !isLoading ? (
+            <div className="empty-state">{t("tasks.inbox.empty")}</div>
+          ) : null}
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {data?.map((task) => (
+              <InboxCard
+                key={task.id}
+                task={task}
+                onAction={handleAction}
+                pending={mutation.isPending}
+                alreadyNotice={alreadyNotice}
+              />
+            ))}
+          </div>
+
+          {data && data.length > 0 ? (
+            <div
+              style={{
+                marginTop: 4,
+                textAlign: "center",
+                fontSize: 11.5,
+                color: "var(--ink-400)",
+                fontWeight: 500,
+                padding: "8px 0 4px",
+              }}
+            >
+              Метод Inbox Zero · Merlin Mann
+            </div>
+          ) : null}
+        </ScreenBody>
+
+        <TabBar active="tasks" />
+      </Screen>
+    </TasksApp>
   );
 }

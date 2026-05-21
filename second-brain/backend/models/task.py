@@ -155,6 +155,40 @@ class TaskCreate(BaseModel):
     habit_mode: bool = False
     source: CaptureSource = CaptureSource.manual
     parser_metadata: dict[str, Any] = Field(default_factory=dict)
+    assignee_name: Optional[str] = Field(default=None, max_length=100)
+    assignee_contact: Optional[str] = Field(default=None, max_length=160)
+    delegation_status: Optional[str] = Field(default=None, max_length=40)
+
+
+class TaskBulkUpdate(BaseModel):
+    task_ids: list[str] = Field(min_length=1, max_length=100)
+    status: Optional[TaskStatus] = None
+    project_id: Optional[str] = None
+    tags: Optional[list[str]] = Field(default=None, max_length=20)
+    deadline: Optional[datetime] = None
+    scheduled_start: Optional[datetime] = None
+    scheduled_end: Optional[datetime] = None
+    eisenhower_quadrant: Optional[EisenhowerQuadrant] = None
+    context: Optional[str] = Field(default=None, max_length=80)
+
+
+class TaskSearchFilters(BaseModel):
+    status: Optional[TaskStatus] = None
+    sphere: Optional[Sphere] = None
+    project_id: Optional[str] = None
+    context: Optional[str] = None
+    tags: list[str] = Field(default_factory=list, max_length=20)
+    priority: Optional[Priority] = None
+    deadline_from: Optional[datetime] = None
+    deadline_to: Optional[datetime] = None
+    scheduled_from: Optional[datetime] = None
+    scheduled_to: Optional[datetime] = None
+    deep_work: Optional[bool] = None
+    habit_mode: Optional[bool] = None
+    overdue: bool = False
+    no_date: bool = False
+    limit: int = Field(default=50, ge=1, le=200)
+    offset: int = Field(default=0, ge=0)
 
 
 class TaskProcessAction(BaseModel):
@@ -166,6 +200,7 @@ class TaskProcessAction(BaseModel):
     scheduled_end: Optional[datetime] = None
     # delegate payload
     delegate_to: Optional[str] = Field(default=None, max_length=100)
+    delegate_contact: Optional[str] = Field(default=None, max_length=160)
     checklist_items: list[str] = Field(default_factory=list, max_length=50)
 
 
@@ -204,6 +239,16 @@ class ChecklistItemCreate(BaseModel):
     position: Optional[int] = Field(default=None, ge=0)
 
 
+class ChecklistItemUpdate(BaseModel):
+    title: Optional[str] = Field(default=None, max_length=200)
+    is_done: Optional[bool] = None
+    position: Optional[int] = Field(default=None, ge=0)
+
+
+class ChecklistReorder(BaseModel):
+    item_ids: list[str] = Field(min_length=1, max_length=100)
+
+
 class TimeBlockCreate(BaseModel):
     task_id: str
     scheduled_start: datetime
@@ -219,9 +264,31 @@ class FocusSessionCreate(BaseModel):
     completed: bool = True
 
 
+class FocusSessionUpdate(BaseModel):
+    started_at: Optional[datetime] = None
+    ended_at: Optional[datetime] = None
+    duration_min: Optional[int] = Field(default=None, ge=1, le=24 * 60)
+    mode: Optional[str] = Field(default=None, max_length=40)
+    completed: Optional[bool] = None
+
+
+class FocusSettingsUpdate(BaseModel):
+    pomodoro_min: int = Field(default=25, ge=1, le=180)
+    short_break_min: int = Field(default=5, ge=1, le=60)
+    long_break_min: int = Field(default=15, ge=1, le=120)
+    sessions_before_long_break: int = Field(default=4, ge=1, le=12)
+    sound_enabled: bool = True
+    dnd_enabled: bool = False
+
+
 class SavedFilterCreate(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     definition: dict[str, Any]
+
+
+class SavedFilterUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, max_length=80)
+    definition: Optional[dict[str, Any]] = None
 
 
 class BigThreeRequest(BaseModel):
@@ -232,3 +299,49 @@ class BigThreeRequest(BaseModel):
 class AnalyticsRange(BaseModel):
     date_from: Optional[date] = None
     date_to: Optional[date] = None
+
+
+class DependencyCreate(BaseModel):
+    depends_on_task_id: str
+
+
+class CommentCreate(BaseModel):
+    body: str = Field(min_length=1, max_length=5000)
+
+
+class CommentUpdate(BaseModel):
+    body: str = Field(min_length=1, max_length=5000)
+
+
+class AttachmentCreate(BaseModel):
+    kind: AttachmentKind = AttachmentKind.link
+    url: str = Field(min_length=1, max_length=2000)
+    title: Optional[str] = Field(default=None, max_length=200)
+
+
+class AttachmentUpdate(BaseModel):
+    kind: Optional[AttachmentKind] = None
+    url: Optional[str] = Field(default=None, max_length=2000)
+    title: Optional[str] = Field(default=None, max_length=200)
+
+
+class RecurrenceUpdate(BaseModel):
+    frequency: RecurrenceFrequency
+    interval: int = Field(default=1, ge=1, le=365)
+    days_of_week: list[int] = Field(default_factory=list, max_length=7)
+    next_occurrence_at: Optional[datetime] = None
+    habit_mode: bool = False
+
+
+class CaptureIntegrationRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=20_000)
+    external_id: Optional[str] = Field(default=None, max_length=200)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class AIPlanningRequest(BaseModel):
+    task_id: Optional[str] = None
+    text: Optional[str] = Field(default=None, max_length=20_000)
+    date: Optional[date] = None
+    task_ids: list[str] = Field(default_factory=list, max_length=100)
+    context: dict[str, Any] = Field(default_factory=dict)

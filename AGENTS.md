@@ -25,7 +25,7 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
 - `second-brain/backend/` — FastAPI app (api/, services/, models/, tests/)
 - `second-brain/mobile/` — Expo app (app/ Router screens, services/, store/, components/)
 - `second-brain/telegram-miniapp/` — React/Vite Telegram Mini App frontend
-- `second-brain/supabase/migrations/` — SQL миграции (001–013; 013 — Telegram Stars premium store)
+- `second-brain/supabase/migrations/` — SQL миграции (001–018; 018 — Goals OKR + Strategy + KPI + Weekly Review)
 - `second-brain/docs/` — setup guides (`oauth-setup.md`, `revenuecat-setup.md`)
 - `second-brain/mobile/locales/` — i18n resources (`ru.json`, `en.json`)
 - `second-brain/mobile/plugins/withPrivacyManifest.js` — Expo config plugin, копирует `ios/PrivacyInfo.xcprivacy.template.plist` в билд

@@ -26,8 +26,19 @@ import type {
   FinanceTaxEvent,
   FinanceTransaction,
   Goal,
+  GoalLevel,
   GoalProgressResponse,
+  GoalTreeNode,
+  KeyResult,
+  KeyResultDirection,
+  KeyResultStatus,
+  Kpi,
+  KpiDirection,
+  KpiHistoryEntry,
   MemoryProfileItem,
+  Strategy,
+  WeeklyReview,
+  WeeklyReviewDraft,
   PremiumStatus,
   Reflection,
   ReflectionStats,
@@ -91,6 +102,11 @@ const previewGoals: Goal[] = [
     status: "active",
     sphere: "goals",
     progress_percent: 42,
+    level: "year",
+    parent_goal_id: null,
+    horizon_start: null,
+    horizon_end: null,
+    weight: 1,
     created_at: now,
     updated_at: now,
   },
@@ -454,11 +470,32 @@ export async function processTask(
 export async function listGoals(params?: {
   status?: string;
   sphere?: string;
+  level?: GoalLevel;
+  parent_goal_id?: string;
   target_date_from?: string;
   target_date_to?: string;
 }): Promise<Goal[]> {
   if (localPreviewMode) return clone(previewGoals);
   const { data } = await api.get<Goal[]>("/goals/", { params });
+  return data;
+}
+
+export async function getGoalTree(): Promise<GoalTreeNode[]> {
+  if (localPreviewMode) {
+    return previewGoals.map((goal) => ({
+      goal: {
+        ...clone(goal),
+        computed_progress: goal.progress_percent,
+        linked_tasks_count: 0,
+        completed_tasks_count: 0,
+        key_results_count: 0,
+        key_results_done_count: 0,
+        children_count: 0,
+      },
+      children: [],
+    }));
+  }
+  const { data } = await api.get<GoalTreeNode[]>("/goals/tree");
   return data;
 }
 
@@ -479,6 +516,11 @@ export async function createGoal(body: {
   status?: Goal["status"];
   sphere?: string;
   progress_percent?: number;
+  level?: GoalLevel;
+  parent_goal_id?: string | null;
+  horizon_start?: string;
+  horizon_end?: string;
+  weight?: number;
 }): Promise<Goal> {
   if (localPreviewMode) {
     return {
@@ -490,6 +532,11 @@ export async function createGoal(body: {
       status: body.status ?? "active",
       sphere: (body.sphere as Goal["sphere"]) ?? "goals",
       progress_percent: body.progress_percent ?? 0,
+      level: body.level ?? "year",
+      parent_goal_id: body.parent_goal_id ?? null,
+      horizon_start: body.horizon_start ?? null,
+      horizon_end: body.horizon_end ?? null,
+      weight: body.weight ?? 1,
       created_at: now,
       updated_at: now,
     };
@@ -1266,5 +1313,198 @@ export async function createFinanceDocument(body: {
     };
   }
   const { data } = await api.post<FinanceDocument>("/finance/documents", body);
+  return data;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Key Results
+// ────────────────────────────────────────────────────────────────────────────
+
+export async function listKeyResults(goalId: string): Promise<KeyResult[]> {
+  if (localPreviewMode) return [];
+  const { data } = await api.get<KeyResult[]>(`/goals/${goalId}/key-results`);
+  return data;
+}
+
+export async function createKeyResult(
+  goalId: string,
+  body: {
+    title: string;
+    metric?: string;
+    unit?: string;
+    start_value?: number;
+    target_value: number;
+    current_value?: number;
+    direction?: KeyResultDirection;
+    status?: KeyResultStatus;
+    due_date?: string;
+  },
+): Promise<KeyResult> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-kr-${Date.now()}`,
+      goal_id: goalId,
+      user_id: "local-preview-user",
+      title: body.title,
+      metric: body.metric ?? null,
+      unit: body.unit ?? null,
+      start_value: body.start_value ?? 0,
+      target_value: body.target_value,
+      current_value: body.current_value ?? 0,
+      direction: body.direction ?? "increase",
+      status: body.status ?? "on_track",
+      due_date: body.due_date ?? null,
+      progress_percent: 0,
+      created_at: now,
+      updated_at: now,
+    };
+  }
+  const { data } = await api.post<KeyResult>(
+    `/goals/${goalId}/key-results`,
+    body,
+  );
+  return data;
+}
+
+export async function updateKeyResult(
+  goalId: string,
+  krId: string,
+  updates: Partial<KeyResult>,
+): Promise<KeyResult> {
+  const { data } = await api.patch<KeyResult>(
+    `/goals/${goalId}/key-results/${krId}`,
+    updates,
+  );
+  return data;
+}
+
+export async function deleteKeyResult(
+  goalId: string,
+  krId: string,
+): Promise<void> {
+  await api.delete(`/goals/${goalId}/key-results/${krId}`);
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Strategy
+// ────────────────────────────────────────────────────────────────────────────
+
+export async function getStrategy(): Promise<Strategy> {
+  if (localPreviewMode) {
+    return {
+      user_id: "local-preview-user",
+      mission: "Жить осознанно, помогать другим расти",
+      vision: null,
+      values: ["Семья", "Здоровье", "Творчество"],
+      life_areas: ["Работа", "Здоровье", "Финансы", "Отношения", "Развитие"],
+      swot_strengths: ["Дисциплина", "Инженерное мышление"],
+      swot_weaknesses: ["Прокрастинация"],
+      swot_opportunities: ["AI-инструменты"],
+      swot_threats: ["Выгорание"],
+    };
+  }
+  const { data } = await api.get<Strategy>("/strategy/");
+  return data;
+}
+
+export async function updateStrategy(
+  body: Partial<Omit<Strategy, "user_id">>,
+): Promise<Strategy> {
+  const { data } = await api.put<Strategy>("/strategy/", body);
+  return data;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// KPIs
+// ────────────────────────────────────────────────────────────────────────────
+
+export async function listKpis(params?: {
+  is_active?: boolean;
+}): Promise<Kpi[]> {
+  if (localPreviewMode) return [];
+  const { data } = await api.get<Kpi[]>("/kpis/", { params });
+  return data;
+}
+
+export async function getKpi(id: string): Promise<Kpi> {
+  const { data } = await api.get<Kpi>(`/kpis/${id}`);
+  return data;
+}
+
+export async function createKpi(body: {
+  name: string;
+  unit?: string;
+  sphere?: string;
+  target_value?: number;
+  current_value?: number;
+  direction?: KpiDirection;
+  warning_threshold?: number;
+  is_active?: boolean;
+}): Promise<Kpi> {
+  const { data } = await api.post<Kpi>("/kpis/", body);
+  return data;
+}
+
+export async function updateKpi(
+  id: string,
+  updates: Partial<Omit<Kpi, "id" | "history" | "trend_percent" | "status">>,
+): Promise<Kpi> {
+  const { data } = await api.patch<Kpi>(`/kpis/${id}`, updates);
+  return data;
+}
+
+export async function deleteKpi(id: string): Promise<void> {
+  await api.delete(`/kpis/${id}`);
+}
+
+export async function addKpiHistoryEntry(
+  kpiId: string,
+  body: { value: number; recorded_on?: string; note?: string },
+): Promise<KpiHistoryEntry> {
+  const { data } = await api.post<KpiHistoryEntry>(
+    `/kpis/${kpiId}/history`,
+    body,
+  );
+  return data;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Weekly Review
+// ────────────────────────────────────────────────────────────────────────────
+
+export async function getWeeklyDraft(
+  week?: string,
+): Promise<WeeklyReviewDraft> {
+  const { data } = await api.get<WeeklyReviewDraft>("/reviews/weekly/draft", {
+    params: week ? { week } : undefined,
+  });
+  return data;
+}
+
+export async function listWeeklyReviews(
+  limit?: number,
+): Promise<WeeklyReview[]> {
+  const { data } = await api.get<WeeklyReview[]>("/reviews/weekly", {
+    params: limit ? { limit } : undefined,
+  });
+  return data;
+}
+
+export async function getWeeklyReview(
+  weekStart: string,
+): Promise<WeeklyReview> {
+  const { data } = await api.get<WeeklyReview>(`/reviews/weekly/${weekStart}`);
+  return data;
+}
+
+export async function upsertWeeklyReview(body: {
+  week_start: string;
+  highlights?: string;
+  lessons?: string;
+  next_week_focus?: string;
+  mood?: number;
+  energy?: number;
+}): Promise<WeeklyReview> {
+  const { data } = await api.post<WeeklyReview>("/reviews/weekly", body);
   return data;
 }

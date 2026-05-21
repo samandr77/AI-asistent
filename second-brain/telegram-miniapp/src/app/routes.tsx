@@ -25,8 +25,22 @@ import { TaxesScreen as FinanceTaxesScreen } from "../screens/finance/TaxesScree
 import { TransactionsScreen as FinanceTransactionsScreen } from "../screens/finance/TransactionsScreen";
 import { GoalDetailScreen } from "../screens/goals/GoalDetailScreen";
 import { GoalsScreen } from "../screens/goals/GoalsScreen";
+import { KpiScreen } from "../screens/goals/KpiScreen";
+import { GoalsMoreScreen } from "../screens/goals/MoreScreen";
 import { NewGoalScreen } from "../screens/goals/NewGoalScreen";
+import { ReviewScreen } from "../screens/goals/ReviewScreen";
+import { StrategyScreen } from "../screens/goals/StrategyScreen";
+import { AIChatScreen as TasksAIChatScreen } from "../screens/tasks/AIChatScreen";
+import { AnalyticsScreen as TasksAnalyticsScreen } from "../screens/tasks/AnalyticsScreen";
+import { BigThreeScreen } from "../screens/tasks/BigThreeScreen";
+import { ContextsScreen } from "../screens/tasks/ContextsScreen";
+import { HabitsScreen } from "../screens/tasks/HabitsScreen";
 import { InboxScreen } from "../screens/tasks/InboxScreen";
+import { MatrixScreen } from "../screens/tasks/MatrixScreen";
+import { TasksMoreScreen } from "../screens/tasks/MoreScreen";
+import { PomodoroScreen } from "../screens/tasks/PomodoroScreen";
+import { ProjectsScreen as TasksProjectsScreen } from "../screens/tasks/ProjectsScreen";
+import { TimeBlockScreen } from "../screens/tasks/TimeBlockScreen";
 import { LaunchScreen } from "../screens/launch/LaunchScreen";
 import { UnsupportedScreen } from "../screens/launch/UnsupportedScreen";
 import { FirstDumpScreen } from "../screens/onboarding/FirstDumpScreen";
@@ -78,6 +92,19 @@ const router = createBrowserRouter([
   { path: "/dump/result", element: protectedRoute(<ResultScreen />) },
   { path: "/tasks", element: protectedRoute(<TasksScreen />) },
   { path: "/tasks/inbox", element: protectedRoute(<InboxScreen />) },
+  { path: "/tasks/more", element: protectedRoute(<TasksMoreScreen />) },
+  { path: "/tasks/ai", element: protectedRoute(<TasksAIChatScreen />) },
+  { path: "/tasks/matrix", element: protectedRoute(<MatrixScreen />) },
+  { path: "/tasks/big-three", element: protectedRoute(<BigThreeScreen />) },
+  { path: "/tasks/timeblock", element: protectedRoute(<TimeBlockScreen />) },
+  { path: "/tasks/focus", element: protectedRoute(<PomodoroScreen />) },
+  { path: "/tasks/projects", element: protectedRoute(<TasksProjectsScreen />) },
+  { path: "/tasks/habits", element: protectedRoute(<HabitsScreen />) },
+  { path: "/tasks/contexts", element: protectedRoute(<ContextsScreen />) },
+  {
+    path: "/tasks/analytics",
+    element: protectedRoute(<TasksAnalyticsScreen />),
+  },
   { path: "/finance", element: protectedRoute(<FinanceScreen />) },
   {
     path: "/finance/transactions",
@@ -112,6 +139,10 @@ const router = createBrowserRouter([
   { path: "/tasks/:taskId", element: protectedRoute(<TaskDetailScreen />) },
   { path: "/goals", element: protectedRoute(<GoalsScreen />) },
   { path: "/goals/new", element: protectedRoute(<NewGoalScreen />) },
+  { path: "/goals/strategy", element: protectedRoute(<StrategyScreen />) },
+  { path: "/goals/kpi", element: protectedRoute(<KpiScreen />) },
+  { path: "/goals/review", element: protectedRoute(<ReviewScreen />) },
+  { path: "/goals/more", element: protectedRoute(<GoalsMoreScreen />) },
   { path: "/goals/:goalId", element: protectedRoute(<GoalDetailScreen />) },
   { path: "/reflections", element: protectedRoute(<ReflectionListScreen />) },
   {
@@ -126,7 +157,10 @@ const router = createBrowserRouter([
     path: "/reflections/:date",
     element: protectedRoute(<ReflectionDetailScreen />),
   },
-  { path: "/premium", element: protectedRoute(<Navigate to="/today" replace />) },
+  {
+    path: "/premium",
+    element: protectedRoute(<Navigate to="/today" replace />),
+  },
   { path: "/profile", element: protectedRoute(<ProfileScreen />) },
   { path: "/support", element: protectedRoute(<SupportScreen />) },
   {

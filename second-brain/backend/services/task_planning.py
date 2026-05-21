@@ -123,3 +123,89 @@ def create_time_block(user_id: str, body: TimeBlockCreate) -> dict:
     if not result.data:
         raise HTTPException(status_code=404, detail="Task not found")
     return result.data[0]
+
+
+def update_time_block(user_id: str, task_id: str, body: TimeBlockCreate) -> dict:
+    if body.task_id != task_id:
+        raise HTTPException(status_code=422, detail="task_id path and body must match")
+    return create_time_block(user_id, body)
+
+
+def delete_time_block(user_id: str, task_id: str) -> dict:
+    load_task_for_user(task_id, user_id)
+    result = (
+        get_supabase()
+        .table("tasks")
+        .update(
+            {
+                "scheduled_start": None,
+                "scheduled_end": None,
+                "deep_work": False,
+                "updated_at": now_iso(),
+            }
+        )
+        .eq("id", task_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return result.data[0]
+
+
+def capacity(user_id: str, target_date: date, daily_capacity_min: int = 480) -> dict:
+    blocks = get_time_blocks(user_id, target_date)
+    scheduled_min = 0
+    estimated_min = 0
+    for task in blocks:
+        estimated_min += int(task.get("duration_estimated_min") or 0)
+        start_raw = task.get("scheduled_start")
+        end_raw = task.get("scheduled_end")
+        if start_raw and end_raw:
+            try:
+                start = datetime.fromisoformat(str(start_raw).replace("Z", "+00:00"))
+                end = datetime.fromisoformat(str(end_raw).replace("Z", "+00:00"))
+                scheduled_min += max(0, round((end - start).total_seconds() / 60))
+            except ValueError:
+                pass
+    used = max(scheduled_min, estimated_min)
+    return {
+        "date": target_date.isoformat(),
+        "daily_capacity_min": daily_capacity_min,
+        "scheduled_min": scheduled_min,
+        "estimated_min": estimated_min,
+        "remaining_min": max(0, daily_capacity_min - used),
+        "overload": used > daily_capacity_min,
+    }
+
+
+def free_slots(user_id: str, target_date: date) -> dict:
+    blocks = get_time_blocks(user_id, target_date)
+    day_start = datetime.combine(target_date, datetime.min.time(), tzinfo=timezone.utc) + timedelta(hours=9)
+    day_end = datetime.combine(target_date, datetime.min.time(), tzinfo=timezone.utc) + timedelta(hours=18)
+    intervals: list[tuple[datetime, datetime]] = []
+    for task in blocks:
+        start_raw = task.get("scheduled_start")
+        end_raw = task.get("scheduled_end")
+        if not start_raw or not end_raw:
+            continue
+        try:
+            intervals.append(
+                (
+                    datetime.fromisoformat(str(start_raw).replace("Z", "+00:00")),
+                    datetime.fromisoformat(str(end_raw).replace("Z", "+00:00")),
+                )
+            )
+        except ValueError:
+            continue
+    intervals.sort()
+    cursor = day_start
+    slots: list[dict] = []
+    for start, end in intervals:
+        if start > cursor:
+            slots.append({"start": cursor.isoformat(), "end": start.isoformat()})
+        if end > cursor:
+            cursor = end
+    if cursor < day_end:
+        slots.append({"start": cursor.isoformat(), "end": day_end.isoformat()})
+    return {"date": target_date.isoformat(), "slots": slots}

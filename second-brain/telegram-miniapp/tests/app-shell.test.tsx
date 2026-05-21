@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { AppShell } from "../src/components/AppShell";
 
-function renderShell(initialPath = "/tasks") {
+function renderShell(initialPath = "/today") {
   return render(
     <MemoryRouter initialEntries={[initialPath]}>
       <AppShell>

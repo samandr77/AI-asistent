@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 from typing import Any
 
 from database import get_supabase
-from services.task_utils import now_iso
+from fastapi import HTTPException
+
+from models.task import RecurrenceUpdate, TaskStatus
+from services.task_utils import assert_found, load_task_for_user, now_iso
 
 
 def _parse_date(value: Any) -> date | None:
@@ -41,6 +44,125 @@ def next_occurrence(current: date, rule: dict | None) -> date:
     return current + timedelta(days=interval)
 
 
+def _as_datetime(value: date | datetime) -> datetime:
+    if isinstance(value, datetime):
+        return value
+    return datetime.combine(value, time.min, tzinfo=timezone.utc)
+
+
+def get_recurrence(task_id: str, user_id: str) -> dict:
+    task = load_task_for_user(task_id, user_id)
+    return {
+        "task_id": task_id,
+        "recurrence_rule": task.get("recurrence_rule"),
+        "next_occurrence_at": task.get("next_occurrence_at"),
+        "habit_mode": bool(task.get("habit_mode")),
+        "rollover_count": int(task.get("rollover_count") or 0),
+    }
+
+
+def put_recurrence(task_id: str, body: RecurrenceUpdate, user_id: str) -> dict:
+    load_task_for_user(task_id, user_id)
+    rule = {
+        "frequency": body.frequency.value,
+        "interval": body.interval,
+        "days_of_week": body.days_of_week,
+    }
+    next_due = body.next_occurrence_at or _as_datetime(next_occurrence(date.today(), rule))
+    result = (
+        get_supabase()
+        .table("tasks")
+        .update(
+            {
+                "recurrence_rule": rule,
+                "next_occurrence_at": next_due.isoformat(),
+                "habit_mode": body.habit_mode,
+                "updated_at": now_iso(),
+            }
+        )
+        .eq("id", task_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return assert_found(result.data or [], "Task not found")
+
+
+def delete_recurrence(task_id: str, user_id: str) -> dict:
+    load_task_for_user(task_id, user_id)
+    result = (
+        get_supabase()
+        .table("tasks")
+        .update(
+            {
+                "recurrence_rule": None,
+                "next_occurrence_at": None,
+                "habit_mode": False,
+                "updated_at": now_iso(),
+            }
+        )
+        .eq("id", task_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return assert_found(result.data or [], "Task not found")
+
+
+def complete_recurring_task(task_id: str, user_id: str) -> dict:
+    task = load_task_for_user(task_id, user_id)
+    completed_at = now_iso()
+    updates: dict = {
+        "status": TaskStatus.done.value,
+        "is_done": True,
+        "completed_at": completed_at,
+        "updated_at": completed_at,
+    }
+    rule = task.get("recurrence_rule")
+    if rule:
+        current = _parse_date(task.get("next_occurrence_at")) or _parse_date(task.get("deadline")) or date.today()
+        next_due = next_occurrence(current, rule)
+        updates.update(
+            {
+                "status": TaskStatus.active.value,
+                "is_done": False,
+                "completed_at": completed_at,
+                "deadline": next_due.isoformat(),
+                "next_occurrence_at": next_due.isoformat(),
+                "rollover_count": int(task.get("rollover_count") or 0) + 1,
+            }
+        )
+    result = (
+        get_supabase()
+        .table("tasks")
+        .update(updates)
+        .eq("id", task_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return assert_found(result.data or [], "Task not found")
+
+
+def rollover_task(task_id: str, user_id: str) -> dict:
+    task = load_task_for_user(task_id, user_id)
+    due = _parse_date(task.get("next_occurrence_at")) or _parse_date(task.get("deadline")) or date.today()
+    next_due = next_occurrence(due, task.get("recurrence_rule"))
+    result = (
+        get_supabase()
+        .table("tasks")
+        .update(
+            {
+                "deadline": next_due.isoformat(),
+                "next_occurrence_at": next_due.isoformat(),
+                "rollover_count": int(task.get("rollover_count") or 0) + 1,
+                "updated_at": now_iso(),
+            }
+        )
+        .eq("id", task_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return assert_found(result.data or [], "Task not found")
+
+
 def rollover_due_recurring(user_id: str, today: date | None = None) -> list[dict]:
     target = today or datetime.now(timezone.utc).date()
     result = (
@@ -74,3 +196,38 @@ def rollover_due_recurring(user_id: str, today: date | None = None) -> list[dict
         if result_update.data:
             rolled.append(result_update.data[0])
     return rolled
+
+
+def list_habits(user_id: str) -> list[dict]:
+    result = (
+        get_supabase()
+        .table("tasks")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("habit_mode", True)
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return result.data or []
+
+
+def habit_stats(task_id: str, user_id: str) -> dict:
+    task = load_task_for_user(task_id, user_id)
+    if not task.get("habit_mode"):
+        raise HTTPException(status_code=422, detail="Task is not a habit")
+    focus = (
+        get_supabase()
+        .table("task_focus_sessions")
+        .select("*")
+        .eq("task_id", task_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    sessions = focus.data or []
+    return {
+        "task_id": task_id,
+        "rollover_count": int(task.get("rollover_count") or 0),
+        "next_occurrence_at": task.get("next_occurrence_at"),
+        "focus_sessions": len(sessions),
+        "focus_minutes": sum(int(row.get("duration_min") or 0) for row in sessions),
+    }

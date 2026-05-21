@@ -263,11 +263,14 @@ async def test_get_goal_progress_computed(client_a):
     goal_chain = MagicMock()
     goal_chain.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = [GOAL_ROW]
 
+    kr_chain = MagicMock()
+    kr_chain.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = []
+
     tasks_chain = MagicMock()
     tasks_chain.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = tasks_data
 
     with patch("api.goals.get_supabase") as mock_db:
-        mock_db.return_value.table.side_effect = [goal_chain, tasks_chain]
+        mock_db.return_value.table.side_effect = [goal_chain, kr_chain, tasks_chain]
         resp = await client_a.get("/goals/goal-uuid-0001/progress")
     assert resp.status_code == 200
     body = resp.json()
@@ -281,13 +284,17 @@ async def test_get_goal_progress_no_tasks(client_a):
     goal_chain = MagicMock()
     goal_chain.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = [GOAL_ROW]
 
+    kr_chain = MagicMock()
+    kr_chain.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = []
+
     tasks_chain = MagicMock()
     tasks_chain.select.return_value.eq.return_value.eq.return_value.execute.return_value.data = []
 
     with patch("api.goals.get_supabase") as mock_db:
-        mock_db.return_value.table.side_effect = [goal_chain, tasks_chain]
+        mock_db.return_value.table.side_effect = [goal_chain, kr_chain, tasks_chain]
         resp = await client_a.get("/goals/goal-uuid-0001/progress")
     assert resp.status_code == 200
     body = resp.json()
-    assert body["computed_progress"] is None
+    # With no KRs and no tasks, computed falls back to manual progress (0)
+    assert body["computed_progress"] == 0
     assert body["linked_tasks_count"] == 0

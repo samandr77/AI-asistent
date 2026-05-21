@@ -96,3 +96,117 @@ def weekly_report(user_id: str, week_start: date | None = None) -> dict:
         "summary": summary,
         "recommendations": recommendations,
     }
+
+
+def estimate_vs_actual(user_id: str, date_from: date | None = None, date_to: date | None = None) -> dict:
+    rows = _tasks_for_range(user_id, date_from, date_to)
+    items = []
+    errors = []
+    for row in rows:
+        estimate = row.get("duration_estimated_min")
+        actual = row.get("duration_actual_min")
+        if estimate is None or actual is None:
+            continue
+        error = int(actual or 0) - int(estimate or 0)
+        errors.append(abs(error))
+        items.append(
+            {
+                "task_id": row.get("id"),
+                "title": row.get("title"),
+                "estimated_min": int(estimate or 0),
+                "actual_min": int(actual or 0),
+                "error_min": error,
+                "sphere": row.get("sphere"),
+            }
+        )
+    return {
+        "items": items,
+        "average_abs_error_min": round(mean(errors), 2) if errors else None,
+    }
+
+
+def by_weekday(user_id: str, date_from: date | None = None, date_to: date | None = None) -> dict:
+    rows = _tasks_for_range(user_id, date_from, date_to)
+    buckets = {str(i): {"created": 0, "completed": 0} for i in range(7)}
+    for row in rows:
+        created = _row_date(row, "created_at")
+        if created:
+            buckets[str(created.weekday())]["created"] += 1
+        completed = _row_date(row, "completed_at")
+        if completed:
+            buckets[str(completed.weekday())]["completed"] += 1
+    return {"by_weekday": buckets}
+
+
+def rollover_patterns(user_id: str) -> dict:
+    rows = _tasks_for_range(user_id, None, None)
+    rolled = [row for row in rows if int(row.get("rollover_count") or 0) > 0]
+    return {
+        "tasks": rolled,
+        "total_rollovers": sum(int(row.get("rollover_count") or 0) for row in rows),
+        "by_sphere": _count_by(rolled, "sphere"),
+    }
+
+
+def project_analytics(user_id: str) -> dict:
+    projects = (
+        get_supabase()
+        .table("task_projects")
+        .select("*")
+        .eq("user_id", user_id)
+        .execute()
+        .data
+        or []
+    )
+    tasks = _tasks_for_range(user_id, None, None)
+    by_project: dict[str, dict] = {}
+    for project in projects:
+        by_project[project["id"]] = {
+            "project": project,
+            "tasks_count": 0,
+            "done_count": 0,
+            "progress_percent": 0,
+        }
+    for task in tasks:
+        project_id = task.get("project_id")
+        if not project_id or project_id not in by_project:
+            continue
+        item = by_project[project_id]
+        item["tasks_count"] += 1
+        if task.get("is_done") or task.get("status") == "done":
+            item["done_count"] += 1
+    for item in by_project.values():
+        total = item["tasks_count"]
+        item["progress_percent"] = round(item["done_count"] / total * 100) if total else 0
+    return {"projects": list(by_project.values())}
+
+
+def generate_weekly_report(user_id: str, week_start: date | None = None) -> dict:
+    report = weekly_report(user_id, week_start)
+    existing = (
+        get_supabase()
+        .table("task_weekly_reports")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("week_start", report["week_start"])
+        .limit(1)
+        .execute()
+    )
+    row = {
+        "user_id": user_id,
+        "week_start": report["week_start"],
+        "summary": report["summary"],
+        "recommendations": report["recommendations"],
+    }
+    if existing.data:
+        result = (
+            get_supabase()
+            .table("task_weekly_reports")
+            .update(row)
+            .eq("id", existing.data[0]["id"])
+            .eq("user_id", user_id)
+            .execute()
+        )
+    else:
+        result = get_supabase().table("task_weekly_reports").insert(row).execute()
+    return (result.data or [report])[0]
