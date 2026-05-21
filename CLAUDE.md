@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`.specify/specs/005-production-readiness/plan.md`
+`.specify/specs/006-tasks-capture-inbox/plan.md`
 <!-- SPECKIT END -->
 
 # Second Brain
@@ -28,6 +28,7 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
 - Backend Finance API: `second-brain/backend/api/finance.py` (роутер `/finance`, подключён в `main.py`) + `models/finance.py` + `services/finance_analyzer.py`. Миграция `second-brain/supabase/migrations/014_finance.sql`. Тесты — `backend/tests/test_finance_api.py`.
 - Onboarding state (mini-app): `second-brain/telegram-miniapp/src/services/onboarding.ts` хранит локальный флаг прогресса; `routeAfterTelegramSession` ведёт в `/onboarding/setup`, если `is_new_user || !user.is_onboarded || !isOnboardingComplete()`.
 - Launch splash (mini-app): `second-brain/telegram-miniapp/src/screens/launch/LaunchScreen.tsx` + SVG-логотип `src/assets/AppLogo.tsx` + блок стилей `.launch-splash` в `src/styles.css`. Тёмный фон с радиальным свечением, бренд `AI ASSISTANT` (Manrope 800), pill-статус со спиннером (`launch.statusConnecting` пока идёт `createTelegramSession` / `createDevSession`); после bootstrap — статусный текст и кнопки fallback. Тест: `tests/launch.test.tsx`.
+- Tasks Capture + Inbox (Phase 1, spec `.specify/specs/006-tasks-capture-inbox/`): миграция `015_tasks_inbox.sql` (status enum inbox|active|done|archived|delegated, raw_text column, partial indices), новые endpoint'ы `POST /tasks`, `GET /tasks/inbox`, `POST /tasks/{id}/process` в `api/tasks.py`. Дамп через `/dump` теперь складывает задачи со `status='inbox'` и `raw_text` оригинала. Расширенный NLP-парсер в `services/task_parser.py` (поверх `ai_router`, fallback на `services/parser.py:_fallback_parse_dump`) извлекает time_of_day, duration_estimated_min, contact, url, clarification_questions. Mini-app: quick-add input в TasksScreen + новый InboxScreen (`/tasks/inbox`) с 4 process actions, расширенный TaskDetailScreen (raw_text + status badge). Sentry `before_send` фильтрует `raw_text`/`source_text` глобально (privacy FR-SEC-002). Тесты: `backend/tests/test_tasks_capture.py`, `test_task_parser_v2.py`, `test_privacy_raw_text.py`, `test_migration_015_backfill.py`; `miniapp/tests/tasks-capture.test.tsx`, `inbox.test.tsx`.
 - Dev-auth: `POST /telegram/auth/dev-session` (включается `TELEGRAM_DEV_AUTH_ENABLED=true` в `.env`) выдаёт JWT для локальной разработки без Telegram initData. LaunchScreen в `import.meta.env.DEV` сам дёргает endpoint; в проде endpoint возвращает 404. Минимум обязательных env для dev: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_JWT_SECRET`, `APP_SESSION_JWT_SECRET`, `TELEGRAM_DEV_AUTH_ENABLED=true`; AI/payment ключи (`ANTHROPIC_API_KEY`, `REVENUECAT_WEBHOOK_SECRET`, `ADMIN_CLEANUP_SECRET`) опциональны в dev (default пустые), но обязательны в проде.
 - Backend `config.py` ищет `.env` рекурсивно вверх от `second-brain/backend/` до корня репозитория — можно держать единый `/AI-asistent/.env` для всех компонентов; локальный `backend/.env` (если есть) переопределяет корневой через `os.environ.setdefault`.
 - `docs/legal/` — privacy policy + terms (RU/EN)

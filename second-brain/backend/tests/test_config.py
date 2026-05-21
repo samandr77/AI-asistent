@@ -61,15 +61,31 @@ def _restore_modules():
 
 
 def _reload_config(monkeypatch, env: dict[str, str]):
+    # Reset env to exactly what the test specifies.
     for key in list(os.environ):
         if key.startswith(_REQUIRED_PREFIXES):
             monkeypatch.delenv(key, raising=False)
-    # Run from backend dir so .env isn't auto-loaded during reload
     monkeypatch.chdir("/tmp")
     for k, v in env.items():
         monkeypatch.setenv(k, v)
+
     sys.modules.pop("config", None)
-    return importlib.import_module("config")
+    cfg = importlib.import_module("config")
+
+    # The module-level _load_dotenv_if_present may have filled env from a
+    # repo-level .env. Wipe anything not in the test's explicit env, then
+    # rebuild settings with env_file=None to skip BaseSettings file lookup too.
+    test_keys = set(env.keys())
+    for key in list(os.environ):
+        if key.startswith(_REQUIRED_PREFIXES) and key not in test_keys:
+            monkeypatch.delenv(key, raising=False)
+
+    try:
+        cfg.settings = cfg.Settings(_env_file=None)
+    except cfg.ValidationError as exc:  # match prod error wrapping
+        missing = ", ".join(str(err["loc"][0]) for err in exc.errors())
+        raise RuntimeError(f"Missing required env vars: {missing}") from exc
+    return cfg
 
 
 def _valid_env() -> dict[str, str]:
@@ -92,31 +108,36 @@ def test_config_loads_with_all_required(monkeypatch):
 
 
 def test_config_missing_supabase_url_raises(monkeypatch):
+    """supabase_url stays strictly required — no usable default."""
     env = _valid_env()
     del env["SUPABASE_URL"]
     with pytest.raises(Exception):
         _reload_config(monkeypatch, env)
 
 
-def test_config_missing_anthropic_key_raises(monkeypatch):
+def test_config_missing_anthropic_key_defaults_empty(monkeypatch):
+    """ANTHROPIC_API_KEY became optional in dev (006 telegram miniapp) —
+    config loads with empty default; production deploy still validates via
+    Railway secret presence checks at the platform level.
+    """
     env = _valid_env()
     del env["ANTHROPIC_API_KEY"]
-    with pytest.raises(Exception):
-        _reload_config(monkeypatch, env)
+    cfg = _reload_config(monkeypatch, env)
+    assert cfg.settings.anthropic_api_key == ""
 
 
-def test_config_missing_revenuecat_secret_raises(monkeypatch):
+def test_config_missing_revenuecat_secret_defaults_empty(monkeypatch):
     env = _valid_env()
     del env["REVENUECAT_WEBHOOK_SECRET"]
-    with pytest.raises(Exception):
-        _reload_config(monkeypatch, env)
+    cfg = _reload_config(monkeypatch, env)
+    assert cfg.settings.revenuecat_webhook_secret == ""
 
 
-def test_config_missing_admin_cleanup_secret_raises(monkeypatch):
+def test_config_missing_admin_cleanup_secret_defaults_empty(monkeypatch):
     env = _valid_env()
     del env["ADMIN_CLEANUP_SECRET"]
-    with pytest.raises(Exception):
-        _reload_config(monkeypatch, env)
+    cfg = _reload_config(monkeypatch, env)
+    assert cfg.settings.admin_cleanup_secret == ""
 
 
 def test_config_optional_sentry_dsn_defaults_empty(monkeypatch):

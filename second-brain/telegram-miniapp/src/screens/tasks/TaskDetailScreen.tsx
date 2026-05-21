@@ -64,10 +64,22 @@ export function TaskDetailScreen() {
           <p className="muted">{t("tasks.notFound")}</p>
         ) : (
           <>
+            <p className="muted">
+              <strong>{t(`tasks.status.${task.status}`)}</strong>
+            </p>
             <label className="field">
               <span>{t("tasks.title")}</span>
-              <input value={title} onChange={(event) => setTitle(event.target.value)} />
+              <input
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+              />
             </label>
+            {task.raw_text ? (
+              <p className="status">
+                <strong>{t("tasks.inbox.originalLabel")}</strong>{" "}
+                {task.raw_text}
+              </p>
+            ) : null}
             {task.notes ? <p className="status">{task.notes}</p> : null}
             <div className="action-row">
               <button

@@ -1,4 +1,4 @@
-"""Free-tier tasks list honours 30-day history cutoff; premium sees everything."""
+"""Test build: task history is open for every user while premium is disabled."""
 from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
@@ -21,16 +21,15 @@ def _tasks_query_mock():
 
 
 @pytest.mark.anyio
-async def test_free_user_gets_cutoff_applied(client):
+async def test_free_user_gets_full_history_in_test_build(client):
     db, chain = _tasks_query_mock()
     with patch("api.tasks.get_supabase", return_value=db), patch(
         "api.tasks.get_user_premium", return_value=PremiumStatus(is_premium=False)
     ):
         resp = await client.get("/tasks/")
     assert resp.status_code == 200
-    # .gte("created_at", ...) must have been called at least once
     gte_calls = [c for c in chain.gte.call_args_list if c.args and c.args[0] == "created_at"]
-    assert gte_calls, "free user should get created_at >= cutoff filter"
+    assert not gte_calls, "test build should not apply a free history cutoff"
 
 
 @pytest.mark.anyio
@@ -46,8 +45,7 @@ async def test_premium_user_no_cutoff(client):
 
 
 @pytest.mark.anyio
-async def test_missing_premium_row_treated_as_free(client):
-    """Fail-safe: if get_user_premium itself errors or returns default, treat as free."""
+async def test_missing_premium_row_still_gets_full_history_in_test_build(client):
     db, chain = _tasks_query_mock()
     with patch("api.tasks.get_supabase", return_value=db), patch(
         "api.tasks.get_user_premium", return_value=PremiumStatus()  # default → free
@@ -55,11 +53,11 @@ async def test_missing_premium_row_treated_as_free(client):
         resp = await client.get("/tasks/")
     assert resp.status_code == 200
     gte_calls = [c for c in chain.gte.call_args_list if c.args and c.args[0] == "created_at"]
-    assert gte_calls, "missing premium row must default to free (cutoff applied)"
+    assert not gte_calls, "test build should not apply a free history cutoff"
 
 
 @pytest.mark.anyio
-async def test_today_tasks_honours_cutoff(client):
+async def test_today_tasks_do_not_apply_history_cutoff_in_test_build(client):
     db, chain = _tasks_query_mock()
     with patch("api.tasks.get_supabase", return_value=db), patch(
         "api.tasks.get_user_premium", return_value=PremiumStatus(is_premium=False)
@@ -67,4 +65,4 @@ async def test_today_tasks_honours_cutoff(client):
         resp = await client.get("/tasks/today")
     assert resp.status_code == 200
     gte_calls = [c for c in chain.gte.call_args_list if c.args and c.args[0] == "created_at"]
-    assert gte_calls
+    assert not gte_calls

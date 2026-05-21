@@ -40,11 +40,8 @@ export function DumpScreen() {
         setQueued(true);
       }
     },
-    onError: (error: { status?: number }) => {
+    onError: () => {
       notify("error");
-      if (error.status === 402) {
-        navigate("/premium");
-      }
     },
   });
 
@@ -56,11 +53,8 @@ export function DumpScreen() {
         state: { result },
       });
     },
-    onError: (error: { status?: number }) => {
+    onError: () => {
       notify("error");
-      if (error.status === 402) {
-        navigate("/premium");
-      }
     },
   });
 

@@ -72,7 +72,6 @@
     "pendingDumps": "Queued dumps: {{count}}"
   },
   "tasks": {
-    "cutoff": "Free history is limited to recent days. Full history is available in Premium.",
     "empty": "No tasks yet.",
     "notFound": "Task not found.",
     "title": "Title",

@@ -25,11 +25,7 @@ export function NewGoalScreen() {
       addGoal(goal);
       navigate(`/goals/${goal.id}`, { replace: true, state: { goal } });
     },
-    onError: (err: { status?: number }) => {
-      if (err.status === 402) {
-        navigate("/premium");
-        return;
-      }
+    onError: () => {
       setError(t("goals.createError"));
     },
   });

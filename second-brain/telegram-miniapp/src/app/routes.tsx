@@ -6,6 +6,7 @@ import {
   useLocation,
 } from "react-router-dom";
 
+import { AppShell } from "../components/AppShell";
 import { AccountPendingDeletionScreen } from "../screens/account/AccountPendingDeletionScreen";
 import { DumpScreen } from "../screens/dump/DumpScreen";
 import { ResultScreen } from "../screens/dump/ResultScreen";
@@ -25,11 +26,11 @@ import { TransactionsScreen as FinanceTransactionsScreen } from "../screens/fina
 import { GoalDetailScreen } from "../screens/goals/GoalDetailScreen";
 import { GoalsScreen } from "../screens/goals/GoalsScreen";
 import { NewGoalScreen } from "../screens/goals/NewGoalScreen";
+import { InboxScreen } from "../screens/tasks/InboxScreen";
 import { LaunchScreen } from "../screens/launch/LaunchScreen";
 import { UnsupportedScreen } from "../screens/launch/UnsupportedScreen";
 import { FirstDumpScreen } from "../screens/onboarding/FirstDumpScreen";
 import { SetupScreen } from "../screens/onboarding/SetupScreen";
-import { PremiumScreen } from "../screens/premium/PremiumScreen";
 import { ProfileScreen } from "../screens/profile/ProfileScreen";
 import { ReflectionDetailScreen } from "../screens/reflection/ReflectionDetailScreen";
 import { ReflectionListScreen } from "../screens/reflection/ReflectionListScreen";
@@ -56,7 +57,11 @@ function RequireSession({ children }: PropsWithChildren) {
 }
 
 function protectedRoute(element: ReactElement) {
-  return <RequireSession>{element}</RequireSession>;
+  return (
+    <RequireSession>
+      <AppShell>{element}</AppShell>
+    </RequireSession>
+  );
 }
 
 const router = createBrowserRouter([
@@ -72,6 +77,7 @@ const router = createBrowserRouter([
   { path: "/dump", element: protectedRoute(<DumpScreen />) },
   { path: "/dump/result", element: protectedRoute(<ResultScreen />) },
   { path: "/tasks", element: protectedRoute(<TasksScreen />) },
+  { path: "/tasks/inbox", element: protectedRoute(<InboxScreen />) },
   { path: "/finance", element: protectedRoute(<FinanceScreen />) },
   {
     path: "/finance/transactions",
@@ -120,7 +126,7 @@ const router = createBrowserRouter([
     path: "/reflections/:date",
     element: protectedRoute(<ReflectionDetailScreen />),
   },
-  { path: "/premium", element: protectedRoute(<PremiumScreen />) },
+  { path: "/premium", element: protectedRoute(<Navigate to="/today" replace />) },
   { path: "/profile", element: protectedRoute(<ProfileScreen />) },
   { path: "/support", element: protectedRoute(<SupportScreen />) },
   {

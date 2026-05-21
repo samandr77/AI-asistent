@@ -93,7 +93,7 @@ describe("Reflection screens", () => {
     renderWithProviders(<ReflectionListScreen />);
 
     expect(await screen.findByText("2026-05-02")).toBeInTheDocument();
-    expect(screen.getByText(/streak.*3.*8|сер/i)).toBeInTheDocument();
+    expect(screen.getByText(/Серия: 3, всего: 8/i)).toBeInTheDocument();
   });
 
   it("shows a working yesterday backfill banner when the streak needs it", async () => {

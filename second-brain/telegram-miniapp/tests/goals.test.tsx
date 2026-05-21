@@ -85,7 +85,7 @@ describe("Goals screens", () => {
     });
   });
 
-  it("routes active-goal limit errors to Premium", async () => {
+  it("does not route active-goal errors to Premium in test-open mode", async () => {
     mockedCreateGoal.mockRejectedValue({ status: 402 });
 
     const queryClient = new QueryClient({
@@ -107,6 +107,7 @@ describe("Goals screens", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /create|создать/i }));
 
-    expect(await screen.findByText("Premium route")).toBeInTheDocument();
+    expect(await screen.findByText(/could not create|не удалось/i)).toBeInTheDocument();
+    expect(screen.queryByText("Premium route")).not.toBeInTheDocument();
   });
 });

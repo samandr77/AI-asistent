@@ -7,10 +7,12 @@ export type Sphere =
   | "travel"
   | "goals";
 
+export type TaskStatus = "inbox" | "active" | "done" | "archived" | "delegated";
+
 export interface Task {
   id: string;
   title: string;
-  sphere: Sphere;
+  sphere: Sphere | null;
   priority: 1 | 2 | 3;
   is_done: boolean;
   is_today: boolean;
@@ -18,6 +20,31 @@ export interface Task {
   reminder_at?: string | null;
   notes?: string | null;
   goal_id?: string | null;
+  status: TaskStatus;
+  raw_text?: string | null;
+}
+
+export interface TaskCreate {
+  title: string;
+  raw_text?: string;
+  sphere?: Sphere;
+  priority?: 1 | 2 | 3;
+  deadline?: string;
+  is_today?: boolean;
+  status?: TaskStatus;
+  goal_id?: string;
+  notes?: string;
+}
+
+export type TaskProcessAction =
+  | { action: "schedule"; is_today?: boolean; deadline?: string }
+  | { action: "delegate"; delegate_to?: string }
+  | { action: "delete" }
+  | { action: "convert_project" };
+
+export interface TaskProcessResponse {
+  task: Task;
+  already_processed: boolean;
 }
 
 export interface Goal {
@@ -155,7 +182,14 @@ export interface FinanceAccount {
   id: string;
   user_id: string;
   name: string;
-  type: "cash" | "card" | "checking" | "savings" | "investment" | "loan" | "other";
+  type:
+    | "cash"
+    | "card"
+    | "checking"
+    | "savings"
+    | "investment"
+    | "loan"
+    | "other";
   currency: string;
   balance_cents: number;
   is_archived: boolean;
@@ -219,7 +253,13 @@ export interface FinanceDebt {
   id: string;
   user_id: string;
   name: string;
-  type: "credit_card" | "loan" | "mortgage" | "installment" | "personal" | "other";
+  type:
+    | "credit_card"
+    | "loan"
+    | "mortgage"
+    | "installment"
+    | "personal"
+    | "other";
   balance_cents: number;
   interest_rate_percent?: number | null;
   monthly_payment_cents?: number | null;
@@ -232,7 +272,13 @@ export interface FinanceAsset {
   id: string;
   user_id: string;
   name: string;
-  type: "cash" | "brokerage" | "retirement" | "real_estate" | "vehicle" | "other";
+  type:
+    | "cash"
+    | "brokerage"
+    | "retirement"
+    | "real_estate"
+    | "vehicle"
+    | "other";
   current_value_cents: number;
   currency: string;
   created_at: string;

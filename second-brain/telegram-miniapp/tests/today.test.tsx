@@ -45,6 +45,7 @@ describe("TodayScreen", () => {
         priority: 1,
         is_done: false,
         is_today: true,
+        status: "active",
       },
     ]);
 

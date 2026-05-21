@@ -15,6 +15,7 @@ from services.parser import parse_dump
 from services.goal_ranker import rank_today_top3
 from services.premium import get_user_premium, get_daily_dump_limit, get_ai_tier_policy
 from services import ai_budget
+from services.task_capture import save_parsed_dump
 from models.task import ParsedDump
 
 router = APIRouter()
@@ -105,36 +106,7 @@ async def _enforce_ai_budget(user_id: str) -> None:
 
 
 async def save_tasks(parsed: ParsedDump, user_id: str, raw_text: str) -> tuple[str, list[str]]:
-    db = get_supabase()
-    dump_result = db.table("dumps").insert({
-        "user_id": user_id,
-        "raw_text": raw_text,
-        "status": "done",
-    }).execute()
-    if not dump_result.data:
-        raise HTTPException(status_code=500, detail="Failed to save dump")
-    dump_id = dump_result.data[0]["id"]
-
-    rows = [
-        {
-            "user_id": user_id,
-            "dump_id": dump_id,
-            "title": t.title,
-            "sphere": t.sphere.value,
-            "priority": t.priority.value,
-            "is_today": t.is_today,
-            "deadline": t.deadline.isoformat() if t.deadline else None,
-            "notes": t.notes,
-            "goal_id": t.goal_id if t.goal_id else None,
-        }
-        for t in parsed.tasks
-    ]
-    if not rows:
-        return dump_id, []
-    task_result = db.table("tasks").insert(rows).execute()
-    if not task_result.data:
-        raise HTTPException(status_code=500, detail="Failed to save tasks")
-    task_ids = [r["id"] for r in task_result.data]
+    dump_id, task_ids, _rows = save_parsed_dump(parsed, user_id, raw_text)
     return dump_id, task_ids
 
 

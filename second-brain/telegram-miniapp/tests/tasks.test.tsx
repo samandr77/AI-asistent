@@ -28,6 +28,7 @@ const task: Task = {
   is_done: false,
   is_today: true,
   notes: "Important",
+  status: "active",
 };
 
 const mockedDeleteTask = vi.mocked(deleteTask);

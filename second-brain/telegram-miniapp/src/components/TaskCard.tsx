@@ -18,7 +18,7 @@ const priorityLabel: Record<Task["priority"], string> = {
 
 export function TaskCard({ task }: TaskCardProps) {
   const updateTaskInStore = useAppStore((state) => state.updateTaskInStore);
-  const sphere = SPHERE_MAP[task.sphere];
+  const sphere = task.sphere ? SPHERE_MAP[task.sphere] : null;
 
   async function markDone() {
     try {
@@ -37,7 +37,11 @@ export function TaskCard({ task }: TaskCardProps) {
         className="task-card__accent"
         style={{ background: sphere?.color ?? "var(--tg-hint-color)" }}
       />
-      <Link className="task-card__body" to={`/tasks/${task.id}`} state={{ task }}>
+      <Link
+        className="task-card__body"
+        to={`/tasks/${task.id}`}
+        state={{ task }}
+      >
         <h2>{task.title}</h2>
         <p>
           {sphere?.id ?? task.sphere} · {priorityLabel[task.priority]}
@@ -46,7 +50,11 @@ export function TaskCard({ task }: TaskCardProps) {
             : ""}
         </p>
       </Link>
-      <button className="icon-button" type="button" onClick={() => void markDone()}>
+      <button
+        className="icon-button"
+        type="button"
+        onClick={() => void markDone()}
+      >
         Done
       </button>
     </article>

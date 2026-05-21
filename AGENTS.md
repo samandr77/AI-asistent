@@ -15,7 +15,7 @@ Personal AI assistant: voice/text dump → structured tasks → goal-aligned pla
 - **Backend:** Python 3.12, FastAPI + Pydantic V2, PyJWT (Supabase JWT), slowapi, Sentry
 - **Mobile:** Expo SDK 53, Expo Router v4, TypeScript strict, Zustand + MMKV, expo-audio (NOT expo-av), @sentry/react-native, expo-notifications, react-native-purchases, expo-apple-authentication, @react-native-google-signin/google-signin
 - **DB:** Supabase Postgres + RLS + `pgvector halfvec(1536)` + HNSW
-- **AI router (cheapest-first):** Groq Llama 3.3 70B → Codex Haiku 4.5 → Codex Sonnet 4.6
+- **AI router (cheapest-first):** Groq Llama 3.3 70B → Claude Haiku 4.5 → Claude Sonnet 4.6
 - **STT:** gpt-4o-mini-transcribe → HuggingFace Whisper (fallback)
 - **Premium:** RevenueCat → backend webhook → `user_premium` table
 - **Telegram Mini App (current feature):** React + TypeScript strict + Vite, Telegram WebApp SDK wrapper, Telegram `initData` auth, Telegram bot webhook, Telegram Stars premium

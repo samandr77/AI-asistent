@@ -2,12 +2,10 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 
-import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 import {
   deleteAccount,
   getMe,
   getMemoryProfile,
-  getPremiumStatus,
 } from "../../services/api";
 import { useAppStore } from "../../store/useAppStore";
 import { useSessionStore } from "../../store/useSessionStore";
@@ -20,10 +18,6 @@ export function ProfileScreen() {
   const todayTasks = useAppStore((state) => state.todayTasks);
   const allTasks = useAppStore((state) => state.allTasks);
   const meQuery = useQuery({ queryKey: ["auth-me"], queryFn: getMe });
-  const premiumQuery = useQuery({
-    queryKey: ["premium-status"],
-    queryFn: getPremiumStatus,
-  });
   const memoryQuery = useQuery({
     queryKey: ["memory-profile"],
     queryFn: getMemoryProfile,
@@ -48,10 +42,7 @@ export function ProfileScreen() {
   }
 
   function requestDeletion() {
-    const confirmText = premiumQuery.data?.is_premium
-      ? t("profile.deletePremiumConfirm")
-      : t("profile.deleteConfirm");
-    if (window.confirm(confirmText)) {
+    if (window.confirm(t("profile.deleteConfirm"))) {
       deleteMutation.mutate();
     }
   }
@@ -70,11 +61,6 @@ export function ProfileScreen() {
           <div>
             <strong>{displayName}</strong>
             {username ? <p className="muted">{username}</p> : null}
-            <p className="muted">
-              {premiumQuery.data?.is_premium
-                ? t("profile.premiumActive")
-                : t("profile.freePlan")}
-            </p>
           </div>
         </div>
         <div className="metric-grid">
@@ -87,7 +73,6 @@ export function ProfileScreen() {
             <span>{t("profile.doneTasks")}</span>
           </div>
         </div>
-        <LanguageSwitcher />
         <div className="status">
           <strong>{t("profile.memoryPreview")}</strong>
           {memoryQuery.data?.length ? (
@@ -100,10 +85,6 @@ export function ProfileScreen() {
           <Link className="row-link" to="/reflections/settings">
             <strong>{t("screens.reflectionSettings")}</strong>
             <span>{t("profile.remindersHint")}</span>
-          </Link>
-          <Link className="row-link" to="/premium">
-            <strong>{t("screens.premium")}</strong>
-            <span>{t("profile.premiumHint")}</span>
           </Link>
           <Link className="row-link" to="/support">
             <strong>{t("screens.support")}</strong>

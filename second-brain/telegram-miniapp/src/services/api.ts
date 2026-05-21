@@ -32,6 +32,9 @@ import type {
   Reflection,
   ReflectionStats,
   Task,
+  TaskCreate,
+  TaskProcessAction,
+  TaskProcessResponse,
   TelegramInvoiceResponse,
   TelegramReminderSettings,
   UserProfile,
@@ -56,6 +59,7 @@ const previewTasks: Task[] = [
     is_today: true,
     goal_id: "preview-goal-1",
     notes: "Локальные демо-данные без Supabase.",
+    status: "active",
   },
   {
     id: "preview-task-2",
@@ -64,6 +68,7 @@ const previewTasks: Task[] = [
     priority: 2,
     is_done: false,
     is_today: true,
+    status: "active",
   },
   {
     id: "preview-task-3",
@@ -72,6 +77,7 @@ const previewTasks: Task[] = [
     priority: 3,
     is_done: true,
     is_today: true,
+    status: "done",
   },
 ];
 
@@ -318,6 +324,8 @@ export async function dumpTextRaw(
       priority: 2,
       is_done: false,
       is_today: true,
+      status: "inbox",
+      raw_text: text,
     };
     return {
       dump_id: "preview-dump",
@@ -346,7 +354,8 @@ export async function getDumpResult(dumpId: string): Promise<DumpTextResponse> {
 }
 
 export async function getTodayTasks(): Promise<Task[]> {
-  if (localPreviewMode) return clone(previewTasks.filter((task) => task.is_today));
+  if (localPreviewMode)
+    return clone(previewTasks.filter((task) => task.is_today));
   const { data } = await api.get<Task[]>("/tasks/today");
   return data;
 }
@@ -366,7 +375,8 @@ export async function updateTask(
   updates: Partial<Task>,
 ): Promise<Task> {
   if (localPreviewMode) {
-    const existing = previewTasks.find((task) => task.id === id) ?? previewTasks[0];
+    const existing =
+      previewTasks.find((task) => task.id === id) ?? previewTasks[0];
     return { ...clone(existing), ...updates };
   }
   const { data } = await api.patch<Task>(`/tasks/${id}`, updates);
@@ -375,6 +385,70 @@ export async function updateTask(
 
 export async function deleteTask(id: string): Promise<void> {
   await api.delete(`/tasks/${id}`);
+}
+
+export async function createTask(payload: TaskCreate): Promise<Task> {
+  if (localPreviewMode) {
+    const created: Task = {
+      id: `preview-task-${Date.now()}`,
+      title: payload.title,
+      sphere: payload.sphere ?? "work",
+      priority: payload.priority ?? 2,
+      is_done: false,
+      is_today: payload.is_today ?? false,
+      goal_id: payload.goal_id ?? null,
+      notes: payload.notes ?? null,
+      status: payload.status ?? "active",
+      raw_text: payload.raw_text ?? null,
+    };
+    previewTasks.unshift(created);
+    return clone(created);
+  }
+  const { data } = await api.post<Task>("/tasks/", payload);
+  return data;
+}
+
+export async function getInboxTasks(params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<Task[]> {
+  if (localPreviewMode)
+    return clone(previewTasks.filter((t) => t.status === "inbox"));
+  const { data } = await api.get<Task[]>("/tasks/inbox", { params });
+  return data;
+}
+
+export async function processTask(
+  id: string,
+  action: TaskProcessAction,
+): Promise<TaskProcessResponse | null> {
+  if (localPreviewMode) {
+    const idx = previewTasks.findIndex((t) => t.id === id);
+    if (idx === -1) return null;
+    const task = previewTasks[idx];
+    if (action.action === "delete") {
+      previewTasks.splice(idx, 1);
+      return null;
+    }
+    let updated: Task = { ...task };
+    if (action.action === "schedule") {
+      updated = {
+        ...updated,
+        status: "active",
+        is_today: action.is_today ?? updated.is_today,
+        deadline: action.deadline ?? updated.deadline ?? null,
+      };
+    } else if (action.action === "delegate") {
+      updated = { ...updated, status: "delegated" };
+    } else if (action.action === "convert_project") {
+      updated = { ...updated, status: "active" };
+    }
+    previewTasks[idx] = updated;
+    return { task: clone(updated), already_processed: false };
+  }
+  const response = await api.post(`/tasks/${id}/process`, action);
+  if (response.status === 204) return null;
+  return response.data as TaskProcessResponse;
 }
 
 export async function listGoals(params?: {
@@ -390,7 +464,9 @@ export async function listGoals(params?: {
 
 export async function getGoal(id: string): Promise<Goal> {
   if (localPreviewMode) {
-    return clone(previewGoals.find((goal) => goal.id === id) ?? previewGoals[0]);
+    return clone(
+      previewGoals.find((goal) => goal.id === id) ?? previewGoals[0],
+    );
   }
   const { data } = await api.get<Goal>(`/goals/${id}`);
   return data;
@@ -427,7 +503,8 @@ export async function updateGoal(
   updates: Partial<Goal>,
 ): Promise<Goal> {
   if (localPreviewMode) {
-    const existing = previewGoals.find((goal) => goal.id === id) ?? previewGoals[0];
+    const existing =
+      previewGoals.find((goal) => goal.id === id) ?? previewGoals[0];
     return { ...clone(existing), ...updates };
   }
   const { data } = await api.patch<Goal>(`/goals/${id}`, updates);
@@ -640,7 +717,8 @@ export async function updateProfile(
 }
 
 export async function deleteAccount(): Promise<AccountPendingDeletionResponse> {
-  const { data } = await api.delete<AccountPendingDeletionResponse>("/auth/account");
+  const { data } =
+    await api.delete<AccountPendingDeletionResponse>("/auth/account");
   return data;
 }
 
@@ -679,7 +757,10 @@ export async function getFinanceDashboard(): Promise<FinanceDashboard> {
       remaining_budget_cents: budgetLimit - monthlyExpense,
       net_worth_cents:
         43800000 +
-        previewFinanceAssets.reduce((sum, asset) => sum + asset.current_value_cents, 0) -
+        previewFinanceAssets.reduce(
+          (sum, asset) => sum + asset.current_value_cents,
+          0,
+        ) -
         previewFinanceDebts.reduce((sum, debt) => sum + debt.balance_cents, 0),
       accounts_count: 3,
       active_goals_count: previewFinanceGoals.length,
@@ -692,7 +773,8 @@ export async function getFinanceDashboard(): Promise<FinanceDashboard> {
         {
           kind: "manual_mode",
           severity: "info",
-          message: "Банковские интеграции ещё не подключены, доступен ручной учёт.",
+          message:
+            "Банковские интеграции ещё не подключены, доступен ручной учёт.",
         },
       ],
     };
@@ -711,9 +793,12 @@ export async function listFinanceTransactions(params?: {
   offset?: number;
 }): Promise<FinanceTransaction[]> {
   if (localPreviewMode) return clone(previewFinanceTransactions);
-  const { data } = await api.get<FinanceTransaction[]>("/finance/transactions", {
-    params,
-  });
+  const { data } = await api.get<FinanceTransaction[]>(
+    "/finance/transactions",
+    {
+      params,
+    },
+  );
   return data;
 }
 
@@ -800,9 +885,13 @@ export async function createFinanceGoal(body: {
   return data;
 }
 
-export async function listFinanceSubscriptions(): Promise<FinanceSubscription[]> {
+export async function listFinanceSubscriptions(): Promise<
+  FinanceSubscription[]
+> {
   if (localPreviewMode) return clone(previewFinanceSubscriptions);
-  const { data } = await api.get<FinanceSubscription[]>("/finance/subscriptions");
+  const { data } = await api.get<FinanceSubscription[]>(
+    "/finance/subscriptions",
+  );
   return data;
 }
 
@@ -915,22 +1004,30 @@ export async function getFinanceNetWorthProjection(params?: {
       current_net_worth_cents: netWorth.net_worth_cents,
       monthly_cash_flow_cents: monthlyCashFlow,
       years: params?.years ?? 5,
-      projected_net_worth_cents: netWorth.net_worth_cents + monthlyCashFlow * 12 * (params?.years ?? 5),
+      projected_net_worth_cents:
+        netWorth.net_worth_cents + monthlyCashFlow * 12 * (params?.years ?? 5),
       points: Array.from({ length: params?.years ?? 5 }, (_, index) => ({
         date: `${new Date().getFullYear() + index + 1}-01-01`,
-        net_worth_cents: netWorth.net_worth_cents + monthlyCashFlow * 12 * (index + 1),
-        assets_cents: netWorth.assets_cents + monthlyCashFlow * 12 * (index + 1),
+        net_worth_cents:
+          netWorth.net_worth_cents + monthlyCashFlow * 12 * (index + 1),
+        assets_cents:
+          netWorth.assets_cents + monthlyCashFlow * 12 * (index + 1),
         debts_cents: netWorth.debts_cents,
       })),
     };
   }
-  const { data } = await api.get<FinanceNetWorthProjection>("/finance/net-worth/projection", {
-    params,
-  });
+  const { data } = await api.get<FinanceNetWorthProjection>(
+    "/finance/net-worth/projection",
+    {
+      params,
+    },
+  );
   return data;
 }
 
-export async function listFinanceRecommendations(): Promise<FinanceRecommendation[]> {
+export async function listFinanceRecommendations(): Promise<
+  FinanceRecommendation[]
+> {
   if (localPreviewMode) {
     return [
       {
@@ -945,7 +1042,9 @@ export async function listFinanceRecommendations(): Promise<FinanceRecommendatio
       },
     ];
   }
-  const { data } = await api.get<FinanceRecommendation[]>("/finance/recommendations");
+  const { data } = await api.get<FinanceRecommendation[]>(
+    "/finance/recommendations",
+  );
   return data;
 }
 
@@ -967,7 +1066,9 @@ export async function chatWithFinanceAssistant(body: {
   return data;
 }
 
-export async function detectFinanceSubscriptions(): Promise<FinanceSubscriptionDetection[]> {
+export async function detectFinanceSubscriptions(): Promise<
+  FinanceSubscriptionDetection[]
+> {
   if (localPreviewMode) {
     return [
       {
@@ -982,7 +1083,9 @@ export async function detectFinanceSubscriptions(): Promise<FinanceSubscriptionD
       },
     ];
   }
-  const { data } = await api.get<FinanceSubscriptionDetection[]>("/finance/subscriptions/detect");
+  const { data } = await api.get<FinanceSubscriptionDetection[]>(
+    "/finance/subscriptions/detect",
+  );
   return data;
 }
 
@@ -1003,9 +1106,12 @@ export async function getFinanceBudgetTemplate(params?: {
       ],
     };
   }
-  const { data } = await api.get<FinanceBudgetTemplate>("/finance/budgets/suggest-template", {
-    params,
-  });
+  const { data } = await api.get<FinanceBudgetTemplate>(
+    "/finance/budgets/suggest-template",
+    {
+      params,
+    },
+  );
   return data;
 }
 
@@ -1017,7 +1123,8 @@ export async function getFinanceTaxSummary(params?: {
       upcoming_events: clone(previewFinanceTaxEvents),
       deductible_candidates: [{ category: "health", amount_cents: 120000 }],
       documents_count: previewFinanceDocuments.length,
-      safety_note: "Это предварительная сводка, налоговые решения нужно проверять отдельно.",
+      safety_note:
+        "Это предварительная сводка, налоговые решения нужно проверять отдельно.",
     };
   }
   const { data } = await api.get<FinanceTaxSummary>("/finance/taxes/summary", {

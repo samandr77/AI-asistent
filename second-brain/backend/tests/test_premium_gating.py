@@ -1,7 +1,6 @@
 from __future__ import annotations
 import pytest
 import math
-from datetime import datetime, timezone
 from unittest.mock import patch, AsyncMock, MagicMock
 from httpx import AsyncClient, ASGITransport
 
@@ -34,9 +33,9 @@ async def client():
 
 # ── Service-level unit tests ──────────────────────────────────────────────────
 
-def test_free_token_budget():
+def test_free_token_budget_uses_open_test_budget():
     p = PremiumStatus(is_premium=False)
-    assert get_daily_token_budget(p) == 50_000
+    assert get_daily_token_budget(p) == 500_000
 
 
 def test_premium_token_budget():
@@ -44,9 +43,9 @@ def test_premium_token_budget():
     assert get_daily_token_budget(p) == 500_000
 
 
-def test_free_dump_limit():
+def test_free_dump_limit_is_open_for_test_build():
     p = PremiumStatus(is_premium=False)
-    assert get_daily_dump_limit(p) == 10
+    assert get_daily_dump_limit(p) == math.inf
 
 
 def test_premium_dump_limit_is_inf():
@@ -54,9 +53,9 @@ def test_premium_dump_limit_is_inf():
     assert get_daily_dump_limit(p) == math.inf
 
 
-def test_free_ai_tier_policy():
+def test_free_ai_tier_policy_is_open_for_test_build():
     p = PremiumStatus(is_premium=False)
-    assert get_ai_tier_policy(p) == ["groq_llama"]
+    assert get_ai_tier_policy(p) == ["groq_llama", "claude_haiku", "claude_sonnet"]
 
 
 def test_premium_ai_tier_policy():
@@ -64,9 +63,9 @@ def test_premium_ai_tier_policy():
     assert get_ai_tier_policy(p) == ["groq_llama", "claude_haiku", "claude_sonnet"]
 
 
-def test_free_max_goals():
+def test_free_max_goals_is_open_for_test_build():
     p = PremiumStatus(is_premium=False)
-    assert get_max_active_goals(p) == 3
+    assert get_max_active_goals(p) == math.inf
 
 
 def test_premium_max_goals_is_inf():
@@ -74,12 +73,9 @@ def test_premium_max_goals_is_inf():
     assert get_max_active_goals(p) == math.inf
 
 
-def test_free_history_cutoff_is_30_days_ago():
+def test_free_history_cutoff_is_none_for_test_build():
     p = PremiumStatus(is_premium=False)
-    cutoff = get_history_cutoff(p)
-    assert cutoff is not None
-    diff = datetime.now(timezone.utc) - cutoff
-    assert 29 <= diff.days <= 30
+    assert get_history_cutoff(p) is None
 
 
 def test_premium_history_cutoff_is_none():
@@ -127,16 +123,16 @@ async def test_dump_limit_10th_dump_allowed(client):
 
 
 @pytest.mark.anyio
-async def test_dump_limit_11th_dump_blocked_for_free(client):
-    """10 previous dumps → 11th should be blocked with 402."""
+async def test_dump_limit_not_applied_for_free_test_build(client):
+    """Test build: even a free/default user is not blocked by dump count."""
     with (
         patch("api.dump.get_user_premium", new=AsyncMock(return_value=_free_premium())),
         patch("api.dump.get_supabase", return_value=_mock_dump_db(10)),
+        patch("api.dump.ai_budget.has_budget", new=AsyncMock(return_value=True)),
+        patch("api.dump.parse_dump", new=AsyncMock(side_effect=ValueError("stop early"))),
     ):
         resp = await client.post("/dump/text", json={"text": "hello"})
-    assert resp.status_code == 402
-    body = resp.json()
-    assert body["detail"]["error"] == "dump_limit_reached"
+    assert resp.status_code == 422
 
 
 @pytest.mark.anyio
@@ -193,16 +189,24 @@ async def test_goal_limit_3rd_goal_allowed(client):
 
 
 @pytest.mark.anyio
-async def test_goal_limit_4th_goal_blocked_for_free(client):
-    """3 active goals → 4th should be blocked with 402."""
+async def test_goal_limit_not_applied_for_free_test_build(client):
+    """Test build: even a free/default user can create more than 3 active goals."""
+    new_goal = {
+        "id": "goal-new",
+        "user_id": TEST_USER_ID,
+        "title": "Goal 4",
+        "status": "active",
+        "sphere": "work",
+        "progress_percent": 0,
+        "created_at": "2026-04-24T00:00:00+00:00",
+        "updated_at": "2026-04-24T00:00:00+00:00",
+    }
     with (
         patch("api.goals.get_user_premium", new=AsyncMock(return_value=_free_premium())),
-        patch("api.goals.get_supabase", return_value=_mock_goals_db(3)),
+        patch("api.goals.get_supabase", return_value=_mock_goals_db(3, [new_goal])),
     ):
         resp = await client.post("/goals/", json={"title": "Goal 4", "sphere": "work"})
-    assert resp.status_code == 402
-    body = resp.json()
-    assert body["detail"]["error"] == "goal_limit_reached"
+    assert resp.status_code == 201
 
 
 @pytest.mark.anyio

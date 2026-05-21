@@ -11,7 +11,6 @@ import {
   getMemoryProfile,
   getMe,
   getPremiumStatus,
-  updateProfile,
 } from "../src/services/api";
 import { useSessionStore } from "../src/store/useSessionStore";
 
@@ -25,7 +24,6 @@ vi.mock("../src/services/api", async () => {
     getMemoryProfile: vi.fn(),
     getMe: vi.fn(),
     getPremiumStatus: vi.fn(),
-    updateProfile: vi.fn(),
   };
 });
 
@@ -33,7 +31,6 @@ const mockedDeleteAccount = vi.mocked(deleteAccount);
 const mockedGetMemoryProfile = vi.mocked(getMemoryProfile);
 const mockedGetMe = vi.mocked(getMe);
 const mockedGetPremiumStatus = vi.mocked(getPremiumStatus);
-const mockedUpdateProfile = vi.mocked(updateProfile);
 
 function renderWithProviders(element = <ProfileScreen />) {
   const queryClient = new QueryClient({
@@ -54,7 +51,6 @@ describe("ProfileScreen", () => {
     mockedGetMemoryProfile.mockReset();
     mockedGetMe.mockReset();
     mockedGetPremiumStatus.mockReset();
-    mockedUpdateProfile.mockReset();
     useSessionStore.getState().setSession("token", {
       id: "00000000-0000-4000-8000-000000000501",
       telegram_user_id: 1001,
@@ -64,7 +60,7 @@ describe("ProfileScreen", () => {
     });
   });
 
-  it("renders Telegram profile, saves language, and schedules deletion", async () => {
+  it("renders Telegram profile in Russian-only mode and schedules deletion", async () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     mockedGetMe.mockResolvedValue({
       id: "00000000-0000-4000-8000-000000000501",
@@ -89,10 +85,6 @@ describe("ProfileScreen", () => {
         content: "Prefers morning planning",
       },
     ]);
-    mockedUpdateProfile.mockResolvedValue({
-      id: "00000000-0000-4000-8000-000000000501",
-      language: "ru",
-    });
     mockedDeleteAccount.mockResolvedValue({
       status: "scheduled",
       scheduled_for: "2026-06-01T00:00:00Z",
@@ -102,10 +94,8 @@ describe("ProfileScreen", () => {
 
     expect(await screen.findByText("Alex Profile")).toBeInTheDocument();
     expect(await screen.findByText("Prefers morning planning")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "RU" }));
-    await waitFor(() => {
-      expect(mockedUpdateProfile).toHaveBeenCalledWith({ language: "ru" });
-    });
+    expect(screen.queryByRole("button", { name: "EN" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "RU" })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /delete account|удалить/i }));
     await waitFor(() => {

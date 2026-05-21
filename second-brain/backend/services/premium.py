@@ -1,7 +1,6 @@
 from __future__ import annotations
 import math
 import logging
-from datetime import datetime, timezone, timedelta
 from config import settings
 from database import get_supabase
 from models.premium import PremiumStatus
@@ -36,34 +35,25 @@ async def get_user_premium(user_id: str) -> PremiumStatus:
 
 
 def get_daily_token_budget(premium: PremiumStatus) -> int:
-    if premium.is_premium:
-        return settings.daily_premium_token_budget
-    return settings.daily_free_token_budget
+    # Test build: keep functionality open while premium is disabled.
+    return settings.daily_premium_token_budget
 
 
 def get_daily_dump_limit(premium: PremiumStatus) -> int | float:
-    """Returns math.inf for premium users (no limit)."""
-    if premium.is_premium:
-        return math.inf
-    return settings.free_daily_dump_limit
+    """Test build: no dump limit while premium is disabled."""
+    return math.inf
 
 
 def get_ai_tier_policy(premium: PremiumStatus) -> list[str]:
-    """Returns ordered list of AI tiers available to the user (cheapest first)."""
-    if premium.is_premium:
-        return ["groq_llama", "claude_haiku", "claude_sonnet"]
-    return ["groq_llama"]
+    """Test build: all AI tiers are available, cheapest first."""
+    return ["groq_llama", "claude_haiku", "claude_sonnet"]
 
 
 def get_max_active_goals(premium: PremiumStatus) -> int | float:
-    """Returns math.inf for premium users (no limit)."""
-    if premium.is_premium:
-        return math.inf
-    return settings.free_max_active_goals
+    """Test build: no active-goal limit while premium is disabled."""
+    return math.inf
 
 
-def get_history_cutoff(premium: PremiumStatus) -> datetime | None:
-    """Returns cutoff datetime for history; None means full history (premium)."""
-    if premium.is_premium:
-        return None
-    return datetime.now(timezone.utc) - timedelta(days=settings.free_history_days)
+def get_history_cutoff(premium: PremiumStatus):
+    """Test build: full history for everyone while premium is disabled."""
+    return None

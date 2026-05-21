@@ -19,6 +19,7 @@ from api import (
     premium,
     reflections,
     revenuecat_webhook,
+    task_projects,
     tasks,
     telegram_auth,
     telegram_payments,
@@ -28,6 +29,28 @@ from api import (
 from config import settings
 
 logger = logging.getLogger(__name__)
+
+
+_REDACTED_FIELDS = ("raw_text", "source_text")
+
+
+def _redact_raw_text(value):
+    if isinstance(value, dict):
+        return {
+            k: ("<redacted>" if k in _REDACTED_FIELDS else _redact_raw_text(v))
+            for k, v in value.items()
+        }
+    if isinstance(value, list):
+        return [_redact_raw_text(item) for item in value]
+    return value
+
+
+def _sentry_before_send(event, _hint):
+    # Drop user-typed task content from any payload before it leaves the process.
+    for key in ("request", "extra", "contexts"):
+        if key in event and event[key]:
+            event[key] = _redact_raw_text(event[key])
+    return event
 
 
 def _init_sentry() -> None:
@@ -41,6 +64,7 @@ def _init_sentry() -> None:
         traces_sample_rate=0.2,
         integrations=[FastApiIntegration()],
         send_default_pii=False,
+        before_send=_sentry_before_send,
     )
     logger.info("Sentry initialized (env=%s)", settings.environment)
 
@@ -68,6 +92,7 @@ app.add_middleware(
 
 app.include_router(dump.router, prefix="/dump", tags=["dump"])
 app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])
+app.include_router(task_projects.router, prefix="/task-projects", tags=["task-projects"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(memory.router, prefix="/memory", tags=["memory"])
 app.include_router(goals.router, prefix="/goals", tags=["goals"])

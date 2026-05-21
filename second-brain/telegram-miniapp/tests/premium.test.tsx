@@ -89,6 +89,6 @@ describe("PremiumScreen", () => {
       );
       expect(mockedRefreshPremiumAfterTelegramPayment).toHaveBeenCalledOnce();
     });
-    expect(await screen.findByText(/premium is active|premium активен/i)).toBeInTheDocument();
+    expect(await screen.findByText(/премиум активен/i)).toBeInTheDocument();
   });
 });

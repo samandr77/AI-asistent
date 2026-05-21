@@ -17,7 +17,7 @@ try {
     i18next.init({
       resources: { ru: { translation: ru }, en: { translation: en } },
       lng: "ru",
-      fallbackLng: "en",
+      fallbackLng: "ru",
       interpolation: { escapeValue: false },
       compatibilityJSON: "v4",
     });
