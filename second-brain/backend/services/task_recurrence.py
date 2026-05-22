@@ -118,6 +118,17 @@ def complete_recurring_task(task_id: str, user_id: str) -> dict:
     }
     rule = task.get("recurrence_rule")
     if rule:
+        if task.get("habit_mode"):
+            get_supabase().table("task_habit_events").insert(
+                {
+                    "user_id": user_id,
+                    "task_id": task_id,
+                    "event_date": date.today().isoformat(),
+                    "completed": True,
+                    "completed_at": completed_at,
+                    "created_at": completed_at,
+                }
+            ).execute()
         current = _parse_date(task.get("next_occurrence_at")) or _parse_date(task.get("deadline")) or date.today()
         next_due = next_occurrence(current, rule)
         updates.update(
@@ -215,6 +226,7 @@ def habit_stats(task_id: str, user_id: str) -> dict:
     task = load_task_for_user(task_id, user_id)
     if not task.get("habit_mode"):
         raise HTTPException(status_code=422, detail="Task is not a habit")
+    events = habit_history(task_id, user_id, days=90)["events"]
     focus = (
         get_supabase()
         .table("task_focus_sessions")
@@ -224,10 +236,49 @@ def habit_stats(task_id: str, user_id: str) -> dict:
         .execute()
     )
     sessions = focus.data or []
+    completed_dates = {
+        str(row.get("event_date")) for row in events if row.get("completed")
+    }
+    today = date.today()
+    current_streak = 0
+    cursor = today
+    while cursor.isoformat() in completed_dates:
+        current_streak += 1
+        cursor -= timedelta(days=1)
+    longest_streak = 0
+    streak = 0
+    for offset in range(89, -1, -1):
+        day = today - timedelta(days=offset)
+        if day.isoformat() in completed_dates:
+            streak += 1
+            longest_streak = max(longest_streak, streak)
+        else:
+            streak = 0
     return {
         "task_id": task_id,
         "rollover_count": int(task.get("rollover_count") or 0),
         "next_occurrence_at": task.get("next_occurrence_at"),
+        "completed_count_90d": len(completed_dates),
+        "current_streak": current_streak,
+        "longest_streak": longest_streak,
+        "completion_rate_90d": round(len(completed_dates) / 90, 4),
         "focus_sessions": len(sessions),
         "focus_minutes": sum(int(row.get("duration_min") or 0) for row in sessions),
     }
+
+
+def habit_history(task_id: str, user_id: str, days: int = 30) -> dict:
+    load_task_for_user(task_id, user_id)
+    days = min(max(days, 1), 365)
+    start = date.today() - timedelta(days=days - 1)
+    result = (
+        get_supabase()
+        .table("task_habit_events")
+        .select("*")
+        .eq("task_id", task_id)
+        .eq("user_id", user_id)
+        .gte("event_date", start.isoformat())
+        .order("event_date", desc=False)
+        .execute()
+    )
+    return {"task_id": task_id, "days": days, "events": result.data or []}

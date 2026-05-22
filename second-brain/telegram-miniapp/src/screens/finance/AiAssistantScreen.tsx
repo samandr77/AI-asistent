@@ -1,12 +1,17 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent, type ReactNode } from "react";
 
 import {
+  analyzeFinanceEntry,
   chatWithFinanceAssistant,
+  confirmFinanceEntry,
   getFinanceAnalytics,
   listFinanceRecommendations,
 } from "../../services/api";
-import type { FinanceChatResponse } from "../../types/api";
+import type {
+  FinanceAnalyzeEntryAction,
+  FinanceChatResponse,
+} from "../../types/api";
 import { Icon } from "./components/Icon";
 import { FinancePhone, Skeleton, centsToRub, fmt } from "./components/shell";
 
@@ -24,6 +29,10 @@ const QUICK_QUESTIONS = [
 export function AiAssistantScreen(): ReactNode {
   const [input, setInput] = useState("");
   const [turns, setTurns] = useState<ChatTurn[]>([]);
+  const [pendingActions, setPendingActions] = useState<
+    FinanceAnalyzeEntryAction[]
+  >([]);
+  const qc = useQueryClient();
 
   const analyticsQuery = useQuery({
     queryKey: ["finance", "analytics"],
@@ -43,6 +52,19 @@ export function AiAssistantScreen(): ReactNode {
       ]);
     },
   });
+  const analyze = useMutation({
+    mutationFn: analyzeFinanceEntry,
+    onSuccess: (response) => {
+      setPendingActions(response.actions.filter((action) => action.kind !== "note"));
+    },
+  });
+  const confirm = useMutation({
+    mutationFn: confirmFinanceEntry,
+    onSuccess: async () => {
+      setPendingActions([]);
+      await qc.invalidateQueries({ queryKey: ["finance"] });
+    },
+  });
 
   const analytics = analyticsQuery.data;
   const recommendations = recommendationsQuery.data ?? [];
@@ -56,6 +78,15 @@ export function AiAssistantScreen(): ReactNode {
     setTurns((prev) => [...prev, { role: "user", text, id }]);
     setInput("");
     chat.mutate({ message: text });
+  }
+
+  function captureEntry() {
+    const text = input.trim();
+    if (!text || analyze.isPending) return;
+    const id = `me-${Date.now()}`;
+    setTurns((prev) => [...prev, { role: "user", text, id }]);
+    setInput("");
+    analyze.mutate({ text, currency: "RUB" });
   }
 
   function ask(question: string) {
@@ -172,6 +203,40 @@ export function AiAssistantScreen(): ReactNode {
             ),
           )}
 
+          {pendingActions.length > 0 ? (
+            <div className="chat-row">
+              <div className="ava">ИИ</div>
+              <div className="chat-msg ai">
+                <div style={{ fontWeight: 800, marginBottom: 6 }}>
+                  Нашёл финансовую запись
+                </div>
+                {pendingActions.map((action) => (
+                  <div className="tiny mute" key={`${action.kind}-${action.reason}`}>
+                    {action.kind} · {Math.round(action.confidence * 100)}% ·{" "}
+                    {action.reason}
+                  </div>
+                ))}
+                <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+                  <button
+                    type="button"
+                    className="sug"
+                    onClick={() => confirm.mutate(pendingActions)}
+                    disabled={confirm.isPending}
+                  >
+                    {confirm.isPending ? "Записываю…" : "Записать"}
+                  </button>
+                  <button
+                    type="button"
+                    className="sug"
+                    onClick={() => setPendingActions([])}
+                  >
+                    Отменить
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
           {chat.isPending ? (
             <div className="chat-row">
               <div className="ava">ИИ</div>
@@ -236,6 +301,15 @@ export function AiAssistantScreen(): ReactNode {
         />
         <button type="button" className="mic" aria-label="Голосовой ввод">
           <Icon name="mic" size={16} />
+        </button>
+        <button
+          type="button"
+          className="mic"
+          aria-label="Разобрать как операцию"
+          onClick={captureEntry}
+          disabled={analyze.isPending || !input.trim()}
+        >
+          <Icon name="check" size={16} />
         </button>
         <button
           type="submit"

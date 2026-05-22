@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, type FormEvent, type ReactNode } from "react";
 
 import {
@@ -11,6 +11,7 @@ import {
   createFinanceSubscription,
   createFinanceTaxEvent,
   createFinanceTransaction,
+  listFinanceAccounts,
 } from "../../../services/api";
 import type {
   FinanceAsset,
@@ -80,6 +81,9 @@ export function TransactionSheet({ open, onClose }: CommonProps): ReactNode {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState<string>("food");
   const [merchant, setMerchant] = useState("");
+  const [accountId, setAccountId] = useState("");
+  const [targetAccountId, setTargetAccountId] = useState("");
+  const [isRecurring, setIsRecurring] = useState(false);
   const [date, setDate] = useState(todayIso());
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | undefined>();
@@ -93,12 +97,20 @@ export function TransactionSheet({ open, onClose }: CommonProps): ReactNode {
     },
     onError: () => setError("Не удалось сохранить операцию"),
   });
+  const accountsQuery = useQuery({
+    queryKey: ["finance", "accounts"],
+    queryFn: listFinanceAccounts,
+    enabled: open,
+  });
 
   function reset() {
     setType("expense");
     setAmount("");
     setCategory("food");
     setMerchant("");
+    setAccountId("");
+    setTargetAccountId("");
+    setIsRecurring(false);
     setDate(todayIso());
     setNote("");
     setError(undefined);
@@ -119,11 +131,17 @@ export function TransactionSheet({ open, onClose }: CommonProps): ReactNode {
       currency: "RUB",
       category,
       merchant: merchant.trim() || undefined,
+      account_id: accountId || undefined,
+      target_account_id:
+        type === "transfer" ? targetAccountId || undefined : undefined,
+      is_recurring: isRecurring,
+      source: "manual",
       note: note.trim() || undefined,
     });
   }
 
   const categories = type === "income" ? INCOME_CATEGORIES : EXPENSE_CATEGORIES;
+  const accounts = accountsQuery.data ?? [];
 
   return (
     <Sheet
@@ -187,6 +205,36 @@ export function TransactionSheet({ open, onClose }: CommonProps): ReactNode {
             onChange={(event) => setMerchant(event.target.value)}
           />
         </FormField>
+        <FormField label={type === "transfer" ? "Со счёта" : "Счёт"}>
+          <select
+            value={accountId}
+            onChange={(event) => setAccountId(event.target.value)}
+          >
+            <option value="">Не выбран</option>
+            {accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.name}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        {type === "transfer" && (
+          <FormField label="На счёт">
+            <select
+              value={targetAccountId}
+              onChange={(event) => setTargetAccountId(event.target.value)}
+            >
+              <option value="">Не выбран</option>
+              {accounts
+                .filter((account) => account.id !== accountId)
+                .map((account) => (
+                  <option key={account.id} value={account.id}>
+                    {account.name}
+                  </option>
+                ))}
+            </select>
+          </FormField>
+        )}
         <FormField label="Дата">
           <input
             type="date"
@@ -201,6 +249,14 @@ export function TransactionSheet({ open, onClose }: CommonProps): ReactNode {
             onChange={(event) => setNote(event.target.value)}
           />
         </FormField>
+        <label className="fin-check">
+          <input
+            type="checkbox"
+            checked={isRecurring}
+            onChange={(event) => setIsRecurring(event.target.checked)}
+          />
+          <span>Повторяется регулярно</span>
+        </label>
         <FormError message={error} />
         <SubmitRow
           pending={mutation.isPending}
@@ -220,6 +276,9 @@ export function BudgetSheet({ open, onClose }: CommonProps): ReactNode {
   const qc = useQueryClient();
   const [category, setCategory] = useState("food");
   const [limit, setLimit] = useState("");
+  const [allocated, setAllocated] = useState("");
+  const [rollover, setRollover] = useState("");
+  const [rolloverEnabled, setRolloverEnabled] = useState(false);
   const [period, setPeriod] = useState<"monthly" | "weekly">("monthly");
   const [error, setError] = useState<string | undefined>();
 
@@ -236,6 +295,9 @@ export function BudgetSheet({ open, onClose }: CommonProps): ReactNode {
   function reset() {
     setCategory("food");
     setLimit("");
+    setAllocated("");
+    setRollover("");
+    setRolloverEnabled(false);
     setPeriod("monthly");
     setError(undefined);
   }
@@ -252,6 +314,9 @@ export function BudgetSheet({ open, onClose }: CommonProps): ReactNode {
       category,
       period,
       limit_cents: cents,
+      allocated_cents: allocated.trim() ? rubToCents(allocated) || cents : cents,
+      rollover_cents: rollover.trim() ? rubToCents(rollover) || 0 : 0,
+      rollover_enabled: rolloverEnabled,
     });
   }
 
@@ -290,6 +355,34 @@ export function BudgetSheet({ open, onClose }: CommonProps): ReactNode {
             autoFocus
           />
         </FormField>
+        <FormField label="Выделено в конверт, ₽">
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder="15000"
+            value={allocated}
+            onChange={(event) => setAllocated(event.target.value)}
+          />
+        </FormField>
+        <label className="fin-check">
+          <input
+            type="checkbox"
+            checked={rolloverEnabled}
+            onChange={(event) => setRolloverEnabled(event.target.checked)}
+          />
+          <span>Переносить остаток</span>
+        </label>
+        {rolloverEnabled && (
+          <FormField label="Перенос с прошлого месяца, ₽">
+            <input
+              type="text"
+              inputMode="decimal"
+              placeholder="0"
+              value={rollover}
+              onChange={(event) => setRollover(event.target.value)}
+            />
+          </FormField>
+        )}
         <SegmentedField
           label="Период"
           value={period}

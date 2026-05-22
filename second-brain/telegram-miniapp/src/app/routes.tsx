@@ -14,6 +14,7 @@ import { AiAssistantScreen as FinanceAiAssistantScreen } from "../screens/financ
 import { AnalyticsScreen as FinanceAnalyticsScreen } from "../screens/finance/AnalyticsScreen";
 import { AssetsScreen as FinanceAssetsScreen } from "../screens/finance/AssetsScreen";
 import { BudgetsScreen as FinanceBudgetsScreen } from "../screens/finance/BudgetsScreen";
+import { CategoriesScreen as FinanceCategoriesScreen } from "../screens/finance/CategoriesScreen";
 import { DebtsScreen as FinanceDebtsScreen } from "../screens/finance/DebtsScreen";
 import { FinanceScreen } from "../screens/finance/FinanceScreen";
 import { GoalsScreen as FinanceGoalsScreen } from "../screens/finance/GoalsScreen";
@@ -30,6 +31,13 @@ import { GoalsMoreScreen } from "../screens/goals/MoreScreen";
 import { NewGoalScreen } from "../screens/goals/NewGoalScreen";
 import { ReviewScreen } from "../screens/goals/ReviewScreen";
 import { StrategyScreen } from "../screens/goals/StrategyScreen";
+import { HealthScreen } from "../screens/health/HealthScreen";
+import { WorkoutsScreen } from "../screens/health/WorkoutsScreen";
+import { NewWorkoutScreen } from "../screens/health/NewWorkoutScreen";
+import { WorkoutDetailScreen } from "../screens/health/WorkoutDetailScreen";
+import { LiveSessionScreen } from "../screens/health/LiveSessionScreen";
+import { ExerciseLibraryScreen } from "../screens/health/ExerciseLibraryScreen";
+import { ExerciseDetailScreen } from "../screens/health/ExerciseDetailScreen";
 import { AIChatScreen as TasksAIChatScreen } from "../screens/tasks/AIChatScreen";
 import { AnalyticsScreen as TasksAnalyticsScreen } from "../screens/tasks/AnalyticsScreen";
 import { BigThreeScreen } from "../screens/tasks/BigThreeScreen";
@@ -78,14 +86,25 @@ function protectedRoute(element: ReactElement) {
   );
 }
 
+function protectedRouteNoTabBar(element: ReactElement) {
+  return (
+    <RequireSession>
+      <AppShell hideTabBar>{element}</AppShell>
+    </RequireSession>
+  );
+}
+
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/launch" replace /> },
   { path: "/launch", element: <LaunchScreen /> },
   { path: "/unsupported", element: <UnsupportedScreen /> },
-  { path: "/onboarding/setup", element: protectedRoute(<SetupScreen />) },
+  {
+    path: "/onboarding/setup",
+    element: protectedRouteNoTabBar(<SetupScreen />),
+  },
   {
     path: "/onboarding/first-dump",
-    element: protectedRoute(<FirstDumpScreen />),
+    element: protectedRouteNoTabBar(<FirstDumpScreen />),
   },
   { path: "/today", element: protectedRoute(<TodayScreen />) },
   { path: "/dump", element: protectedRoute(<DumpScreen />) },
@@ -106,6 +125,28 @@ const router = createBrowserRouter([
     element: protectedRoute(<TasksAnalyticsScreen />),
   },
   { path: "/finance", element: protectedRoute(<FinanceScreen />) },
+  { path: "/health", element: protectedRoute(<HealthScreen />) },
+  { path: "/health/workouts", element: protectedRoute(<WorkoutsScreen />) },
+  {
+    path: "/health/workouts/new",
+    element: protectedRoute(<NewWorkoutScreen />),
+  },
+  {
+    path: "/health/workouts/:workoutId",
+    element: protectedRoute(<WorkoutDetailScreen />),
+  },
+  {
+    path: "/health/workouts/:workoutId/log",
+    element: protectedRouteNoTabBar(<LiveSessionScreen />),
+  },
+  {
+    path: "/health/exercises",
+    element: protectedRoute(<ExerciseLibraryScreen />),
+  },
+  {
+    path: "/health/exercises/:slug",
+    element: protectedRoute(<ExerciseDetailScreen />),
+  },
   {
     path: "/finance/transactions",
     element: protectedRoute(<FinanceTransactionsScreen />),
@@ -113,6 +154,10 @@ const router = createBrowserRouter([
   {
     path: "/finance/budgets",
     element: protectedRoute(<FinanceBudgetsScreen />),
+  },
+  {
+    path: "/finance/categories",
+    element: protectedRoute(<FinanceCategoriesScreen />),
   },
   {
     path: "/finance/ai",

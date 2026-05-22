@@ -20,6 +20,13 @@ interface HubCard {
 
 const CARDS: HubCard[] = [
   {
+    to: "/goals",
+    name: "Цели",
+    sub: "OKR · стратегия · KPI · ревью",
+    icon: "target",
+    color: "#6E5BF6",
+  },
+  {
     to: "/tasks/big-three",
     name: "Big Three",
     sub: "Три главные задачи дня",
@@ -57,7 +64,7 @@ const CARDS: HubCard[] = [
   {
     to: "/tasks/habits",
     name: "Привычки",
-    sub: "Don't break the chain",
+    sub: "Стрики и регулярность",
     icon: "fire",
     color: "var(--warn)",
   },
@@ -71,7 +78,7 @@ const CARDS: HubCard[] = [
   {
     to: "/tasks/analytics",
     name: "Аналитика",
-    sub: "Карма, прогресс, инсайты",
+    sub: "Прогресс, сроки, инсайты",
     icon: "chart",
     color: "var(--success)",
   },

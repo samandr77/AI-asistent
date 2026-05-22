@@ -1,0 +1,1095 @@
+/Users/andreysamosuk/Documents/AI-asistent/second-brain/backend/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.typing import (
+Sentry DSN not set — errors will not be reported
+INFO:     Started server process [20647]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+/Users/andreysamosuk/Documents/AI-asistent/second-brain/backend/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.typing import (
+Sentry DSN not set — errors will not be reported
+INFO:     Started server process [20873]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:65288 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65316 - "POST /telegram/auth/dev-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65317 - "POST /telegram/auth/dev-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65357 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65359 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65360 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65362 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65363 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65357 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:65359 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65360 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65362 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:65365 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65375 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:65377 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:65405 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65407 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65408 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65410 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65405 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:65407 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65411 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65408 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65405 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:65413 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65423 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:65424 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50353 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50354 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50357 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50353 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50358 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50354 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50357 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50359 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50360 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50362 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50363 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50353 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50359 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50365 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50357 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50362 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50366 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50353 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50359 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50370 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50394 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50395 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50398 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50399 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50425 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50428 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50430 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50432 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50433 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50438 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50439 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50441 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50443 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50444 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50484 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50485 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50489 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50490 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50492 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50494 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50503 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50504 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50510 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50511 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50504 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50503 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50607 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50609 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50610 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50612 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50614 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50615 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50607 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50609 - "GET /health/sleep/stats?days=7 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50614 - "GET /health/sleep/goal HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50612 - "GET /health/sleep/sessions/active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50615 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50621 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50623 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50621 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50624 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50623 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50626 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50621 - "GET /health/sleep/sessions/active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50628 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50629 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50623 - "GET /health/sleep/goal HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50621 - "GET /health/sleep/stats?days=7 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50612 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50614 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50609 - "GET /health/sleep/stats?days=7 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50615 - "GET /health/sleep/goal HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50607 - "GET /health/sleep/sessions/active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50686 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50688 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50689 - "GET /health/sleep/sessions/active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50691 - "GET /health/sleep/goal HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50693 - "GET /health/sleep/stats?days=7 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50694 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50686 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50688 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50699 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50701 - "GET /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50699 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50703 - "GET /health/sleep/sessions/active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50701 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50705 - "GET /health/sleep/goal HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50706 - "GET /health/sleep/stats?days=7 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50707 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50688 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50686 - "GET /health/sleep/sessions/active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50694 - "GET /health/sleep/stats?days=7 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50691 - "GET /health/sleep/goal HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50694 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50753 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50756 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:50757 - "GET /health/sleep/sessions/active HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50759 - "GET /health/sleep/goal HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50761 - "GET /health/sleep/stats?days=7 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:50808 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50809 - "GET /goals/tree HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50815 - "POST /telegram/auth/dev-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50811 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50812 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50813 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50814 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50817 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50818 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50819 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50820 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [20873]
+/Users/andreysamosuk/Documents/AI-asistent/second-brain/backend/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.typing import (
+Sentry DSN not set — errors will not be reported
+INFO:     Started server process [24382]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51054 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51057 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51059 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51061 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51063 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51064 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51069 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51085 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51069 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51086 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51085 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51088 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51090 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51091 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51091 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51090 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51088 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51085 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51086 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51091 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51093 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51115 - "GET /health/sleep/goal HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51116 - "GET /health/sleep/stats?days=7 HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51124 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51126 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51128 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51130 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51132 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51133 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51138 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51153 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51138 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51155 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51153 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51157 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51159 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51160 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51160 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51159 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51157 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51160 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51153 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51155 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51155 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51153 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51160 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51157 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51159 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51138 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51155 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51153 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51153 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51155 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51138 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51157 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51159 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51160 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51356 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51358 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51356 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51359 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51358 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51361 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51356 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51359 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51363 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51358 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51361 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51364 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51356 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51359 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51369 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51358 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51371 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51369 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51372 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51371 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51374 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51369 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51372 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51376 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51371 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51374 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51377 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51369 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51372 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51376 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51371 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51374 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51377 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51369 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51358 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51359 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51356 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51361 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51372 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51376 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51377 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51371 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51374 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51369 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51372 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51413 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51413 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51414 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51416 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51413 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51414 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51418 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51416 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51420 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51413 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51418 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51414 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51421 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51420 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51416 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51425 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51421 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51413 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51418 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51414 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51427 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51421 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51425 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51416 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51420 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51428 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51427 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51429 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51428 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51432 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51429 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51433 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51433 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51433 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51429 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51429 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51506 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51508 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51510 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51512 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51514 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51515 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51518 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51520 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51518 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51521 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51520 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51515 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51514 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51512 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51510 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51524 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51521 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51508 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51506 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51526 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51524 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51527 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51526 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51524 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51582 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51584 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51585 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51587 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51588 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51590 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51582 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51595 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51588 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51587 - "OPTIONS /health/nutrition/targets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51590 - "OPTIONS /health/nutrition/weight HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51585 - "OPTIONS /health/nutrition/report/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51584 - "OPTIONS /health/nutrition/recipes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51596 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51595 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51582 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51598 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51588 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51587 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51590 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51585 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51596 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51584 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51600 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51582 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51595 - "OPTIONS /health/nutrition/targets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51598 - "OPTIONS /health/nutrition/weight HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51602 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51588 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51587 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51596 - "OPTIONS /health/nutrition/report/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51600 - "OPTIONS /health/nutrition/recipes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51603 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51595 - "OPTIONS /health/nutrition/targets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51598 - "OPTIONS /health/nutrition/weight HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51602 - "OPTIONS /health/nutrition/report/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51582 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51596 - "OPTIONS /health/nutrition/recipes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51600 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51603 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51595 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51598 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51602 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51582 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51587 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51588 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51596 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51600 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51603 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51606 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51595 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51602 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51598 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51603 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51596 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51600 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51602 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51598 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51627 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51629 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51627 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51630 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51629 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51631 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51627 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51630 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51634 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51635 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51640 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51643 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51640 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51635 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51645 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51643 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51647 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51635 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51640 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51645 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51648 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51643 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51647 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51652 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51635 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51648 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51640 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51645 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51655 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51652 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51639 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51647 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51643 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51656 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51635 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51645 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51648 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51640 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51658 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51643 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51647 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51660 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51645 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51648 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51640 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51660 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51658 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51635 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51656 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51640 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51648 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51652 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51655 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51645 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51647 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51643 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51660 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51635 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51658 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51655 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51648 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51640 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51645 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51643 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51647 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51648 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51645 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51643 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51640 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51647 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51648 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51643 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51655 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51658 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51635 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51660 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51652 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51656 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51643 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51648 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51647 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51640 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51645 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51655 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51658 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51635 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51652 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51660 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51656 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51655 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51643 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51648 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51640 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51645 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51647 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51639 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51643 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51645 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51648 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51640 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51647 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51639 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51643 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51645 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51689 - "GET /health/nutrition/targets HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:51690 - "GET /health/nutrition/weight HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51691 - "GET /health/nutrition/recipes HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:51692 - "GET /health/nutrition/report/weekly HTTP/1.1" 404 Not Found
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [24382]
+/Users/andreysamosuk/Documents/AI-asistent/second-brain/backend/.venv/lib/python3.14/site-packages/openai/_compat.py:48: UserWarning: Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.
+  from pydantic.v1.typing import (
+Sentry DSN not set — errors will not be reported
+INFO:     Started server process [25026]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:51704 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51725 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51727 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51725 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51728 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51727 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51730 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51728 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51725 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51732 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51727 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51730 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51733 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51728 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51732 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51725 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51725 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51732 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51728 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51733 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51730 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51725 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51727 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51733 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51730 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51732 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51748 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51751 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51752 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51755 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51756 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51758 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51767 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51769 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51767 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51771 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51786 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51767 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51771 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51787 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51786 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51790 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51767 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51771 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51791 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51790 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51831 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51832 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51831 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51834 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51832 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51837 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51834 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51839 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51840 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51862 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51864 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51865 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51867 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51869 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51870 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51862 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51865 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51864 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51869 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51870 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51867 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51875 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51862 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51876 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51875 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51879 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51876 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51881 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51875 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51879 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51883 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51876 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51881 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:51884 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51935 - "GET /health/nutrition/targets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51936 - "GET /health/nutrition/weight HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51937 - "GET /health/nutrition/report/weekly HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51938 - "GET /health/nutrition/recipes HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51956 - "GET /goals/tree HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51957 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51960 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51961 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51962 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51963 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51964 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51965 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51966 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51967 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51968 - "GET /health/nutrition/targets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51969 - "GET /health/nutrition/weight HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51970 - "GET /health/nutrition/report/weekly HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51971 - "GET /health/nutrition/recipes HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:51972 - "POST /telegram/auth/dev-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52028 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52026 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52028 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52030 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52026 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52032 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52030 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52028 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52034 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52026 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52036 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52028 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52034 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52038 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52039 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52042 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52043 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52045 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:52047 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53727 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53729 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53730 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53727 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53732 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53734 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53735 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53739 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53729 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53741 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53730 - "OPTIONS /health/nutrition/targets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53727 - "OPTIONS /health/nutrition/weight HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53732 - "OPTIONS /health/nutrition/report/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53734 - "OPTIONS /health/nutrition/recipes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53735 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53742 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53729 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53739 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53741 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53744 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53742 - "OPTIONS /health/nutrition/targets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53735 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53730 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53734 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53732 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53727 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53746 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53729 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53739 - "OPTIONS /health/nutrition/weight HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53744 - "OPTIONS /health/nutrition/report/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53741 - "OPTIONS /health/nutrition/recipes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53747 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53735 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53732 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53730 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53734 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53742 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53746 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53744 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53747 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53741 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53739 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53742 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53746 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53744 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53741 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53747 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53739 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53772 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53774 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53775 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53777 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53772 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53779 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53774 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53775 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53777 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53780 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53785 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53787 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53785 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53788 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53787 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53790 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53788 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53785 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53792 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53793 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53811 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53813 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53811 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53816 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53813 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53818 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53811 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53816 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53820 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53821 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53825 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53827 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53825 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53829 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53827 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53832 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53825 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53829 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53833 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53827 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53832 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53834 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53834 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53821 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53832 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53820 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53827 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53829 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53816 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53833 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53825 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53811 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53813 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53818 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53834 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53832 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53821 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53816 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53818 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53820 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53811 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:53813 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54076 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54078 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54076 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54079 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54078 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54081 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54076 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54079 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54083 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54081 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54078 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54084 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54090 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54078 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54084 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54081 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54092 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54090 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54083 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54079 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54076 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54093 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54081 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54078 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54084 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54092 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54095 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54083 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54090 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54093 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54097 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54095 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54092 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54098 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54330 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54332 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54330 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54335 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54332 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54336 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54330 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54335 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54338 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54332 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54336 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54339 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54330 - "OPTIONS /tasks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54335 - "OPTIONS /tasks/inbox HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54338 - "OPTIONS /finance/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54340 - "GET /goals/tree HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54332 - "OPTIONS /finance/analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54339 - "OPTIONS /finance/recommendations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54341 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54342 - "GET /health/nutrition/targets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54343 - "GET /health/nutrition/weight HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54336 - "GET /tasks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54330 - "GET /tasks/inbox HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54335 - "GET /finance/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54338 - "GET /finance/analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54332 - "GET /finance/recommendations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54344 - "GET /health/nutrition/recipes HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54345 - "GET /health/nutrition/report/weekly HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54346 - "GET /finance/budgets/envelopes HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:54348 - "GET /finance/forecast?months=3 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54349 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54350 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54351 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54352 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54353 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54354 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54355 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54356 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54332 - "OPTIONS /tasks/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54338 - "OPTIONS /goals/?status=active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54335 - "OPTIONS /reflections/today/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54332 - "GET /tasks/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54338 - "GET /goals/?status=active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54335 - "GET /reflections/today/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54492 - "GET /health/nutrition/targets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54493 - "GET /health/nutrition/weight HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54494 - "GET /health/nutrition/report/weekly HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54495 - "GET /health/nutrition/recipes HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54496 - "GET /finance/budgets/envelopes HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:54497 - "GET /finance/forecast?months=3 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54498 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54499 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54500 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54501 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54502 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54503 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54504 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54505 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54506 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54507 - "GET /goals/tree HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54508 - "POST /telegram/auth/dev-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54555 - "GET /tasks/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54557 - "GET /tasks/inbox HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54558 - "GET /goals/?status=active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54560 - "GET /finance/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54561 - "GET /reflections/today/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54567 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54569 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54571 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54573 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54574 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54567 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54569 - "OPTIONS /health/nutrition/targets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54571 - "OPTIONS /health/nutrition/weight HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54573 - "OPTIONS /health/nutrition/report/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54574 - "OPTIONS /health/nutrition/recipes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54566 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54567 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54569 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54571 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54574 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54566 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54573 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54567 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54569 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54571 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54574 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54566 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:54917 - "GET /goals/tree HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54919 - "GET /health/nutrition/targets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54920 - "GET /health/nutrition/weight HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54921 - "GET /health/nutrition/report/weekly HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54922 - "GET /health/nutrition/recipes HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54918 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54923 - "GET /finance/budgets/envelopes HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:54924 - "GET /finance/forecast?months=3 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54926 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54927 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54928 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54929 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54930 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54931 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54932 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54933 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:54934 - "POST /telegram/auth/dev-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55106 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55108 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55109 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55111 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55113 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55114 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55118 - "OPTIONS /tasks/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55119 - "OPTIONS /tasks/inbox HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55121 - "OPTIONS /goals/?status=active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55123 - "OPTIONS /finance/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55124 - "OPTIONS /reflections/today/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55118 - "GET /tasks/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55121 - "GET /goals/?status=active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55119 - "GET /tasks/inbox HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55106 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55123 - "GET /finance/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55124 - "GET /reflections/today/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55108 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55109 - "OPTIONS /health/nutrition/targets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55111 - "OPTIONS /health/nutrition/weight HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55113 - "OPTIONS /health/nutrition/report/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55114 - "OPTIONS /health/nutrition/recipes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55106 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55108 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55109 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55111 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55113 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55114 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55106 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55108 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55109 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55114 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55111 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55113 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55126 - "GET /tasks/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55154 - "GET /tasks/inbox HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55157 - "GET /goals/?status=active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55158 - "GET /finance/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55159 - "GET /reflections/today/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55161 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55162 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55161 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55164 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55162 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55166 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55164 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55161 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55168 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55169 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55313 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55315 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55313 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55316 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55315 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55319 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55313 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55316 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55321 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55315 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55319 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55322 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55322 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55319 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55315 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55321 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55316 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55315 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55319 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55322 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55316 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55321 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55344 - "GET /tasks/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55345 - "GET /tasks/inbox HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55347 - "GET /goals/?status=active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55349 - "GET /finance/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55347 - "OPTIONS /health/dashboard?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55345 - "OPTIONS /health/sleep HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55344 - "OPTIONS /health/sleep/sessions/active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55350 - "GET /reflections/today/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55349 - "OPTIONS /health/sleep/stats?days=7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55352 - "OPTIONS /health/sleep/goal HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55345 - "OPTIONS /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55347 - "OPTIONS /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55344 - "OPTIONS /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55350 - "OPTIONS /health/nutrition/targets HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55349 - "OPTIONS /health/nutrition/weight HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55352 - "OPTIONS /health/nutrition/report/weekly HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55345 - "OPTIONS /health/nutrition/recipes HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55352 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55349 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55350 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55347 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55344 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55345 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55352 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55349 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55350 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55345 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55344 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55347 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55347 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55344 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55350 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55345 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55349 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55352 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55347 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55344 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55345 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55350 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55350 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55345 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55344 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55347 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55352 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55349 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55350 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55345 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55349 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55352 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55352 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55352 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55349 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55345 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55350 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55347 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55344 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55349 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55352 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55345 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55363 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55365 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55363 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55366 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55365 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55368 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55363 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55366 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55370 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55371 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55371 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55370 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55366 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55363 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55368 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55365 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55371 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55363 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55370 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55365 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55384 - "GET /finance/dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55385 - "OPTIONS /finance/analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55386 - "OPTIONS /finance/recommendations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55384 - "GET /finance/analytics HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55385 - "GET /finance/recommendations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55385 - "OPTIONS /tasks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55384 - "GET /tasks/inbox HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55386 - "GET /tasks/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55386 - "GET /tasks/today HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55384 - "GET /goals/?status=active HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55385 - "GET /reflections/today/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55560 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55562 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55563 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55565 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55567 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55568 - "GET /health/activity HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55560 - "GET /health/workouts HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55563 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55562 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55567 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55568 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55565 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55572 - "GET /health/dashboard?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55574 - "GET /health/sleep/sessions/active HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55576 - "GET /health/sleep HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55577 - "GET /health/sleep/stats?days=7 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55579 - "GET /health/sleep/goal HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55581 - "GET /health/nutrition/diary?logged_on=2026-05-22 HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55574 - "GET /health/nutrition/targets HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55572 - "GET /health/nutrition/recipes HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55576 - "GET /health/nutrition/weight HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55579 - "GET /health/nutrition/report/weekly HTTP/1.1" 503 Service Unavailable
+INFO:     127.0.0.1:55617 - "GET /health/nutrition/weight HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55618 - "GET /health/nutrition/targets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55619 - "GET /health/nutrition/report/weekly HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55620 - "GET /health/nutrition/recipes HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55616 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55621 - "GET /finance/budgets/envelopes HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:55622 - "GET /finance/forecast?months=3 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55623 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55624 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55625 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55626 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55627 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55628 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55629 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55630 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55631 - "GET /goals/tree HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55665 - "GET /health/nutrition/targets HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55666 - "GET /health/nutrition/weight HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55667 - "GET /health/nutrition/recipes HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55668 - "GET /health/nutrition/report/weekly HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55663 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55664 - "GET /goals/tree HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55669 - "GET /finance/budgets/envelopes HTTP/1.1" 405 Method Not Allowed
+INFO:     127.0.0.1:55670 - "GET /finance/forecast?months=3 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55671 - "POST /telegram/auth/dev-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55672 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55673 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55674 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55675 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55677 - "GET /tasks/inbox HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55678 - "GET /goals/?status=active HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55679 - "GET /finance/dashboard HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:55681 - "GET /reflections/today/summary HTTP/1.1" 401 Unauthorized

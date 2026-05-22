@@ -5,6 +5,7 @@ import {
   getFinanceAnalytics,
   getFinanceBudgetTemplate,
   getFinanceDashboard,
+  listFinanceBudgetEnvelopes,
   listFinanceBudgets,
 } from "../../services/api";
 import { BudgetSheet } from "./components/forms";
@@ -30,6 +31,10 @@ export function BudgetsScreen(): ReactNode {
     queryKey: ["finance", "budgets"],
     queryFn: listFinanceBudgets,
   });
+  const envelopesQuery = useQuery({
+    queryKey: ["finance", "budget-envelopes"],
+    queryFn: listFinanceBudgetEnvelopes,
+  });
   const analyticsQuery = useQuery({
     queryKey: ["finance", "analytics"],
     queryFn: () => getFinanceAnalytics(),
@@ -44,6 +49,7 @@ export function BudgetsScreen(): ReactNode {
   });
 
   const budgets = budgetsQuery.data ?? [];
+  const envelopes = envelopesQuery.data ?? [];
   const analytics = analyticsQuery.data;
   const dashboard = dashboardQuery.data;
   const template = templateQuery.data;
@@ -56,16 +62,36 @@ export function BudgetsScreen(): ReactNode {
     return map;
   }, [analytics]);
 
-  const items = budgets
-    .filter((b) =>
-      period === "month" ? b.period === "monthly" : b.period === "weekly",
-    )
-    .map((b) => ({
-      id: b.id,
-      category: b.category,
-      limit: centsToRub(b.limit_cents),
-      spent: categoryToSpent.get(b.category) ?? 0,
-    }));
+  const items = (
+    envelopes.length > 0
+      ? envelopes
+          .filter((b) =>
+            period === "month" ? b.period === "monthly" : b.period === "weekly",
+          )
+          .map((b) => ({
+            id: b.budget_id,
+            category: b.category,
+            limit: centsToRub(b.allocated_cents),
+            spent: centsToRub(b.spent_cents),
+            rollover: centsToRub(b.rollover_cents),
+            status: b.status,
+          }))
+      : budgets
+          .filter((b) =>
+            period === "month" ? b.period === "monthly" : b.period === "weekly",
+          )
+          .map((b) => ({
+            id: b.id,
+            category: b.category,
+            limit: centsToRub(
+              (b.allocated_cents ?? b.limit_cents) +
+                (b.rollover_enabled ? (b.rollover_cents ?? 0) : 0),
+            ),
+            spent: categoryToSpent.get(b.category) ?? 0,
+            rollover: centsToRub(b.rollover_cents ?? 0),
+            status: "ok",
+          }))
+  );
 
   const totalSpent = items.reduce((sum, b) => sum + b.spent, 0);
   const totalLimit = items.reduce((sum, b) => sum + b.limit, 0);
@@ -75,7 +101,10 @@ export function BudgetsScreen(): ReactNode {
       : 0;
   const remaining = Math.max(0, totalLimit - totalSpent);
 
-  const isLoading = budgetsQuery.isLoading || analyticsQuery.isLoading;
+  const isLoading =
+    budgetsQuery.isLoading ||
+    analyticsQuery.isLoading ||
+    (envelopesQuery.isLoading && budgets.length === 0);
   const hasError =
     budgetsQuery.isError && !budgetsQuery.data && !budgetsQuery.isFetching;
 
@@ -170,7 +199,7 @@ export function BudgetsScreen(): ReactNode {
           />
         ) : (
           items.map((b) => {
-            const over = b.spent > b.limit;
+            const over = b.status === "over" || b.spent > b.limit;
             const pct = b.limit > 0 ? Math.round((b.spent / b.limit) * 100) : 0;
             const barColor = over
               ? "var(--fin-red)"
@@ -201,6 +230,7 @@ export function BudgetsScreen(): ReactNode {
                         ) : (
                           `Осталось ${fmt(Math.max(0, b.limit - b.spent))} ₽`
                         )}
+                        {b.rollover > 0 ? ` · перенос ${fmt(b.rollover)} ₽` : ""}
                       </div>
                     </div>
                   </div>

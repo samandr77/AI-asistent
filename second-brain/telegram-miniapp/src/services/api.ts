@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import type {
+  DumpPhotoResponse,
   DumpTextResponse,
   DumpVoiceResponse,
   AccountPendingDeletionResponse,
@@ -9,7 +10,10 @@ import type {
   FinanceAccount,
   FinanceAsset,
   FinanceBudget,
+  FinanceBudgetEnvelope,
   FinanceBudgetTemplate,
+  FinanceCategorizationRule,
+  FinanceCategory,
   FinanceChatResponse,
   FinanceDashboard,
   FinanceDebt,
@@ -17,6 +21,9 @@ import type {
   FinanceGoal,
   FinanceIncome,
   FinanceAnalytics,
+  FinanceAnalyzeEntryAction,
+  FinanceAnalyzeEntryResponse,
+  FinanceForecast,
   FinanceNetWorth,
   FinanceNetWorthProjection,
   FinanceRecommendation,
@@ -29,6 +36,37 @@ import type {
   GoalLevel,
   GoalProgressResponse,
   GoalTreeNode,
+  HealthActivityLog,
+  HealthBiomarker,
+  HealthDailyLog,
+  HealthDashboard,
+  HealthFood,
+  HealthMealEntry,
+  HealthMealType,
+  HealthMedicalRecord,
+  HealthNutritionDiary,
+  HealthNutritionLog,
+  HealthNutritionScanResult,
+  HealthNutritionTarget,
+  HealthNutritionWeeklyReport,
+  HealthRecipe,
+  HealthSleepGoal,
+  HealthSleepLog,
+  HealthSleepSession,
+  HealthSleepStats,
+  HealthWeightLog,
+  HealthWorkout,
+  Exercise,
+  ExerciseFilters,
+  Superset,
+  SupersetCreate,
+  WorkoutSession,
+  WorkoutSessionCreate,
+  WorkoutSessionUpdate,
+  WorkoutSet,
+  WorkoutSetCreate,
+  WorkoutSetUpdate,
+  SportKind,
   KeyResult,
   KeyResultDirection,
   KeyResultStatus,
@@ -42,10 +80,18 @@ import type {
   PremiumStatus,
   Reflection,
   ReflectionStats,
+  BigThreeResponse,
+  EisenhowerQuadrant,
+  FocusSettings,
+  FocusSummary,
+  HabitStats,
   Task,
+  TaskAnalytics,
+  TaskCalendar,
   TaskCreate,
   TaskProcessAction,
   TaskProcessResponse,
+  TaskProject,
   TelegramInvoiceResponse,
   TelegramReminderSettings,
   UserProfile,
@@ -174,6 +220,8 @@ const previewFinanceBudgets: FinanceBudget[] = [
     period: "monthly",
     limit_cents: 6000000,
     rollover_enabled: false,
+    allocated_cents: 6000000,
+    rollover_cents: 0,
     created_at: now,
     updated_at: now,
   },
@@ -183,7 +231,66 @@ const previewFinanceBudgets: FinanceBudget[] = [
     category: "transport",
     period: "monthly",
     limit_cents: 1800000,
-    rollover_enabled: false,
+    rollover_enabled: true,
+    allocated_cents: 1800000,
+    rollover_cents: 120000,
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewFinanceCategories: FinanceCategory[] = [
+  {
+    id: "preset-food",
+    user_id: "local-preview-user",
+    name: "Продукты",
+    type: "expense",
+    icon: "cart",
+    color: "#E04F5F",
+    is_archived: false,
+    is_preset: true,
+  },
+  {
+    id: "preset-cafe",
+    user_id: "local-preview-user",
+    name: "Кафе и рестораны",
+    type: "expense",
+    parent_id: "preset-food",
+    icon: "coffee",
+    color: "#F59E0B",
+    is_archived: false,
+    is_preset: true,
+  },
+  {
+    id: "preset-transport",
+    user_id: "local-preview-user",
+    name: "Транспорт",
+    type: "expense",
+    icon: "car",
+    color: "#3B82F6",
+    is_archived: false,
+    is_preset: true,
+  },
+  {
+    id: "preset-salary",
+    user_id: "local-preview-user",
+    name: "Зарплата",
+    type: "income",
+    icon: "wallet",
+    color: "#22C55E",
+    is_archived: false,
+    is_preset: true,
+  },
+];
+
+const previewFinanceRules: FinanceCategorizationRule[] = [
+  {
+    id: "preview-rule-taxi",
+    user_id: "local-preview-user",
+    merchant_pattern: "такси",
+    category: "transport",
+    priority: 100,
+    is_active: true,
     created_at: now,
     updated_at: now,
   },
@@ -286,6 +393,236 @@ const previewFinanceDocuments: FinanceDocument[] = [
   },
 ];
 
+const previewHealthDailyLogs: HealthDailyLog[] = [
+  {
+    id: "preview-health-daily-1",
+    user_id: "local-preview-user",
+    log_date: today,
+    mood: 7,
+    energy: 6,
+    stress: 4,
+    readiness_override: null,
+    symptoms: [],
+    notes: "После прогулки энергия выше, вечером без тяжёлых задач.",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewHealthSleepLogs: HealthSleepLog[] = [
+  {
+    id: "preview-health-sleep-1",
+    user_id: "local-preview-user",
+    sleep_date: today,
+    bedtime_at: `${today}T23:40:00`,
+    wake_at: `${today}T07:20:00`,
+    bedtime: "23:40",
+    wake_time: "07:20",
+    source: "manual",
+    time_in_bed_minutes: 480,
+    duration_minutes: 460,
+    sleep_latency_minutes: 16,
+    awakenings_count: 1,
+    awake_minutes: 12,
+    restoration: 8,
+    quality: 8,
+    quality_score: 84,
+    quality_breakdown: {
+      duration: 100,
+      routine: 72,
+      duration_minutes: 460,
+      midpoint_deviation_minutes: 45,
+      target_duration_minutes: 480,
+    },
+    phases: {},
+    factors: ["без кофе вечером"],
+    notes: "Нормальное восстановление.",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewHealthActivityLogs: HealthActivityLog[] = [
+  {
+    id: "preview-health-activity-1",
+    user_id: "local-preview-user",
+    activity_date: today,
+    steps: 7400,
+    distance_meters: 5200,
+    active_minutes: 42,
+    calories: 380,
+    stand_hours: 8,
+    source: "manual",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewHealthWorkouts: HealthWorkout[] = [
+  {
+    id: "preview-health-workout-1",
+    user_id: "local-preview-user",
+    occurred_on: today,
+    kind: "strength",
+    title: "Силовая, верх тела",
+    duration_minutes: 45,
+    intensity: 7,
+    calories: 260,
+    muscle_groups: ["спина", "плечи"],
+    notes: null,
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewHealthNutritionLogs: HealthNutritionLog[] = [
+  {
+    id: "preview-health-nutrition-1",
+    user_id: "local-preview-user",
+    logged_on: today,
+    calories: 2150,
+    protein_g: 118,
+    carbs_g: 220,
+    fat_g: 72,
+    water_ml: 1800,
+    notes: "Белок в норме, воды можно добавить.",
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewHealthMeals: HealthMealEntry[] = [
+  {
+    id: "preview-meal-1",
+    user_id: "local-preview-user",
+    logged_on: today,
+    meal_type: "breakfast",
+    title: "Завтрак",
+    source: "ai",
+    confidence: 0.82,
+    notes: "Оценено по описанию.",
+    created_at: now,
+    updated_at: now,
+    items: [
+      {
+        id: "preview-meal-item-1",
+        user_id: "local-preview-user",
+        meal_id: "preview-meal-1",
+        name: "Овсянка с бананом",
+        serving_qty: 1,
+        serving_name: "тарелка",
+        grams: 280,
+        calories: 430,
+        protein_g: 14,
+        carbs_g: 72,
+        fat_g: 9,
+        fiber_g: 8,
+        confidence: 0.8,
+        created_at: now,
+        updated_at: now,
+      },
+    ],
+  },
+  {
+    id: "preview-meal-2",
+    user_id: "local-preview-user",
+    logged_on: today,
+    meal_type: "lunch",
+    title: "Обед",
+    source: "manual",
+    confidence: 1,
+    notes: null,
+    created_at: now,
+    updated_at: now,
+    items: [
+      {
+        id: "preview-meal-item-2",
+        user_id: "local-preview-user",
+        meal_id: "preview-meal-2",
+        name: "Курица, рис, салат",
+        serving_qty: 1,
+        serving_name: "порция",
+        grams: 420,
+        calories: 720,
+        protein_g: 48,
+        carbs_g: 82,
+        fat_g: 18,
+        fiber_g: 7,
+        confidence: 0.9,
+        created_at: now,
+        updated_at: now,
+      },
+    ],
+  },
+];
+
+function nutritionSummaryFromMeals(meals: HealthMealEntry[]) {
+  return meals.reduce(
+    (summary, meal) => {
+      for (const item of meal.items) {
+        summary.calories += item.calories ?? 0;
+        summary.protein_g += item.protein_g ?? 0;
+        summary.carbs_g += item.carbs_g ?? 0;
+        summary.fat_g += item.fat_g ?? 0;
+        summary.fiber_g += item.fiber_g ?? 0;
+      }
+      return summary;
+    },
+    {
+      logged_on: today,
+      calories: 0,
+      protein_g: 0,
+      carbs_g: 0,
+      fat_g: 0,
+      fiber_g: 0,
+      water_ml: 1800,
+    },
+  );
+}
+
+const previewHealthBiomarkers: HealthBiomarker[] = [
+  {
+    id: "preview-health-biomarker-1",
+    user_id: "local-preview-user",
+    measured_on: today,
+    kind: "hrv",
+    value: 48,
+    unit: "ms",
+    source: "manual",
+    notes: null,
+    created_at: now,
+    updated_at: now,
+  },
+  {
+    id: "preview-health-biomarker-2",
+    user_id: "local-preview-user",
+    measured_on: today,
+    kind: "resting_heart_rate",
+    value: 62,
+    unit: "bpm",
+    source: "manual",
+    notes: null,
+    created_at: now,
+    updated_at: now,
+  },
+];
+
+const previewHealthMedicalRecords: HealthMedicalRecord[] = [
+  {
+    id: "preview-health-medical-1",
+    user_id: "local-preview-user",
+    record_date: today,
+    kind: "lab",
+    title: "Общий анализ крови",
+    provider: "Лаборатория",
+    summary: "Хранить результаты и обсудить с врачом при необходимости.",
+    file_url: null,
+    is_sensitive: true,
+    created_at: now,
+    updated_at: now,
+  },
+];
+
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
@@ -364,6 +701,15 @@ export async function dumpVoiceRaw(audio: Blob): Promise<DumpVoiceResponse> {
   return data;
 }
 
+export async function dumpPhotoRaw(image: Blob): Promise<DumpPhotoResponse> {
+  const formData = new FormData();
+  const filename =
+    image instanceof File ? image.name : "telegram-miniapp-photo.jpg";
+  formData.append("file", image, filename);
+  const { data } = await api.post<DumpPhotoResponse>("/dump/photo", formData);
+  return data;
+}
+
 export async function getDumpResult(dumpId: string): Promise<DumpTextResponse> {
   const { data } = await api.get<DumpTextResponse>(`/dump/${dumpId}/result`);
   return data;
@@ -383,6 +729,48 @@ export async function getAllTasks(params?: {
 }): Promise<Task[]> {
   if (localPreviewMode) return clone(previewTasks);
   const { data } = await api.get<Task[]>("/tasks/", { params });
+  return data;
+}
+
+export async function searchTasks(params?: {
+  status?: string;
+  sphere?: string;
+  project_id?: string;
+  context?: string;
+  priority?: number;
+  deep_work?: boolean;
+  habit_mode?: boolean;
+  overdue?: boolean;
+  no_date?: boolean;
+  limit?: number;
+  offset?: number;
+}): Promise<Task[]> {
+  if (localPreviewMode) {
+    let rows = clone(previewTasks);
+    if (params?.habit_mode !== undefined) {
+      rows = rows.filter(
+        (task) => Boolean(task.habit_mode) === params.habit_mode,
+      );
+    }
+    if (params?.project_id) {
+      rows = rows.filter((task) => task.project_id === params.project_id);
+    }
+    if (params?.status) {
+      rows = rows.filter((task) => task.status === params.status);
+    }
+    return rows;
+  }
+  const { data } = await api.get<Task[]>("/tasks/search", { params });
+  return data;
+}
+
+export async function getTask(id: string): Promise<Task> {
+  if (localPreviewMode) {
+    return clone(
+      previewTasks.find((task) => task.id === id) ?? previewTasks[0],
+    );
+  }
+  const { data } = await api.get<Task>(`/tasks/${id}`);
   return data;
 }
 
@@ -465,6 +853,221 @@ export async function processTask(
   const response = await api.post(`/tasks/${id}/process`, action);
   if (response.status === 204) return null;
   return response.data as TaskProcessResponse;
+}
+
+export async function getTaskMatrix(): Promise<
+  Record<EisenhowerQuadrant, Task[]>
+> {
+  if (localPreviewMode) {
+    const empty: Record<EisenhowerQuadrant, Task[]> = {
+      do_now: [],
+      schedule: [],
+      delegate: [],
+      delete: [],
+    };
+    for (const task of previewTasks.filter((item) => !item.is_done)) {
+      const quadrant =
+        task.eisenhower_quadrant ??
+        (task.priority === 3 ? "do_now" : "schedule");
+      empty[quadrant].push(clone(task));
+    }
+    return empty;
+  }
+  const { data } =
+    await api.get<Record<EisenhowerQuadrant, Task[]>>("/tasks/matrix");
+  return data;
+}
+
+export async function getBigThree(
+  targetDate: string,
+): Promise<BigThreeResponse> {
+  if (localPreviewMode) return { date: targetDate, items: [] };
+  const { data } = await api.get<BigThreeResponse>("/tasks/big-three", {
+    params: { target_date: targetDate },
+  });
+  return data;
+}
+
+export async function setBigThree(
+  targetDate: string,
+  taskIds: string[],
+): Promise<BigThreeResponse> {
+  if (localPreviewMode) {
+    return {
+      date: targetDate,
+      items: taskIds.slice(0, 3).map((task_id, index) => ({
+        id: `preview-big-three-${index}`,
+        task_id,
+        position: index + 1,
+        date: targetDate,
+      })),
+    };
+  }
+  const { data } = await api.post<BigThreeResponse>("/tasks/big-three", {
+    date: targetDate,
+    task_ids: taskIds.slice(0, 3),
+  });
+  return data;
+}
+
+export async function getTaskCalendar(
+  startDate: string,
+  days = 7,
+): Promise<TaskCalendar> {
+  if (localPreviewMode) {
+    return {
+      start_date: startDate,
+      end_date: startDate,
+      days: [
+        {
+          date: startDate,
+          tasks: clone(previewTasks.filter((task) => task.scheduled_start)),
+          capacity: {
+            date: startDate,
+            daily_capacity_min: 480,
+            scheduled_min: 0,
+            estimated_min: 0,
+            remaining_min: 480,
+            overload: false,
+          },
+          free_slots: [],
+        },
+      ],
+    };
+  }
+  const { data } = await api.get<TaskCalendar>("/tasks/calendar", {
+    params: { start_date: startDate, days },
+  });
+  return data;
+}
+
+export async function createTimeBlock(payload: {
+  task_id: string;
+  scheduled_start: string;
+  scheduled_end: string;
+  deep_work?: boolean;
+}): Promise<Task> {
+  const { data } = await api.post<Task>("/tasks/time-blocks", payload);
+  return data;
+}
+
+export async function listTaskProjects(): Promise<TaskProject[]> {
+  if (localPreviewMode) return [];
+  const { data } = await api.get<TaskProject[]>("/task-projects/");
+  return data;
+}
+
+export async function createTaskProject(payload: {
+  title: string;
+  description?: string;
+  goal_id?: string;
+  deadline?: string;
+}): Promise<TaskProject> {
+  const { data } = await api.post<TaskProject>("/task-projects/", payload);
+  return data;
+}
+
+export async function listProjectTasks(projectId: string): Promise<Task[]> {
+  if (localPreviewMode) {
+    return clone(previewTasks.filter((task) => task.project_id === projectId));
+  }
+  const { data } = await api.get<Task[]>(`/task-projects/${projectId}/tasks`);
+  return data;
+}
+
+export async function listHabits(): Promise<Task[]> {
+  if (localPreviewMode)
+    return clone(previewTasks.filter((task) => task.habit_mode));
+  const { data } = await api.get<Task[]>("/tasks/habits");
+  return data;
+}
+
+export async function getHabitStats(taskId: string): Promise<HabitStats> {
+  if (localPreviewMode) {
+    return {
+      task_id: taskId,
+      rollover_count: 0,
+      completed_count_90d: 0,
+      current_streak: 0,
+      longest_streak: 0,
+      completion_rate_90d: 0,
+      focus_sessions: 0,
+      focus_minutes: 0,
+    };
+  }
+  const { data } = await api.get<HabitStats>(`/tasks/habits/${taskId}/stats`);
+  return data;
+}
+
+export async function getFocusSettings(): Promise<FocusSettings> {
+  if (localPreviewMode) {
+    return {
+      pomodoro_min: 25,
+      short_break_min: 5,
+      long_break_min: 15,
+      sessions_before_long_break: 4,
+      sound_enabled: true,
+      dnd_enabled: false,
+    };
+  }
+  const { data } = await api.get<FocusSettings>("/tasks/focus-settings");
+  return data;
+}
+
+export async function createFocusSession(
+  taskId: string,
+  payload: {
+    started_at: string;
+    ended_at?: string;
+    duration_min?: number;
+    mode?: string;
+    completed?: boolean;
+  },
+): Promise<Record<string, unknown>> {
+  const { data } = await api.post<Record<string, unknown>>(
+    `/tasks/${taskId}/focus-sessions`,
+    payload,
+  );
+  return data;
+}
+
+export async function getFocusSummary(params?: {
+  date_from?: string;
+  date_to?: string;
+}): Promise<FocusSummary> {
+  if (localPreviewMode) {
+    return {
+      sessions_count: 0,
+      completed_count: 0,
+      focus_minutes: 0,
+      by_mode: {},
+      by_day: {},
+    };
+  }
+  const { data } = await api.get<FocusSummary>("/tasks/focus-summary", {
+    params,
+  });
+  return data;
+}
+
+export async function getTaskAnalytics(params?: {
+  date_from?: string;
+  date_to?: string;
+}): Promise<TaskAnalytics> {
+  if (localPreviewMode) {
+    return {
+      tasks_total: previewTasks.length,
+      completed_count: previewTasks.filter((task) => task.is_done).length,
+      goal_aligned_count: previewTasks.filter((task) => task.goal_id).length,
+      on_time_rate: null,
+      estimate_error_avg_min: null,
+      rollover_count: 0,
+      focus_minutes: 0,
+      completed_by_sphere: {},
+    };
+  }
+  const { data } = await api.get<TaskAnalytics>("/tasks/analytics", { params });
+  return data;
 }
 
 export async function listGoals(params?: {
@@ -814,12 +1417,28 @@ export async function getFinanceDashboard(): Promise<FinanceDashboard> {
       subscriptions_monthly_cents: previewFinanceSubscriptions
         .filter((subscription) => subscription.is_active)
         .reduce((sum, subscription) => sum + subscription.amount_cents, 0),
+      cash_flow_cents: monthlyIncome - monthlyExpense,
+      top_categories: [
+        { category: "food", expense_cents: 340000 },
+        { category: "transport", expense_cents: 120000 },
+      ],
+      upcoming_payments: [
+        {
+          kind: "subscription",
+          title: "ИИ-сервисы",
+          amount_cents: 129000,
+          due_date: today,
+          entity_id: "preview-subscription-1",
+        },
+      ],
+      goals: clone(previewFinanceGoals),
       recent_transactions: clone(previewFinanceTransactions),
-      budgets: clone(previewFinanceBudgets),
+      budgets: await listFinanceBudgetEnvelopes(),
       alerts: [
         {
           kind: "manual_mode",
           severity: "info",
+          title: "Ручной режим",
           message:
             "Банковские интеграции ещё не подключены, доступен ручной учёт.",
         },
@@ -833,6 +1452,7 @@ export async function getFinanceDashboard(): Promise<FinanceDashboard> {
 export async function listFinanceTransactions(params?: {
   type?: string;
   category?: string;
+  account_id?: string;
   search?: string;
   date_from?: string;
   date_to?: string;
@@ -858,6 +1478,9 @@ export async function createFinanceTransaction(body: {
   merchant?: string;
   note?: string;
   account_id?: string;
+  target_account_id?: string;
+  is_recurring?: boolean;
+  source?: FinanceTransaction["source"];
 }): Promise<FinanceTransaction> {
   if (localPreviewMode) {
     return {
@@ -876,9 +1499,87 @@ export async function createFinanceTransaction(body: {
   return data;
 }
 
+export async function listFinanceCategories(): Promise<FinanceCategory[]> {
+  if (localPreviewMode) return clone(previewFinanceCategories);
+  const { data } = await api.get<FinanceCategory[]>("/finance/categories");
+  return data;
+}
+
+export async function createFinanceCategory(body: {
+  name: string;
+  type?: FinanceCategory["type"];
+  parent_id?: string;
+  icon?: string;
+  color?: string;
+  is_archived?: boolean;
+}): Promise<FinanceCategory> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-category-${Date.now()}`,
+      user_id: "local-preview-user",
+      type: "expense",
+      icon: "tag",
+      color: "#E04F5F",
+      is_archived: false,
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<FinanceCategory>("/finance/categories", body);
+  return data;
+}
+
+export async function listFinanceCategorizationRules(): Promise<
+  FinanceCategorizationRule[]
+> {
+  if (localPreviewMode) return clone(previewFinanceRules);
+  const { data } = await api.get<FinanceCategorizationRule[]>(
+    "/finance/categorization-rules",
+  );
+  return data;
+}
+
 export async function listFinanceBudgets(): Promise<FinanceBudget[]> {
   if (localPreviewMode) return clone(previewFinanceBudgets);
   const { data } = await api.get<FinanceBudget[]>("/finance/budgets");
+  return data;
+}
+
+export async function listFinanceBudgetEnvelopes(): Promise<
+  FinanceBudgetEnvelope[]
+> {
+  if (localPreviewMode) {
+    const expense = previewFinanceTransactions.filter(
+      (transaction) => transaction.type === "expense",
+    );
+    return previewFinanceBudgets.map((budget) => {
+      const spent = expense
+        .filter((transaction) => transaction.category === budget.category)
+        .reduce((sum, transaction) => sum + transaction.amount_cents, 0);
+      const allocated =
+        (budget.allocated_cents ?? budget.limit_cents) +
+        (budget.rollover_enabled ? (budget.rollover_cents ?? 0) : 0);
+      const remaining = allocated - spent;
+      const usage = allocated ? Math.round((spent / allocated) * 100) : 0;
+      return {
+        budget_id: budget.id,
+        category: budget.category,
+        period: budget.period,
+        limit_cents: budget.limit_cents,
+        allocated_cents: allocated,
+        rollover_enabled: budget.rollover_enabled,
+        rollover_cents: budget.rollover_cents ?? 0,
+        spent_cents: spent,
+        remaining_cents: remaining,
+        usage_percent: usage,
+        status: remaining < 0 ? "over" : usage >= 80 ? "warning" : "ok",
+      };
+    });
+  }
+  const { data } = await api.get<FinanceBudgetEnvelope[]>(
+    "/finance/budgets/envelopes",
+  );
   return data;
 }
 
@@ -887,6 +1588,8 @@ export async function createFinanceBudget(body: {
   period?: FinanceBudget["period"];
   limit_cents: number;
   rollover_enabled?: boolean;
+  allocated_cents?: number;
+  rollover_cents?: number;
 }): Promise<FinanceBudget> {
   if (localPreviewMode) {
     return {
@@ -1113,6 +1816,67 @@ export async function chatWithFinanceAssistant(body: {
   return data;
 }
 
+export async function analyzeFinanceEntry(body: {
+  text: string;
+  occurred_on?: string;
+  currency?: string;
+}): Promise<FinanceAnalyzeEntryResponse> {
+  if (localPreviewMode) {
+    const amount = body.text.match(/\d+/)?.[0];
+    return {
+      source_text: body.text,
+      actions: amount
+        ? [
+            {
+              kind: "transaction",
+              confidence: 0.86,
+              reason: "Нашёл сумму и признаки расхода.",
+              needs_confirmation: true,
+              payload: {
+                occurred_on: body.occurred_on ?? today,
+                type: "expense",
+                amount_cents: Number(amount) * 100,
+                currency: body.currency ?? "RUB",
+                category: body.text.toLowerCase().includes("такси")
+                  ? "transport"
+                  : "other",
+                merchant: null,
+                note: body.text,
+                source: "ai",
+              },
+            },
+          ]
+        : [],
+    };
+  }
+  const { data } = await api.post<FinanceAnalyzeEntryResponse>(
+    "/finance/analyze-entry",
+    body,
+  );
+  return data;
+}
+
+export async function confirmFinanceEntry(
+  actions: FinanceAnalyzeEntryAction[],
+) {
+  if (localPreviewMode) {
+    return {
+      created: actions.map((action, index) => ({
+        kind: action.kind,
+        row: {
+          id: `preview-confirm-${Date.now()}-${index}`,
+          ...action.payload,
+        },
+      })),
+      skipped: [],
+    };
+  }
+  const { data } = await api.post("/finance/analyze-entry/confirm", {
+    actions,
+  });
+  return data;
+}
+
 export async function detectFinanceSubscriptions(): Promise<
   FinanceSubscriptionDetection[]
 > {
@@ -1159,6 +1923,45 @@ export async function getFinanceBudgetTemplate(params?: {
       params,
     },
   );
+  return data;
+}
+
+export async function getFinanceForecast(params?: {
+  months?: number;
+}): Promise<FinanceForecast> {
+  if (localPreviewMode) {
+    return {
+      period_start: today.slice(0, 8) + "01",
+      period_end: today,
+      months_used: params?.months ?? 3,
+      categories: [
+        {
+          category: "food",
+          average_monthly_spend_cents: 4200000,
+          current_spend_cents: 340000,
+          predicted_month_end_cents: 4200000,
+          budget_limit_cents: 6000000,
+          predicted_overrun_cents: 0,
+          confidence: 0.81,
+        },
+        {
+          category: "transport",
+          average_monthly_spend_cents: 1600000,
+          current_spend_cents: 120000,
+          predicted_month_end_cents: 1600000,
+          budget_limit_cents: 1920000,
+          predicted_overrun_cents: 0,
+          confidence: 0.76,
+        },
+      ],
+      total_predicted_expense_cents: 5800000,
+      total_budget_limit_cents: 7920000,
+      total_predicted_overrun_cents: 0,
+    };
+  }
+  const { data } = await api.get<FinanceForecast>("/finance/forecast", {
+    params,
+  });
   return data;
 }
 
@@ -1313,6 +2116,749 @@ export async function createFinanceDocument(body: {
     };
   }
   const { data } = await api.post<FinanceDocument>("/finance/documents", body);
+  return data;
+}
+
+export async function getHealthDashboard(params?: {
+  days?: number;
+}): Promise<HealthDashboard> {
+  if (localPreviewMode) {
+    return {
+      score: 72,
+      readiness_score: 68,
+      trend_days: params?.days ?? 30,
+      latest_daily_log: clone(previewHealthDailyLogs[0]),
+      latest_sleep: clone(previewHealthSleepLogs[0]),
+      latest_activity: clone(previewHealthActivityLogs[0]),
+      recent_workouts: clone(previewHealthWorkouts),
+      nutrition_today: clone(previewHealthNutritionLogs[0]),
+      nutrition_summary: nutritionSummaryFromMeals(previewHealthMeals),
+      meals_today: clone(previewHealthMeals),
+      biomarkers: [],
+      medical_records_count: 0,
+      insights: [
+        {
+          id: "preview-recovery",
+          severity: "info",
+          title: "День для ровной нагрузки",
+          message:
+            "Сон, активность и питание держатся в рабочем диапазоне. Это подсказка для планирования, не медицинский вывод.",
+          suggested_action:
+            "Поставить одну тренировку средней интенсивности и оставить вечер под восстановление.",
+          used_data: [
+            "health_sleep_logs",
+            "health_activity_logs",
+            "health_meal_entries",
+          ],
+        },
+      ],
+      safety_note:
+        "Подсказки по здоровью являются справочной поддержкой и не заменяют врача, диагностику или лечение.",
+    };
+  }
+  const { data } = await api.get<HealthDashboard>("/health/dashboard", {
+    params,
+  });
+  return data;
+}
+
+export async function listHealthDailyLogs(): Promise<HealthDailyLog[]> {
+  if (localPreviewMode) return clone(previewHealthDailyLogs);
+  const { data } = await api.get<HealthDailyLog[]>("/health/daily");
+  return data;
+}
+
+export async function createHealthDailyLog(body: {
+  log_date: string;
+  mood?: number;
+  energy?: number;
+  stress?: number;
+  readiness_override?: number;
+  symptoms?: string[];
+  notes?: string;
+}): Promise<HealthDailyLog> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-health-daily-${Date.now()}`,
+      user_id: "local-preview-user",
+      symptoms: [],
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<HealthDailyLog>("/health/daily", body);
+  return data;
+}
+
+export async function listHealthSleepLogs(): Promise<HealthSleepLog[]> {
+  if (localPreviewMode) return clone(previewHealthSleepLogs);
+  const { data } = await api.get<HealthSleepLog[]>("/health/sleep");
+  return data;
+}
+
+export async function createHealthSleepLog(body: {
+  sleep_date: string;
+  bedtime_at?: string;
+  wake_at?: string;
+  bedtime?: string;
+  wake_time?: string;
+  source?: string;
+  time_in_bed_minutes?: number;
+  duration_minutes: number;
+  sleep_latency_minutes?: number;
+  awakenings_count?: number;
+  awake_minutes?: number;
+  restoration?: number;
+  phases?: Record<string, unknown>;
+  factors?: string[];
+  notes?: string;
+}): Promise<HealthSleepLog> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-health-sleep-${Date.now()}`,
+      user_id: "local-preview-user",
+      phases: {},
+      factors: [],
+      quality_score: 80,
+      quality_breakdown: {
+        duration: 90,
+        routine: 70,
+        duration_minutes: body.duration_minutes,
+        midpoint_deviation_minutes: null,
+        target_duration_minutes: 480,
+      },
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<HealthSleepLog>("/health/sleep", body);
+  return data;
+}
+
+export async function updateHealthSleepLog(
+  id: string,
+  body: Partial<{
+    sleep_date: string;
+    bedtime_at: string;
+    wake_at: string;
+    bedtime: string;
+    wake_time: string;
+    source: string;
+    duration_minutes: number;
+    notes: string;
+  }>,
+): Promise<HealthSleepLog> {
+  if (localPreviewMode) {
+    return {
+      ...previewHealthSleepLogs[0],
+      ...body,
+      id,
+      updated_at: new Date().toISOString(),
+    };
+  }
+  const { data } = await api.patch<HealthSleepLog>(`/health/sleep/${id}`, body);
+  return data;
+}
+
+export async function getActiveHealthSleepSession(): Promise<HealthSleepSession | null> {
+  if (localPreviewMode) return null;
+  const { data } = await api.get<HealthSleepSession | null>(
+    "/health/sleep/sessions/active",
+  );
+  return data;
+}
+
+export async function startHealthSleepSession(
+  body: {
+    started_at?: string;
+    source?: string;
+  } = {},
+): Promise<HealthSleepSession> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-health-sleep-session-${Date.now()}`,
+      user_id: "local-preview-user",
+      started_at: body.started_at ?? new Date().toISOString(),
+      status: "active",
+      source: body.source ?? "manual",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  }
+  const { data } = await api.post<HealthSleepSession>(
+    "/health/sleep/sessions/start",
+    body,
+  );
+  return data;
+}
+
+export async function wakeHealthSleepSession(
+  id: string,
+  body: { ended_at?: string; duration_minutes?: number; notes?: string } = {},
+): Promise<HealthSleepSession> {
+  if (localPreviewMode) {
+    return {
+      id,
+      user_id: "local-preview-user",
+      started_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+      ended_at: body.ended_at ?? new Date().toISOString(),
+      status: "completed",
+      source: "manual",
+      sleep_log_id: `preview-health-sleep-${Date.now()}`,
+      sleep_log: previewHealthSleepLogs[0],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+  }
+  const { data } = await api.post<HealthSleepSession>(
+    `/health/sleep/sessions/${id}/wake`,
+    body,
+  );
+  return data;
+}
+
+export async function getHealthSleepGoal(): Promise<HealthSleepGoal> {
+  if (localPreviewMode) {
+    return {
+      user_id: "local-preview-user",
+      target_duration_minutes: 480,
+      target_bedtime: "23:30",
+      target_wake_time: "07:30",
+    };
+  }
+  const { data } = await api.get<HealthSleepGoal>("/health/sleep/goal");
+  return data;
+}
+
+export async function upsertHealthSleepGoal(
+  body: HealthSleepGoal,
+): Promise<HealthSleepGoal> {
+  if (localPreviewMode) return { ...body, user_id: "local-preview-user" };
+  const { data } = await api.put<HealthSleepGoal>("/health/sleep/goal", body);
+  return data;
+}
+
+export async function getHealthSleepStats(
+  params: { days?: number } = {},
+): Promise<HealthSleepStats> {
+  if (localPreviewMode) {
+    return {
+      average_duration_minutes: 460,
+      average_score: 84,
+      average_midpoint_deviation_minutes: 45,
+      good_sleep_streak: 3,
+      target_duration_minutes: 480,
+      nights_count: previewHealthSleepLogs.length,
+      series: previewHealthSleepLogs.map((row) => ({
+        sleep_date: row.sleep_date,
+        duration_minutes: row.duration_minutes,
+        quality_score: row.quality_score ?? 0,
+        tone: "good",
+      })),
+      tips: [
+        {
+          id: "preview-sleep-baseline",
+          severity: "info",
+          title: "Собираем базу сна",
+          message:
+            "После нескольких ночей приложение точнее покажет регулярность и тренды.",
+          suggested_action: "Записывай время лег/встал в течение недели.",
+        },
+      ],
+    };
+  }
+  const { data } = await api.get<HealthSleepStats>("/health/sleep/stats", {
+    params,
+  });
+  return data;
+}
+
+export async function listHealthActivityLogs(): Promise<HealthActivityLog[]> {
+  if (localPreviewMode) return clone(previewHealthActivityLogs);
+  const { data } = await api.get<HealthActivityLog[]>("/health/activity");
+  return data;
+}
+
+export async function createHealthActivityLog(body: {
+  activity_date: string;
+  steps?: number;
+  distance_meters?: number;
+  active_minutes?: number;
+  calories?: number;
+  stand_hours?: number;
+  source?: string;
+}): Promise<HealthActivityLog> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-health-activity-${Date.now()}`,
+      user_id: "local-preview-user",
+      steps: 0,
+      active_minutes: 0,
+      source: "manual",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<HealthActivityLog>("/health/activity", body);
+  return data;
+}
+
+export async function listHealthWorkouts(): Promise<HealthWorkout[]> {
+  if (localPreviewMode) return clone(previewHealthWorkouts);
+  const { data } = await api.get<HealthWorkout[]>("/health/workouts");
+  return data;
+}
+
+export async function createHealthWorkout(body: {
+  occurred_on: string;
+  kind?: HealthWorkout["kind"];
+  title: string;
+  duration_minutes?: number;
+  intensity?: number;
+  calories?: number;
+  muscle_groups?: string[];
+  notes?: string;
+}): Promise<HealthWorkout> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-health-workout-${Date.now()}`,
+      user_id: "local-preview-user",
+      kind: "other",
+      muscle_groups: [],
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<HealthWorkout>("/health/workouts", body);
+  return data;
+}
+
+export async function listHealthNutritionLogs(): Promise<HealthNutritionLog[]> {
+  if (localPreviewMode) return clone(previewHealthNutritionLogs);
+  const { data } = await api.get<HealthNutritionLog[]>("/health/nutrition");
+  return data;
+}
+
+export async function createHealthNutritionLog(body: {
+  logged_on: string;
+  calories?: number;
+  protein_g?: number;
+  carbs_g?: number;
+  fat_g?: number;
+  water_ml?: number;
+  notes?: string;
+}): Promise<HealthNutritionLog> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-health-nutrition-${Date.now()}`,
+      user_id: "local-preview-user",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<HealthNutritionLog>(
+    "/health/nutrition",
+    body,
+  );
+  return data;
+}
+
+export async function getHealthNutritionDiary(params?: {
+  logged_on?: string;
+}): Promise<HealthNutritionDiary> {
+  if (localPreviewMode) {
+    return {
+      logged_on: params?.logged_on ?? today,
+      meals: clone(previewHealthMeals),
+      water_logs: [
+        {
+          id: "preview-water-1",
+          user_id: "local-preview-user",
+          logged_on: today,
+          amount_ml: 1800,
+          source: "manual",
+          created_at: now,
+        },
+      ],
+      summary: nutritionSummaryFromMeals(previewHealthMeals),
+    };
+  }
+  const { data } = await api.get<HealthNutritionDiary>(
+    "/health/nutrition/diary",
+    { params },
+  );
+  return data;
+}
+
+export async function searchHealthFoods(query: string): Promise<HealthFood[]> {
+  if (localPreviewMode) {
+    return [
+      {
+        id: "preview-food-1",
+        name: query || "Греческий йогурт",
+        brand: "Preview",
+        barcode: "4600000000000",
+        serving_name: "100 g",
+        serving_grams: 100,
+        calories_per_100g: 92,
+        protein_per_100g: 8,
+        carbs_per_100g: 4,
+        fat_per_100g: 5,
+        fiber_per_100g: 0,
+        sugar_per_100g: 4,
+        sodium_mg_per_100g: 40,
+        source: "local",
+        confidence: 0.9,
+        is_confirmed: true,
+        food_score: "green",
+      },
+    ];
+  }
+  const { data } = await api.get<HealthFood[]>("/health/nutrition/foods", {
+    params: { query },
+  });
+  return data;
+}
+
+export async function createHealthFood(body: HealthFood): Promise<HealthFood> {
+  if (localPreviewMode) return { ...body, id: `preview-food-${Date.now()}` };
+  const { data } = await api.post<HealthFood>("/health/nutrition/foods", body);
+  return data;
+}
+
+export async function lookupHealthFoodBarcode(
+  barcode: string,
+): Promise<HealthNutritionScanResult> {
+  if (localPreviewMode) {
+    const candidate = (await searchHealthFoods(barcode))[0];
+    return {
+      candidate,
+      saved_food: candidate,
+      needs_confirmation: false,
+      source: "preview",
+      confidence: 0.9,
+    };
+  }
+  const { data } = await api.post<HealthNutritionScanResult>(
+    "/health/nutrition/barcode",
+    { barcode },
+  );
+  return data;
+}
+
+export async function scanHealthNutritionPhoto(
+  image: Blob,
+): Promise<HealthNutritionScanResult> {
+  if (localPreviewMode) {
+    const candidate = (await searchHealthFoods("Фото упаковки"))[0];
+    return {
+      candidate,
+      saved_food: candidate,
+      needs_confirmation: true,
+      source: "preview_ai",
+      confidence: 0.72,
+    };
+  }
+  const formData = new FormData();
+  const filename = image instanceof File ? image.name : "nutrition-package.jpg";
+  formData.append("file", image, filename);
+  const { data } = await api.post<HealthNutritionScanResult>(
+    "/health/nutrition/scan-photo",
+    formData,
+  );
+  return data;
+}
+
+export async function getHealthNutritionTarget(): Promise<HealthNutritionTarget> {
+  if (localPreviewMode) {
+    return {
+      calories: 2200,
+      protein_g: 120,
+      carbs_g: 240,
+      fat_g: 75,
+      water_ml: 2500,
+      goal_type: "maintain",
+      diet_mode: "balanced",
+    };
+  }
+  const { data } = await api.get<HealthNutritionTarget>(
+    "/health/nutrition/targets",
+  );
+  return data;
+}
+
+export async function upsertHealthNutritionTarget(
+  body: HealthNutritionTarget,
+): Promise<HealthNutritionTarget> {
+  if (localPreviewMode) return { ...body, calories: body.calories ?? 2200 };
+  const { data } = await api.post<HealthNutritionTarget>(
+    "/health/nutrition/targets",
+    body,
+  );
+  return data;
+}
+
+export async function listHealthWeightLogs(): Promise<HealthWeightLog[]> {
+  if (localPreviewMode) {
+    return [
+      {
+        id: "preview-weight-1",
+        user_id: "local-preview-user",
+        logged_on: today,
+        weight_kg: 76.4,
+        source: "manual",
+        created_at: now,
+        updated_at: now,
+      },
+    ];
+  }
+  const { data } = await api.get<HealthWeightLog[]>("/health/nutrition/weight");
+  return data;
+}
+
+export async function createHealthWeightLog(body: {
+  logged_on: string;
+  weight_kg: number;
+  body_fat_pct?: number;
+  muscle_mass_kg?: number;
+  source?: string;
+  notes?: string;
+}): Promise<HealthWeightLog> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-weight-${Date.now()}`,
+      user_id: "local-preview-user",
+      source: "manual",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<HealthWeightLog>(
+    "/health/nutrition/weight",
+    body,
+  );
+  return data;
+}
+
+export async function getHealthNutritionWeeklyReport(): Promise<HealthNutritionWeeklyReport> {
+  if (localPreviewMode) {
+    return {
+      week_start: today,
+      week_end: today,
+      average_calories: 1910,
+      average_protein_g: 104,
+      average_water_ml: 2100,
+      macro_completion_pct: { calories: 87, protein: 92, water: 84 },
+      water_consistency_days: 5,
+      weight_trend_kg: -0.3,
+      frequent_foods: [{ name: "Йогурт", count: 4, calories: 360 }],
+      ai_summary:
+        "Питание ровное, белок близко к цели. Это справочная сводка, не медицинская рекомендация.",
+      safety_note: "Сводка не заменяет врача или нутрициолога.",
+    };
+  }
+  const { data } = await api.get<HealthNutritionWeeklyReport>(
+    "/health/nutrition/report/weekly",
+  );
+  return data;
+}
+
+export async function listHealthRecipes(): Promise<HealthRecipe[]> {
+  if (localPreviewMode) return [];
+  const { data } = await api.get<HealthRecipe[]>("/health/nutrition/recipes");
+  return data;
+}
+
+export async function createHealthRecipe(body: {
+  title: string;
+  servings: number;
+  items: Array<{
+    name: string;
+    serving_qty?: number;
+    serving_name?: string;
+    grams?: number;
+    calories?: number;
+    protein_g?: number;
+    carbs_g?: number;
+    fat_g?: number;
+    fiber_g?: number;
+  }>;
+  notes?: string;
+}): Promise<HealthRecipe> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-recipe-${Date.now()}`,
+      user_id: "local-preview-user",
+      created_at: now,
+      updated_at: now,
+      calories_per_serving:
+        body.items.reduce((sum, item) => sum + (item.calories ?? 0), 0) /
+        body.servings,
+      protein_g_per_serving:
+        body.items.reduce((sum, item) => sum + (item.protein_g ?? 0), 0) /
+        body.servings,
+      carbs_g_per_serving:
+        body.items.reduce((sum, item) => sum + (item.carbs_g ?? 0), 0) /
+        body.servings,
+      fat_g_per_serving:
+        body.items.reduce((sum, item) => sum + (item.fat_g ?? 0), 0) /
+        body.servings,
+      ...body,
+      items: body.items.map((item, index) => ({
+        id: `preview-recipe-item-${index}`,
+        user_id: "local-preview-user",
+        meal_id: `preview-recipe-${Date.now()}`,
+        serving_qty: 1,
+        serving_name: "порция",
+        created_at: now,
+        updated_at: now,
+        ...item,
+      })),
+    };
+  }
+  const { data } = await api.post<HealthRecipe>(
+    "/health/nutrition/recipes",
+    body,
+  );
+  return data;
+}
+
+export async function createHealthMeal(body: {
+  logged_on: string;
+  meal_type: HealthMealType;
+  title?: string;
+  source?: string;
+  confidence?: number;
+  notes?: string;
+  items: Array<{
+    food_id?: string;
+    name: string;
+    serving_qty?: number;
+    serving_name?: string;
+    grams?: number;
+    calories?: number;
+    protein_g?: number;
+    carbs_g?: number;
+    fat_g?: number;
+    fiber_g?: number;
+    confidence?: number;
+  }>;
+}): Promise<HealthMealEntry> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-meal-${Date.now()}`,
+      user_id: "local-preview-user",
+      source: "manual",
+      confidence: 1,
+      notes: null,
+      created_at: now,
+      updated_at: now,
+      ...body,
+      items: body.items.map((item, index) => ({
+        id: `preview-meal-item-${Date.now()}-${index}`,
+        user_id: "local-preview-user",
+        meal_id: `preview-meal-${Date.now()}`,
+        serving_qty: 1,
+        serving_name: "порция",
+        created_at: now,
+        updated_at: now,
+        ...item,
+      })),
+    };
+  }
+  const { data } = await api.post<HealthMealEntry>(
+    "/health/nutrition/meals",
+    body,
+  );
+  return data;
+}
+
+export async function createHealthWaterLog(body: {
+  logged_on: string;
+  amount_ml: number;
+  source?: string;
+}) {
+  if (localPreviewMode) {
+    return {
+      id: `preview-water-${Date.now()}`,
+      user_id: "local-preview-user",
+      source: "manual",
+      created_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post("/health/nutrition/water", body);
+  return data;
+}
+
+export async function listHealthBiomarkers(): Promise<HealthBiomarker[]> {
+  if (localPreviewMode) return clone(previewHealthBiomarkers);
+  const { data } = await api.get<HealthBiomarker[]>("/health/biomarkers");
+  return data;
+}
+
+export async function createHealthBiomarker(body: {
+  measured_on: string;
+  kind: string;
+  value: number;
+  unit: string;
+  source?: string;
+  notes?: string;
+}): Promise<HealthBiomarker> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-health-biomarker-${Date.now()}`,
+      user_id: "local-preview-user",
+      source: "manual",
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<HealthBiomarker>("/health/biomarkers", body);
+  return data;
+}
+
+export async function listHealthMedicalRecords(): Promise<
+  HealthMedicalRecord[]
+> {
+  if (localPreviewMode) return clone(previewHealthMedicalRecords);
+  const { data } = await api.get<HealthMedicalRecord[]>(
+    "/health/medical-records",
+  );
+  return data;
+}
+
+export async function createHealthMedicalRecord(body: {
+  record_date: string;
+  kind?: HealthMedicalRecord["kind"];
+  title: string;
+  provider?: string;
+  summary?: string;
+  file_url?: string;
+  is_sensitive?: boolean;
+}): Promise<HealthMedicalRecord> {
+  if (localPreviewMode) {
+    return {
+      id: `preview-health-medical-${Date.now()}`,
+      user_id: "local-preview-user",
+      kind: "note",
+      is_sensitive: true,
+      created_at: now,
+      updated_at: now,
+      ...body,
+    };
+  }
+  const { data } = await api.post<HealthMedicalRecord>(
+    "/health/medical-records",
+    body,
+  );
   return data;
 }
 
@@ -1506,5 +3052,149 @@ export async function upsertWeeklyReview(body: {
   energy?: number;
 }): Promise<WeeklyReview> {
   const { data } = await api.post<WeeklyReview>("/reviews/weekly", body);
+  return data;
+}
+
+// ============================================================
+// Workouts / Training (feature 009)
+// ============================================================
+
+export async function listExercises(
+  params?: ExerciseFilters,
+): Promise<Exercise[]> {
+  const { data } = await api.get<Exercise[]>("/exercises", { params });
+  return data;
+}
+
+export async function getExercise(slug: string): Promise<Exercise> {
+  const { data } = await api.get<Exercise>(`/exercises/${slug}`);
+  return data;
+}
+
+export async function getPopularExercises(limit = 10): Promise<Exercise[]> {
+  const { data } = await api.get<Exercise[]>("/exercises/popular", {
+    params: { limit },
+  });
+  return data;
+}
+
+export async function listWorkoutSessions(params?: {
+  from?: string;
+  to?: string;
+  sport_kind?: SportKind;
+  is_completed?: boolean;
+  goal_id?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<WorkoutSession[]> {
+  const { data } = await api.get<WorkoutSession[]>("/workouts/sessions", {
+    params,
+  });
+  return data;
+}
+
+export async function getActiveWorkoutSession(): Promise<WorkoutSession | null> {
+  const { data } = await api.get<WorkoutSession | null>(
+    "/workouts/sessions/active",
+  );
+  return data;
+}
+
+export async function getWorkoutSession(
+  sessionId: string,
+): Promise<WorkoutSession> {
+  const { data } = await api.get<WorkoutSession>(
+    `/workouts/sessions/${sessionId}`,
+  );
+  return data;
+}
+
+export async function createWorkoutSession(
+  body: WorkoutSessionCreate,
+): Promise<WorkoutSession> {
+  const { data } = await api.post<WorkoutSession>("/workouts/sessions", body);
+  return data;
+}
+
+export async function updateWorkoutSession(
+  sessionId: string,
+  body: WorkoutSessionUpdate,
+): Promise<WorkoutSession> {
+  const { data } = await api.patch<WorkoutSession>(
+    `/workouts/sessions/${sessionId}`,
+    body,
+  );
+  return data;
+}
+
+export async function deleteWorkoutSession(sessionId: string): Promise<void> {
+  await api.delete(`/workouts/sessions/${sessionId}`);
+}
+
+export async function startWorkoutSession(
+  sessionId: string,
+): Promise<WorkoutSession> {
+  const { data } = await api.post<WorkoutSession>(
+    `/workouts/sessions/${sessionId}/start`,
+  );
+  return data;
+}
+
+export async function finishWorkoutSession(
+  sessionId: string,
+): Promise<WorkoutSession> {
+  const { data } = await api.post<WorkoutSession>(
+    `/workouts/sessions/${sessionId}/finish`,
+  );
+  return data;
+}
+
+export async function listWorkoutSets(
+  sessionId: string,
+): Promise<WorkoutSet[]> {
+  const { data } = await api.get<WorkoutSet[]>(
+    `/workouts/sessions/${sessionId}/sets`,
+  );
+  return data;
+}
+
+export async function createWorkoutSet(
+  sessionId: string,
+  body: WorkoutSetCreate,
+): Promise<WorkoutSet> {
+  const { data } = await api.post<WorkoutSet>(
+    `/workouts/sessions/${sessionId}/sets`,
+    body,
+  );
+  return data;
+}
+
+export async function updateWorkoutSet(
+  setId: string,
+  body: WorkoutSetUpdate,
+): Promise<WorkoutSet> {
+  const { data } = await api.patch<WorkoutSet>(`/workouts/sets/${setId}`, body);
+  return data;
+}
+
+export async function deleteWorkoutSet(setId: string): Promise<void> {
+  await api.delete(`/workouts/sets/${setId}`);
+}
+
+export async function listSupersets(sessionId: string): Promise<Superset[]> {
+  const { data } = await api.get<Superset[]>(
+    `/workouts/sessions/${sessionId}/supersets`,
+  );
+  return data;
+}
+
+export async function createSuperset(
+  sessionId: string,
+  body: SupersetCreate,
+): Promise<Superset> {
+  const { data } = await api.post<Superset>(
+    `/workouts/sessions/${sessionId}/supersets`,
+    body,
+  );
   return data;
 }

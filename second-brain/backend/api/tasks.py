@@ -39,6 +39,7 @@ from models.task import (
 from services.premium import get_ai_tier_policy, get_history_cutoff, get_user_premium
 from services import (
     ai_budget,
+    task_calendar,
     task_ai_planning,
     task_analytics,
     task_capture,
@@ -581,6 +582,31 @@ async def get_time_block_free_slots(
     return task_planning.free_slots(user_id, target_date)
 
 
+@router.get("/calendar")
+async def get_task_calendar(
+    start_date: date,
+    days: int = 7,
+    user_id: str = Depends(get_current_user_id),
+):
+    return task_calendar.calendar(user_id, start_date, days)
+
+
+@router.get("/reminders/due")
+async def get_due_task_reminders(
+    now: datetime | None = None,
+    user_id: str = Depends(get_current_user_id),
+):
+    return task_calendar.due_reminders(user_id, now)
+
+
+@router.post("/{task_id}/reminders/sent")
+async def mark_task_reminder_sent(
+    task_id: str,
+    user_id: str = Depends(get_current_user_id),
+):
+    return task_calendar.mark_reminder_sent(task_id, user_id)
+
+
 @router.post("/{task_id}/focus-sessions", status_code=201)
 async def create_focus_session(
     task_id: str,
@@ -800,6 +826,15 @@ async def list_habits(user_id: str = Depends(get_current_user_id)):
 @router.get("/habits/{task_id}/stats")
 async def get_habit_stats(task_id: str, user_id: str = Depends(get_current_user_id)):
     return task_recurrence.habit_stats(task_id, user_id)
+
+
+@router.get("/habits/{task_id}/history")
+async def get_habit_history(
+    task_id: str,
+    days: int = 30,
+    user_id: str = Depends(get_current_user_id),
+):
+    return task_recurrence.habit_history(task_id, user_id, days)
 
 
 @router.post("/recurrence/run-due")

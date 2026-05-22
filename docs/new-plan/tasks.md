@@ -34,7 +34,7 @@
 
 ## Аналитика продуктивности и инсайты
 
-Раздел И. Измерение — основа улучшения. Исследование Drăghici et al. (Journal of Productivity, 2021) доказало: люди, отслеживающие выполнение задач, достигают целей в 2,5 раза чаще. Дашборд продуктивности: выполнено задач за день/неделю/месяц. График загруженности по времени суток и дням недели. Выявление паттернов: “по пятницам задачи часто переносятся”. Процент выполнения в срок. Среднее время выполнения по типам задач. “Оценка vs реальность” — насколько точно пользователь планирует. Еженедельный отчёт с рекомендациями. Карма/очки — геймификация (Todoist Karma) мотивирует на 25% больше выполненных задач.
+Раздел И. Измерение — основа улучшения. Исследование Drăghici et al. (Journal of Productivity, 2021) доказало: люди, отслеживающие выполнение задач, достигают целей в 2,5 раза чаще. Дашборд продуктивности: выполнено задач за день/неделю/месяц. График загруженности по времени суток и дням недели. Выявление паттернов: “по пятницам задачи часто переносятся”. Процент выполнения в срок. Среднее время выполнения по типам задач. “Оценка vs реальность” — насколько точно пользователь планирует. Еженедельный отчёт с рекомендациями. Игровые элементы, карма, XP, уровни, бейджи и достижения не входят в Stage 03: отдельная app-wide система достижений будет спроектирована позже.
 
 ## Захват и обработка входящих (Inbox)
 
@@ -49,3 +49,32 @@
 По данным Asana (февраль 2026): 80% работников умственного труда работают с открытым почтовым ящиком, снижая продуктивность. Сотрудник в среднем переключается между 10 приложениями до 25 раз в день. 32% выгоревших работников не могут отключиться от непрекращающегося потока задач. Лишь 26% работников понимают, как их ежедневные задачи связаны с целями компании. Подсистема AI-задач решает эти проблемы: автоматически группирует похожие задачи в единые временные блоки, анализирует паттерны продуктивности и устанавливает режим «не беспокоить» в пики концентрации, связывает каждую задачу с целями жизни пользователя через OKR-систему, применяет метод GTD (David Allen) и принцип Pareto 80/20 для приоритизации. Интеграция с Linear, Asana, Notion.
 
 **
+
+---
+
+# Stage 05 Finance implementation checklist
+
+## Backend first
+
+- [x] Add finance categories with parent/subcategory, icon, color, archive state, and RLS.
+- [x] Add merchant categorization rules and automatic rule learning after confirmed/corrected transactions.
+- [x] Extend transactions with account transfers, target account, recurring flag, source, import hash, search/filter support, and account balance effects.
+- [x] Add budget envelope fields: allocated amount, rollover amount, spent, remaining, usage percent, warning, and overrun.
+- [x] Add finance forecast based on recent monthly category averages and current month pace.
+- [x] Improve CSV import with source metadata, generated import hashes, categorization, and duplicate skipping.
+- [x] Keep bank sync out of Stage 05 v1; route real bank adapters to Stage 07 integrations.
+
+## Telegram Mini App
+
+- [x] Add category/rule API types and a finance categories screen.
+- [x] Add transaction form controls for account, target account, recurring flag, and transfers.
+- [x] Show budget envelope rollover/remaining states.
+- [x] Show forecast in finance analytics.
+- [x] Add AI intake confirm flow for "потратил 1200 на такси" style entries.
+- [x] Expand dashboard data contract for top categories, upcoming payments, goals, and cash flow.
+
+## QA gates
+
+- [x] Backend: `pytest` and `ruff check .`.
+- [x] Telegram Mini App: `npm run typecheck`, `npm test`, and `npm run build`.
+- [ ] Manual QA: dashboard, add expense, add transfer, budget warning/overrun, AI analyze/confirm, CSV preview/confirm, categories screen.

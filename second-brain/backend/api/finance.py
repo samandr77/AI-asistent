@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
@@ -24,9 +25,14 @@ from models.finance import (
     FinanceAnalyzeEntryRequest,
     FinanceAnalyzeEntryResponse,
     FinanceBudgetCreate,
+    FinanceBudgetEnvelope,
     FinanceBudgetTemplate,
     FinanceBudgetTemplateItem,
     FinanceBudgetUpdate,
+    FinanceCategorizationRuleCreate,
+    FinanceCategorizationRuleUpdate,
+    FinanceCategoryCreate,
+    FinanceCategoryUpdate,
     FinanceChatRequest,
     FinanceChatResponse,
     FinanceCsvImportConfirmRequest,
@@ -39,6 +45,8 @@ from models.finance import (
     FinanceDebtScheduleItem,
     FinanceDebtUpdate,
     FinanceDocumentCreate,
+    FinanceForecast,
+    FinanceForecastCategory,
     FinanceGoalCreate,
     FinanceGoalUpdate,
     FinanceIncomeCreate,
@@ -64,6 +72,16 @@ RECEIPT_UPLOAD_DIR = Path("uploads/finance")
 SUPPORTED_RECEIPT_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 CSV_IMPORT_MAX_SIZE = 1024 * 1024
 DEDUCTIBLE_CATEGORIES = {"health", "education", "charity", "business", "tax", "medical"}
+DEFAULT_FINANCE_CATEGORIES = [
+    {"name": "Продукты", "type": "expense", "icon": "cart", "color": "#E04F5F", "slug": "food"},
+    {"name": "Кафе и рестораны", "type": "expense", "icon": "coffee", "color": "#F59E0B", "slug": "cafe"},
+    {"name": "Транспорт", "type": "expense", "icon": "car", "color": "#3B82F6", "slug": "transport"},
+    {"name": "Жилье и ЖКХ", "type": "expense", "icon": "home", "color": "#8B5CF6", "slug": "housing"},
+    {"name": "Подписки", "type": "expense", "icon": "refresh", "color": "#14B8A6", "slug": "subscriptions"},
+    {"name": "Здоровье", "type": "expense", "icon": "heart", "color": "#EF4444", "slug": "health"},
+    {"name": "Зарплата", "type": "income", "icon": "wallet", "color": "#22C55E", "slug": "salary"},
+    {"name": "Фриланс", "type": "income", "icon": "briefcase", "color": "#16A34A", "slug": "freelance"},
+]
 
 
 def _now_iso() -> str:
@@ -110,6 +128,8 @@ def _list_table(table: str, user_id: str, *, order_by: str = "created_at", desc:
 def _create_row(table: str, body: object, user_id: str, detail: str) -> dict:
     row = _payload(body)
     row["user_id"] = user_id
+    if table == "finance_transactions":
+        row = _apply_categorization_rules(row, user_id)
     result = get_supabase().table(table).insert(row).execute()
     if not result.data:
         raise HTTPException(status_code=500, detail=detail)
@@ -130,6 +150,127 @@ def _update_row(table: str, row_id: str, body: object, user_id: str, detail: str
         .execute()
     )
     return _assert_found(result.data or [], detail)
+
+
+def _get_owned_row(table: str, row_id: str, user_id: str, detail: str) -> dict:
+    result = (
+        get_supabase()
+        .table(table)
+        .select("*")
+        .eq("id", row_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+    return _assert_found(result.data or [], detail)
+
+
+def _update_account_balance(account_id: str | None, user_id: str, delta_cents: int) -> None:
+    if not account_id or delta_cents == 0:
+        return
+    account = _get_owned_row("finance_accounts", account_id, user_id, "Account not found")
+    balance_cents = int(account.get("balance_cents") or 0) + delta_cents
+    (
+        get_supabase()
+        .table("finance_accounts")
+        .update({"balance_cents": balance_cents, "updated_at": _now_iso()})
+        .eq("id", account_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+
+
+def _transaction_account_deltas(row: dict, *, reverse: bool = False) -> list[tuple[str | None, int]]:
+    amount_cents = int(row.get("amount_cents") or 0)
+    multiplier = -1 if reverse else 1
+    tx_type = row.get("type")
+    if tx_type == "income":
+        return [(row.get("account_id"), amount_cents * multiplier)]
+    if tx_type == "transfer":
+        return [
+            (row.get("account_id"), -amount_cents * multiplier),
+            (row.get("target_account_id"), amount_cents * multiplier),
+        ]
+    return [(row.get("account_id"), -amount_cents * multiplier)]
+
+
+def _apply_transaction_balance_effect(row: dict, user_id: str, *, reverse: bool = False) -> None:
+    for account_id, delta_cents in _transaction_account_deltas(row, reverse=reverse):
+        _update_account_balance(account_id, user_id, delta_cents)
+
+
+def _import_hash(payload: dict) -> str:
+    parts = [
+        str(payload.get("occurred_on") or ""),
+        str(payload.get("type") or ""),
+        str(payload.get("amount_cents") or ""),
+        str(payload.get("currency") or "RUB"),
+        str(payload.get("merchant") or ""),
+        str(payload.get("category") or ""),
+        str(payload.get("account_id") or ""),
+    ]
+    return hashlib.sha256("|".join(parts).lower().encode("utf-8")).hexdigest()
+
+
+def _find_duplicate_import(user_id: str, import_hash: str | None) -> dict | None:
+    if not import_hash:
+        return None
+    result = (
+        get_supabase()
+        .table("finance_transactions")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("import_hash", import_hash)
+        .execute()
+    )
+    rows = result.data or []
+    return rows[0] if rows else None
+
+
+def _remember_categorization_rule(row: dict, user_id: str) -> None:
+    merchant = str(row.get("merchant") or "").strip()
+    category = str(row.get("category") or "").strip()
+    if not merchant or not category or row.get("type") == "transfer":
+        return
+    existing = (
+        get_supabase()
+        .table("finance_categorization_rules")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("merchant_pattern", merchant.lower())
+        .execute()
+    )
+    if existing.data:
+        (
+            get_supabase()
+            .table("finance_categorization_rules")
+            .update({"category": category, "updated_at": _now_iso(), "is_active": True})
+            .eq("id", existing.data[0]["id"])
+            .eq("user_id", user_id)
+            .execute()
+        )
+        return
+    rule = FinanceCategorizationRuleCreate(
+        merchant_pattern=merchant.lower(),
+        category=category,
+        priority=100,
+        is_active=True,
+    )
+    _create_row("finance_categorization_rules", rule, user_id, "Failed to create categorization rule")
+
+
+def _apply_categorization_rules(payload: dict, user_id: str) -> dict:
+    merchant = str(payload.get("merchant") or "").lower().strip()
+    if not merchant or payload.get("category") not in {None, "", "uncategorized", "other"}:
+        return payload
+    rules = _list_table("finance_categorization_rules", user_id, order_by="priority", desc=False)
+    for rule in rules:
+        if not rule.get("is_active", True):
+            continue
+        pattern = str(rule.get("merchant_pattern") or "").lower().strip()
+        if pattern and pattern in merchant:
+            payload["category"] = rule.get("category") or payload.get("category")
+            break
+    return payload
 
 
 def _month_bounds(today: date | None = None) -> tuple[date, date]:
@@ -181,6 +322,73 @@ def _category_totals(rows: list[dict]) -> list[dict]:
         {"category": category, "expense_cents": amount}
         for category, amount in sorted(by_category.items(), key=lambda item: item[1], reverse=True)
     ]
+
+
+def _budget_envelopes(budgets: list[dict], rows: list[dict]) -> list[FinanceBudgetEnvelope]:
+    category_spend = {item["category"]: int(item["expense_cents"]) for item in _category_totals(rows)}
+    envelopes: list[FinanceBudgetEnvelope] = []
+    for budget in budgets:
+        limit_cents = int(budget.get("limit_cents") or 0)
+        rollover_cents = int(budget.get("rollover_cents") or 0)
+        allocated_cents = int(budget.get("allocated_cents") or limit_cents)
+        if budget.get("rollover_enabled"):
+            allocated_cents += rollover_cents
+        category = str(budget.get("category") or "uncategorized")
+        spent_cents = category_spend.get(category, 0)
+        remaining_cents = allocated_cents - spent_cents
+        usage_percent = int(round(spent_cents / allocated_cents * 100)) if allocated_cents else 0
+        if remaining_cents < 0:
+            status = "over"
+        elif usage_percent >= 80:
+            status = "warning"
+        else:
+            status = "ok"
+        envelopes.append(
+            FinanceBudgetEnvelope(
+                budget_id=str(budget.get("id") or ""),
+                category=category,
+                period=str(budget.get("period") or "monthly"),
+                limit_cents=limit_cents,
+                allocated_cents=allocated_cents,
+                rollover_enabled=bool(budget.get("rollover_enabled")),
+                rollover_cents=rollover_cents,
+                spent_cents=spent_cents,
+                remaining_cents=remaining_cents,
+                usage_percent=usage_percent,
+                status=status,
+            )
+        )
+    return envelopes
+
+
+def _upcoming_payments(subscriptions: list[dict], debts: list[dict], *, today: date, days: int = 14) -> list[dict]:
+    due_until = today + timedelta(days=days)
+    payments: list[dict] = []
+    for subscription in subscriptions:
+        due_date = _row_date(subscription.get("next_charge_date"))
+        if subscription.get("is_active", True) and due_date and today <= due_date <= due_until:
+            payments.append(
+                {
+                    "kind": "subscription",
+                    "title": subscription.get("name") or "Подписка",
+                    "amount_cents": int(subscription.get("amount_cents") or 0),
+                    "due_date": due_date.isoformat(),
+                    "entity_id": subscription.get("id"),
+                }
+            )
+    for debt in debts:
+        due_date = _row_date(debt.get("next_payment_date"))
+        if due_date and today <= due_date <= due_until:
+            payments.append(
+                {
+                    "kind": "debt",
+                    "title": debt.get("name") or "Платеж по долгу",
+                    "amount_cents": int(debt.get("monthly_payment_cents") or 0),
+                    "due_date": due_date.isoformat(),
+                    "entity_id": debt.get("id"),
+                }
+            )
+    return sorted(payments, key=lambda item: item["due_date"])
 
 
 def _add_months(value: date, months: int) -> date:
@@ -416,8 +624,12 @@ def _parse_csv_import(content: bytes) -> FinanceCsvImportPreview:
                 merchant=(raw.get("merchant") or raw.get("description") or "").strip() or None,
                 note=(raw.get("note") or "").strip() or None,
                 account_id=(raw.get("account_id") or "").strip() or None,
+                target_account_id=(raw.get("target_account_id") or "").strip() or None,
+                is_recurring=str(raw.get("is_recurring") or "").strip().lower() in {"1", "true", "yes"},
+                source="csv",
             ).model_dump()
             payload["occurred_on"] = payload["occurred_on"].isoformat()
+            payload["import_hash"] = _import_hash(payload)
             rows.append(FinanceCsvImportPreviewRow(row_number=row_number, payload=payload))
         except Exception as exc:  # noqa: BLE001
             rows.append(FinanceCsvImportPreviewRow(row_number=row_number, error=str(exc)))
@@ -431,30 +643,66 @@ def _parse_csv_import(content: bytes) -> FinanceCsvImportPreview:
 
 @router.get("/dashboard", response_model=FinanceDashboard)
 async def get_finance_dashboard(user_id: str = Depends(get_current_user_id)):
-    start, end = _month_bounds()
+    today = date.today()
+    start, end = _month_bounds(today)
     accounts = _list_table("finance_accounts", user_id, order_by="created_at")
     budgets = _list_table("finance_budgets", user_id, order_by="category", desc=False)
     goals = _list_table("finance_goals", user_id, order_by="target_date", desc=False)
     subscriptions = _list_table("finance_subscriptions", user_id, order_by="next_charge_date", desc=False)
+    debts = _list_table("finance_debts", user_id, order_by="next_payment_date", desc=False)
     net_worth = _net_worth(user_id)
     transactions = _monthly_transactions(user_id, start, end)
     recent_transactions = _list_transactions(user_id=user_id, limit=5, offset=0)
 
     expense_cents = _sum_transactions(transactions, "expense")
     income_cents = _sum_transactions(transactions, "income")
-    budget_limit_cents = sum(int(row.get("limit_cents") or 0) for row in budgets if row.get("period") == "monthly")
+    monthly_budgets = [row for row in budgets if row.get("period") == "monthly"]
+    budget_limit_cents = sum(
+        int(row.get("allocated_cents") or row.get("limit_cents") or 0)
+        + (int(row.get("rollover_cents") or 0) if row.get("rollover_enabled") else 0)
+        for row in monthly_budgets
+    )
     subscriptions_monthly_cents = sum(
         int(row.get("amount_cents") or 0) for row in subscriptions if row.get("is_active", True)
     )
     active_goals = [row for row in goals if row.get("status") == "active"]
     remaining_budget = budget_limit_cents - expense_cents if budget_limit_cents else None
+    envelopes = _budget_envelopes(monthly_budgets, transactions)
+    top_categories = _category_totals(transactions)[:3]
+    upcoming_payments = _upcoming_payments(subscriptions, debts, today=today)
 
     alerts: list[dict] = []
+    for envelope in envelopes:
+        if envelope.status == "over":
+            alerts.append(
+                {
+                    "kind": "budget_overrun",
+                    "severity": "warning",
+                    "title": "Категория вышла за лимит",
+                    "message": f"{envelope.category}: превышение {_rub(abs(envelope.remaining_cents))}.",
+                    "amount_cents": abs(envelope.remaining_cents),
+                    "entity_id": envelope.budget_id,
+                    "entity_type": "budget",
+                }
+            )
+        elif envelope.status == "warning":
+            alerts.append(
+                {
+                    "kind": "budget_near_limit",
+                    "severity": "info",
+                    "title": "Категория близко к лимиту",
+                    "message": f"{envelope.category}: использовано {envelope.usage_percent}% бюджета.",
+                    "amount_cents": envelope.remaining_cents,
+                    "entity_id": envelope.budget_id,
+                    "entity_type": "budget",
+                }
+            )
     if remaining_budget is not None and remaining_budget < 0:
         alerts.append(
             {
-                "kind": "budget_overrun",
+                "kind": "total_budget_overrun",
                 "severity": "warning",
+                "title": "Общий бюджет превышен",
                 "message": "Месячный бюджет превышает запланированный лимит.",
                 "amount_cents": abs(remaining_budget),
             }
@@ -464,6 +712,7 @@ async def get_finance_dashboard(user_id: str = Depends(get_current_user_id)):
             {
                 "kind": "subscriptions_total",
                 "severity": "info",
+                "title": "Подписки учтены",
                 "message": "Активные подписки учтены в постоянных расходах месяца.",
                 "amount_cents": subscriptions_monthly_cents,
             }
@@ -478,8 +727,12 @@ async def get_finance_dashboard(user_id: str = Depends(get_current_user_id)):
         accounts_count=len([row for row in accounts if not row.get("is_archived")]),
         active_goals_count=len(active_goals),
         subscriptions_monthly_cents=subscriptions_monthly_cents,
+        cash_flow_cents=income_cents - expense_cents,
+        top_categories=top_categories,
+        upcoming_payments=upcoming_payments[:5],
+        goals=active_goals[:3],
         recent_transactions=recent_transactions,
-        budgets=budgets,
+        budgets=[envelope.model_dump() for envelope in envelopes],
         alerts=alerts,
     )
 
@@ -491,6 +744,7 @@ def _list_transactions(
     offset: int,
     type: Optional[str] = None,
     category: Optional[str] = None,
+    account_id: Optional[str] = None,
     search: Optional[str] = None,
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
@@ -501,6 +755,8 @@ def _list_transactions(
         q = q.eq("type", type)
     if category:
         q = q.eq("category", category)
+    if account_id:
+        q = q.eq("account_id", account_id)
     if search:
         safe_search = search.replace("%", "").replace(",", " ").strip()
         if safe_search:
@@ -519,6 +775,7 @@ def _list_transactions(
 async def list_transactions(
     type: Optional[str] = None,
     category: Optional[str] = None,
+    account_id: Optional[str] = None,
     search: Optional[str] = None,
     date_from: Optional[date] = None,
     date_to: Optional[date] = None,
@@ -532,6 +789,7 @@ async def list_transactions(
         offset=offset,
         type=type,
         category=category,
+        account_id=account_id,
         search=search,
         date_from=date_from,
         date_to=date_to,
@@ -543,12 +801,20 @@ async def create_transaction(
     body: FinanceTransactionCreate,
     user_id: str = Depends(get_current_user_id),
 ):
-    row = _payload(body)
+    row = _apply_categorization_rules(_payload(body), user_id)
     row["user_id"] = user_id
+    if row.get("source") in {"csv", "bank"} and not row.get("import_hash"):
+        row["import_hash"] = _import_hash(row)
+    if row.get("import_hash"):
+        if duplicate := _find_duplicate_import(user_id, row.get("import_hash")):
+            return duplicate
     result = get_supabase().table("finance_transactions").insert(row).execute()
     if not result.data:
         raise HTTPException(status_code=500, detail="Failed to create transaction")
-    return result.data[0]
+    created = result.data[0]
+    _apply_transaction_balance_effect(created, user_id)
+    _remember_categorization_rule(created, user_id)
+    return created
 
 
 @router.patch("/transactions/{transaction_id}")
@@ -557,6 +823,7 @@ async def update_transaction(
     body: FinanceTransactionUpdate,
     user_id: str = Depends(get_current_user_id),
 ):
+    old_row = _get_owned_row("finance_transactions", transaction_id, user_id, "Transaction not found")
     updates = _payload(body, partial=True)
     if not updates:
         raise HTTPException(status_code=422, detail="No fields to update")
@@ -569,7 +836,11 @@ async def update_transaction(
         .eq("user_id", user_id)
         .execute()
     )
-    return _assert_found(result.data or [], "Transaction not found")
+    updated = _assert_found(result.data or [], "Transaction not found")
+    _apply_transaction_balance_effect(old_row, user_id, reverse=True)
+    _apply_transaction_balance_effect(updated, user_id)
+    _remember_categorization_rule(updated, user_id)
+    return updated
 
 
 @router.delete("/transactions/{transaction_id}", status_code=204, response_class=Response)
@@ -577,6 +848,7 @@ async def delete_transaction(
     transaction_id: str,
     user_id: str = Depends(get_current_user_id),
 ) -> Response:
+    old_row = _get_owned_row("finance_transactions", transaction_id, user_id, "Transaction not found")
     result = (
         get_supabase()
         .table("finance_transactions")
@@ -587,6 +859,7 @@ async def delete_transaction(
     )
     if not result.data:
         raise HTTPException(status_code=404, detail="Transaction not found")
+    _apply_transaction_balance_effect(old_row, user_id, reverse=True)
     return Response(status_code=204)
 
 
@@ -930,6 +1203,77 @@ async def list_finance_alerts(
     return alerts
 
 
+@router.get("/categories")
+async def list_categories(user_id: str = Depends(get_current_user_id)):
+    rows = _list_table("finance_categories", user_id, order_by="type", desc=False)
+    if rows:
+        return rows
+    return [
+        {
+            "id": f"preset-{item['slug']}",
+            "user_id": user_id,
+            "name": item["name"],
+            "type": item["type"],
+            "parent_id": None,
+            "icon": item["icon"],
+            "color": item["color"],
+            "is_archived": False,
+            "is_preset": True,
+        }
+        for item in DEFAULT_FINANCE_CATEGORIES
+    ]
+
+
+@router.post("/categories", status_code=201)
+async def create_category(
+    body: FinanceCategoryCreate,
+    user_id: str = Depends(get_current_user_id),
+):
+    return _create_row("finance_categories", body, user_id, "Failed to create category")
+
+
+@router.patch("/categories/{category_id}")
+async def update_category(
+    category_id: str,
+    body: FinanceCategoryUpdate,
+    user_id: str = Depends(get_current_user_id),
+):
+    return _update_row("finance_categories", category_id, body, user_id, "Category not found")
+
+
+@router.get("/categorization-rules")
+async def list_categorization_rules(user_id: str = Depends(get_current_user_id)):
+    return _list_table("finance_categorization_rules", user_id, order_by="priority", desc=False)
+
+
+@router.post("/categorization-rules", status_code=201)
+async def create_categorization_rule(
+    body: FinanceCategorizationRuleCreate,
+    user_id: str = Depends(get_current_user_id),
+):
+    return _create_row(
+        "finance_categorization_rules",
+        body,
+        user_id,
+        "Failed to create categorization rule",
+    )
+
+
+@router.patch("/categorization-rules/{rule_id}")
+async def update_categorization_rule(
+    rule_id: str,
+    body: FinanceCategorizationRuleUpdate,
+    user_id: str = Depends(get_current_user_id),
+):
+    return _update_row(
+        "finance_categorization_rules",
+        rule_id,
+        body,
+        user_id,
+        "Categorization rule not found",
+    )
+
+
 @router.get("/accounts")
 async def list_accounts(user_id: str = Depends(get_current_user_id)):
     return _list_table("finance_accounts", user_id, order_by="created_at")
@@ -972,6 +1316,14 @@ async def update_account(
 @router.get("/budgets")
 async def list_budgets(user_id: str = Depends(get_current_user_id)):
     return _list_table("finance_budgets", user_id, order_by="category", desc=False)
+
+
+@router.get("/budgets/envelopes", response_model=list[FinanceBudgetEnvelope])
+async def list_budget_envelopes(user_id: str = Depends(get_current_user_id)):
+    start, end = _month_bounds()
+    budgets = _list_table("finance_budgets", user_id, order_by="category", desc=False)
+    month_rows = _monthly_transactions(user_id, start, end)
+    return _budget_envelopes(budgets, month_rows)
 
 
 @router.post("/budgets", status_code=201)
@@ -1423,15 +1775,21 @@ async def confirm_finance_csv_import(
     skipped: list[dict] = []
     for index, payload in enumerate(body.rows, start=1):
         try:
-            transaction = FinanceTransactionCreate(**payload)
-            created.append(
-                _create_row(
-                    "finance_transactions",
-                    transaction,
-                    user_id,
-                    "Failed to create imported transaction",
-                )
+            payload.setdefault("source", "csv")
+            payload.setdefault("import_hash", _import_hash(payload))
+            if duplicate := _find_duplicate_import(user_id, payload.get("import_hash")):
+                skipped.append({"row_number": index, "reason": "duplicate", "existing_id": duplicate.get("id")})
+                continue
+            transaction = FinanceTransactionCreate(**_apply_categorization_rules(payload, user_id))
+            row = _create_row(
+                "finance_transactions",
+                transaction,
+                user_id,
+                "Failed to create imported transaction",
             )
+            _apply_transaction_balance_effect(row, user_id)
+            _remember_categorization_rule(row, user_id)
+            created.append(row)
         except Exception as exc:  # noqa: BLE001
             skipped.append({"row_number": index, "reason": str(exc)})
     return {"created_count": len(created), "skipped_count": len(skipped), "created": created, "skipped": skipped}
@@ -1489,6 +1847,70 @@ async def compare_finance_periods(
     )
 
 
+@router.get("/forecast", response_model=FinanceForecast)
+async def get_finance_forecast(
+    months: int = 3,
+    user_id: str = Depends(get_current_user_id),
+):
+    months_used = max(1, min(months, 12))
+    today = date.today()
+    current_start, current_end = _month_bounds(today)
+    current_rows = _monthly_transactions(user_id, current_start, current_end)
+    current_spend = {item["category"]: int(item["expense_cents"]) for item in _category_totals(current_rows)}
+
+    historical: dict[str, list[int]] = defaultdict(list)
+    for index in range(months_used, 0, -1):
+        start = _add_months(current_start, -index)
+        end = _add_months(start, 1)
+        totals = {item["category"]: int(item["expense_cents"]) for item in _category_totals(_monthly_transactions(user_id, start, end))}
+        for category, amount in totals.items():
+            historical[category].append(amount)
+
+    budgets = _list_table("finance_budgets", user_id, order_by="category", desc=False)
+    limits = {
+        str(row.get("category") or ""): int(row.get("allocated_cents") or row.get("limit_cents") or 0)
+        + (int(row.get("rollover_cents") or 0) if row.get("rollover_enabled") else 0)
+        for row in budgets
+        if row.get("period") == "monthly"
+    }
+    elapsed_days = max(1, (today - current_start).days + 1)
+    total_days = max(1, (current_end - current_start).days)
+
+    categories: list[FinanceForecastCategory] = []
+    for category in sorted(set(historical) | set(current_spend)):
+        amounts = historical.get(category, [])
+        average = int(round(sum(amounts) / len(amounts))) if amounts else 0
+        current = current_spend.get(category, 0)
+        pace_prediction = int(round(current / elapsed_days * total_days))
+        predicted = max(average, pace_prediction)
+        limit = limits.get(category)
+        overrun = max(0, predicted - limit) if limit else 0
+        confidence = min(0.95, 0.45 + 0.12 * len(amounts))
+        categories.append(
+            FinanceForecastCategory(
+                category=category,
+                average_monthly_spend_cents=average,
+                current_spend_cents=current,
+                predicted_month_end_cents=predicted,
+                budget_limit_cents=limit,
+                predicted_overrun_cents=overrun,
+                confidence=confidence,
+            )
+        )
+
+    total_predicted = sum(item.predicted_month_end_cents for item in categories)
+    total_limit = sum(limits.values())
+    return FinanceForecast(
+        period_start=current_start,
+        period_end=current_end,
+        months_used=months_used,
+        categories=sorted(categories, key=lambda item: item.predicted_month_end_cents, reverse=True),
+        total_predicted_expense_cents=total_predicted,
+        total_budget_limit_cents=total_limit,
+        total_predicted_overrun_cents=max(0, total_predicted - total_limit) if total_limit else 0,
+    )
+
+
 @router.get("/analytics", response_model=FinanceAnalytics)
 async def get_finance_analytics(
     date_from: Optional[date] = None,
@@ -1531,3 +1953,5 @@ async def get_finance_analytics(
             for item_date, amount in sorted(daily.items())
         ],
     )
+    FinanceForecast,
+    FinanceForecastCategory,

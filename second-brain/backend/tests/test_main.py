@@ -17,6 +17,7 @@ _DEPENDENT_MODULES = (
     "api.auth",
     "api.dump",
     "api.goals",
+    "api.health",
     "api.memory",
     "api.premium",
     "api.reflections",
@@ -75,3 +76,4 @@ def test_health_endpoint_exists(reload_main):
     paths = {r.path for r in reload_main().app.routes}
     assert "/health" in paths
     assert "/health/ready" in paths
+    assert "/health/dashboard" in paths

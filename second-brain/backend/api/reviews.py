@@ -18,7 +18,7 @@ def _now_iso() -> str:
 
 
 def _parse_week_start(raw: Optional[str]) -> date:
-    if not raw:
+    if not raw or raw == "current":
         return iso_week_start(date.today())
     try:
         ref = date.fromisoformat(raw)

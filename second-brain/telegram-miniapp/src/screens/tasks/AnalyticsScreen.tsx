@@ -1,39 +1,33 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { getFocusSummary, getTaskAnalytics } from "../../services/api";
 import {
   AIChip,
   BackBtn,
   Screen,
   ScreenBody,
-  SPHERES,
   TabBar,
   TasksApp,
   TopBar,
-  type TaskSphere,
 } from "./components/shell";
 
-interface DayStat {
-  d: string;
-  v: number;
-}
-
-const WEEK: DayStat[] = [
-  { d: "ПН", v: 0 },
-  { d: "ВТ", v: 0 },
-  { d: "СР", v: 0 },
-  { d: "ЧТ", v: 0 },
-  { d: "ПТ", v: 0 },
-  { d: "СБ", v: 0 },
-  { d: "ВС", v: 0 },
-];
-
-const ESTIMATES: { type: string; est: number; real: number; count: number }[] =
-  [];
-
-const SPHERE_HOURS: { k: TaskSphere; v: number; label: string }[] = [];
+const WEEK = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
 
 export function AnalyticsScreen() {
   const [range, setRange] = useState<"week" | "month">("month");
+  const analyticsQuery = useQuery({
+    queryKey: ["tasks", "analytics", range],
+    queryFn: () => getTaskAnalytics(),
+  });
+  const focusQuery = useQuery({
+    queryKey: ["tasks", "focus-summary", range],
+    queryFn: () => getFocusSummary(),
+  });
+  const analytics = analyticsQuery.data;
+  const focus = focusQuery.data;
+  const byDay = focus?.by_day ?? {};
+  const maxDay = Math.max(1, ...Object.values(byDay));
 
   return (
     <TasksApp>
@@ -60,357 +54,94 @@ export function AnalyticsScreen() {
               </button>
             </div>
           }
-          eyebrow="Текущая неделя"
+          eyebrow="Текущая продуктивность"
           title="Аналитика и инсайты"
-          subtitle="Кто измеряет — тот достигает"
+          subtitle="Задачи, фокус, сроки и привычки"
         />
         <ScreenBody>
           <AIChip
-            text={<>Данных пока недостаточно — закройте несколько задач.</>}
+            text={
+              analytics?.tasks_total
+                ? <>AI сможет объяснять рекомендации по данным задач, фокуса и переносов.</>
+                : <>Данных пока недостаточно — закройте несколько задач.</>
+            }
             cta={null}
           />
 
           <div className="hero-dark">
             <div style={{ display: "flex", alignItems: "flex-end", gap: 16 }}>
               <div style={{ flex: 1 }}>
-                <div className="lbl">Выполнено за неделю</div>
+                <div className="lbl">Выполнено</div>
                 <div className="big">
-                  0
-                  <span
-                    style={{
-                      fontSize: 22,
-                      color: "rgba(255,255,255,0.5)",
-                      fontWeight: 600,
-                    }}
-                  >
+                  {analytics?.completed_count ?? 0}
+                  <span style={{ fontSize: 22, color: "rgba(255,255,255,0.5)", fontWeight: 600 }}>
                     {" "}
-                    / 0
+                    / {analytics?.tasks_total ?? 0}
                   </span>
                 </div>
-                <div className="sub">—</div>
+                <div className="sub">
+                  В фокусе: {analytics?.focus_minutes ?? focus?.focus_minutes ?? 0}м
+                </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div className="lbl">Карма</div>
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: 700,
-                    letterSpacing: "-0.025em",
-                    marginTop: 4,
-                    color: "var(--accent)",
-                  }}
-                >
-                  0
+                <div className="lbl">В срок</div>
+                <div style={{ fontSize: 24, fontWeight: 700, marginTop: 4, color: "var(--accent)" }}>
+                  {analytics?.on_time_rate === null || analytics?.on_time_rate === undefined
+                    ? "—"
+                    : `${Math.round(analytics.on_time_rate * 100)}%`}
                 </div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: "rgba(255,255,255,0.7)",
-                    fontWeight: 600,
-                    marginTop: 2,
-                  }}
-                >
-                  Новичок
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: 600, marginTop: 2 }}>
+                  переносов: {analytics?.rollover_count ?? 0}
                 </div>
               </div>
             </div>
 
             <div className="week-bars">
-              {WEEK.map((d) => (
-                <div
-                  key={d.d}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    gap: 4,
-                  }}
-                >
-                  <div className="wbar">
-                    <div
-                      className="fill"
-                      style={{
-                        height: `${d.v * 100}%`,
-                        background: d.v < 0.5 ? "var(--warn)" : "var(--accent)",
-                      }}
-                    />
-                  </div>
-                  <div
-                    style={{
-                      fontSize: 9.5,
-                      fontWeight: 700,
-                      color: "rgba(255,255,255,0.6)",
-                      letterSpacing: "0.05em",
-                    }}
-                  >
-                    {d.d}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="card">
-            <div
-              style={{
-                fontSize: 13.5,
-                fontWeight: 700,
-                color: "var(--ink-900)",
-              }}
-            >
-              Оценка vs реальность
-            </div>
-            <div
-              style={{
-                fontSize: 11.5,
-                color: "var(--ink-500)",
-                fontWeight: 500,
-                marginTop: 2,
-              }}
-            >
-              Planning fallacy · Kahneman
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: 10,
-                marginTop: 12,
-              }}
-            >
-              {ESTIMATES.map((row) => {
-                const over = row.real > row.est;
+              {WEEK.map((d, index) => {
+                const key = Object.keys(byDay)[index];
+                const value = key ? byDay[key] : 0;
                 return (
-                  <div key={row.type}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: 11.5,
-                        fontWeight: 600,
-                        color: "var(--ink-700)",
-                      }}
-                    >
-                      <span>
-                        {row.type}{" "}
-                        <span style={{ color: "var(--ink-400)" }}>
-                          · ×{row.count}
-                        </span>
-                      </span>
-                      <span
+                  <div key={d} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <div className="wbar">
+                      <div
+                        className="fill"
                         style={{
-                          color: over ? "var(--warn)" : "var(--success)",
-                          fontWeight: 700,
+                          height: `${Math.max(4, (value / maxDay) * 100)}%`,
+                          background: value === 0 ? "var(--ink-400)" : "var(--accent)",
                         }}
-                      >
-                        {over ? "+" : ""}
-                        {row.real - row.est} мин
-                      </span>
+                      />
                     </div>
-                    <div className="est-bar">
-                      <i
-                        style={{
-                          width: `${(row.est / 130) * 100}%`,
-                          background: "var(--ink-300)",
-                        }}
-                      />
-                      <i
-                        style={{
-                          width: `${(row.real / 130) * 100}%`,
-                          background: over ? "var(--warn)" : "var(--success)",
-                          opacity: 0.85,
-                        }}
-                      />
+                    <div style={{ fontSize: 9.5, fontWeight: 700, color: "rgba(255,255,255,0.6)", letterSpacing: "0.05em" }}>
+                      {d}
                     </div>
                   </div>
                 );
               })}
             </div>
+          </div>
 
-            <div
-              style={{
-                display: "flex",
-                gap: 12,
-                marginTop: 10,
-                fontSize: 10.5,
-                color: "var(--ink-500)",
-                fontWeight: 600,
-              }}
-            >
-              <span
-                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
-              >
-                <span
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 2,
-                    background: "var(--ink-300)",
-                  }}
-                />{" "}
-                Оценка
-              </span>
-              <span
-                style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
-              >
-                <span
-                  style={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: 2,
-                    background: "var(--warn)",
-                  }}
-                />{" "}
-                Реальность
-              </span>
+          <div className="card">
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink-900)" }}>
+              Оценка vs реальность
+            </div>
+            <div style={{ fontSize: 11.5, color: "var(--ink-500)", fontWeight: 500, marginTop: 2 }}>
+              Средняя ошибка: {analytics?.estimate_error_avg_min ?? "нет данных"} мин
             </div>
           </div>
 
           <div className="card">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: 13.5,
-                  fontWeight: 700,
-                  color: "var(--ink-900)",
-                }}
-              >
-                По сферам
+            <div style={{ fontSize: 13.5, fontWeight: 700, color: "var(--ink-900)", marginBottom: 10 }}>
+              По сферам
+            </div>
+            {Object.entries(analytics?.completed_by_sphere ?? {}).map(([sphere, count]) => (
+              <div key={sphere} className="estimate-row">
+                <span>{sphere}</span>
+                <b>{count}</b>
               </div>
-              <span
-                style={{
-                  fontSize: 11,
-                  color: "var(--ink-400)",
-                  fontWeight: 600,
-                }}
-              >
-                часов в неделю
-              </span>
-            </div>
-            <div
-              style={{
-                display: "flex",
-                height: 12,
-                borderRadius: 999,
-                overflow: "hidden",
-                marginTop: 12,
-              }}
-            >
-              {SPHERE_HOURS.map((s) => (
-                <div
-                  key={s.k}
-                  style={{ flex: s.v, background: SPHERES[s.k].color }}
-                />
-              ))}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 10,
-                marginTop: 12,
-              }}
-            >
-              {SPHERE_HOURS.map((s) => (
-                <div
-                  key={s.k}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  <span
-                    style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: 2,
-                      background: SPHERES[s.k].color,
-                    }}
-                  />
-                  <span
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 600,
-                      color: "var(--ink-700)",
-                    }}
-                  >
-                    {SPHERES[s.k].label}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 11.5,
-                      fontWeight: 700,
-                      color: "var(--ink-900)",
-                    }}
-                  >
-                    {s.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="ai-panel">
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                marginBottom: 8,
-              }}
-            >
-              <div
-                className="ai-dot"
-                style={{
-                  width: 26,
-                  height: 26,
-                  borderRadius: 9,
-                  background: "linear-gradient(135deg, var(--accent), #0ea5e9)",
-                  color: "#fff",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 800,
-                  fontSize: 11,
-                }}
-              >
-                AI
-              </div>
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: "var(--ink-900)",
-                }}
-              >
-                Совет недели
-              </div>
-            </div>
-            <div
-              style={{
-                fontSize: 12.5,
-                color: "var(--ink-700)",
-                lineHeight: 1.45,
-              }}
-            >
-              AI пришлёт совет, когда наберётся достаточно данных по вашим
-              задачам.
-            </div>
-            <button
-              type="button"
-              className="btn primary tiny"
-              style={{ marginTop: 10 }}
-            >
-              Применить план
-            </button>
+            ))}
+            {Object.keys(analytics?.completed_by_sphere ?? {}).length === 0 ? (
+              <div className="empty-state">Нет завершённых задач в выбранном периоде.</div>
+            ) : null}
           </div>
         </ScreenBody>
         <TabBar active="tasks" />

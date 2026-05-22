@@ -17,10 +17,23 @@ PARSE_SYSTEM = """Ты — AI-ассистент для структуриров
 - is_today=true если нужно сделать сегодня или срочно
 - deadline: ISO 8601 UTC если упомянуто ("в пятницу", "завтра", "через неделю")
 - goal_id: null (заполняется сервером при необходимости)
+- Если запись содержит данные здоровья, добавь health_events:
+  sleep_log, activity_log, workout, nutrition_meal, water_log.
+- health_events.data используй только для фактов из текста:
+  sleep_log: sleep_date, bedtime_at, wake_at, bedtime, wake_time, duration_minutes, source, notes.
+    Если пользователь написал "лег в 23:40, проснулся в 7:10", верни bedtime/wake_time и, если можешь, ISO bedtime_at/wake_at.
+    Если есть только "спал 6 часов", верни duration_minutes=360 и source="ai".
+    Не выдумывай mood, factors, restoration, latency или awakenings для сна.
+  activity_log: activity_date, steps, distance_meters, active_minutes, calories, stand_hours
+  workout: occurred_on, title, kind, duration_minutes, intensity, calories, notes
+  nutrition_meal: logged_on, meal_type, title, items[{name, serving_qty, serving_name, grams, calories, protein_g, carbs_g, fat_g, fiber_g}], notes
+  water_log: logged_on, amount_ml
+- Если интенсивность тренировки не указана явно, оцени по RPE/talk test только когда текст даёт основание; иначе null.
+- confidence 0..1: ниже 0.6 для приблизительных оценок по фото/неясным порциям.
 - Отвечать ТОЛЬКО валидным JSON без markdown-обёртки
 
 Формат ответа:
-{"tasks": [{"title": "...", "sphere": "work", "priority": 2, "is_today": false, "deadline": null, "notes": null, "goal_id": null}]}"""
+{"tasks": [{"title": "...", "sphere": "work", "priority": 2, "is_today": false, "deadline": null, "notes": null, "goal_id": null}], "health_events": [{"type": "nutrition_meal", "event_date": "2026-05-22", "source_text": "...", "confidence": 0.82, "data": {"logged_on": "2026-05-22", "meal_type": "lunch", "items": [{"name": "гречка", "serving_qty": 1, "serving_name": "порция", "grams": 200}]}}]}"""
 
 _GOAL_CONFIDENCE_THRESHOLD = 2
 _JSON_OBJECT_RE = re.compile(r"\{.*\}", re.DOTALL)
@@ -145,7 +158,7 @@ async def parse_dump(
 
 Пример:
 Дамп пользователя: "Сегодня оплатить интернет и купить молоко, завтра позвонить бухгалтеру"
-Ответ: {{"tasks":[{{"title":"Оплатить интернет","sphere":"finance","priority":2,"is_today":true,"deadline":null,"notes":null,"goal_id":null}},{{"title":"Купить молоко","sphere":"family","priority":2,"is_today":true,"deadline":null,"notes":null,"goal_id":null}},{{"title":"Позвонить бухгалтеру","sphere":"work","priority":2,"is_today":false,"deadline":null,"notes":null,"goal_id":null}}]}}
+Ответ: {{"tasks":[{{"title":"Оплатить интернет","sphere":"finance","priority":2,"is_today":true,"deadline":null,"notes":null,"goal_id":null}},{{"title":"Купить молоко","sphere":"family","priority":2,"is_today":true,"deadline":null,"notes":null,"goal_id":null}},{{"title":"Позвонить бухгалтеру","sphere":"work","priority":2,"is_today":false,"deadline":null,"notes":null,"goal_id":null}}],"health_events":[]}}
 """
     if context_parts:
         user_prompt += "\n".join(context_parts) + "\n"

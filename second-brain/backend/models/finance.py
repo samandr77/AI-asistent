@@ -12,6 +12,8 @@ VALID_BUDGET_PERIODS = {"monthly", "weekly"}
 VALID_GOAL_STATUSES = {"active", "paused", "achieved", "archived"}
 VALID_DEBT_TYPES = {"credit_card", "loan", "mortgage", "installment", "personal", "other"}
 VALID_ASSET_TYPES = {"cash", "brokerage", "retirement", "real_estate", "vehicle", "other"}
+VALID_CATEGORY_TYPES = {"expense", "income", "transfer"}
+VALID_TRANSACTION_SOURCES = {"manual", "ai", "csv", "receipt", "bank", "telegram"}
 VALID_ANALYZE_ACTIONS = {
     "transaction",
     "income",
@@ -101,6 +103,111 @@ class FinanceAccountUpdate(BaseModel):
         return value.upper() if value is not None else None
 
 
+class FinanceCategoryCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    type: str = "expense"
+    parent_id: Optional[str] = None
+    icon: str = Field(default="tag", min_length=1, max_length=40)
+    color: str = Field(default="#E04F5F", min_length=1, max_length=24)
+    is_archived: bool = False
+
+    @field_validator("name")
+    @classmethod
+    def clean_name(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("name cannot be empty")
+        return cleaned
+
+    @field_validator("type")
+    @classmethod
+    def valid_type(cls, value: str) -> str:
+        if value not in VALID_CATEGORY_TYPES:
+            raise ValueError(f"type must be one of {sorted(VALID_CATEGORY_TYPES)}")
+        return value
+
+    @field_validator("icon")
+    @classmethod
+    def clean_icon(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("icon cannot be empty")
+        return cleaned
+
+    @field_validator("color")
+    @classmethod
+    def clean_color(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("color cannot be empty")
+        return cleaned
+
+
+class FinanceCategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    type: Optional[str] = None
+    parent_id: Optional[str] = None
+    icon: Optional[str] = None
+    color: Optional[str] = None
+    is_archived: Optional[bool] = None
+
+    @field_validator("name")
+    @classmethod
+    def clean_name(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_text(value, max_len=80, field_name="name")
+
+    @field_validator("type")
+    @classmethod
+    def valid_type(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None and value not in VALID_CATEGORY_TYPES:
+            raise ValueError(f"type must be one of {sorted(VALID_CATEGORY_TYPES)}")
+        return value
+
+    @field_validator("icon")
+    @classmethod
+    def clean_icon(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_text(value, max_len=40, field_name="icon")
+
+    @field_validator("color")
+    @classmethod
+    def clean_color(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_text(value, max_len=24, field_name="color")
+
+
+class FinanceCategorizationRuleCreate(BaseModel):
+    merchant_pattern: str = Field(min_length=1, max_length=160)
+    category: str = Field(min_length=1, max_length=80)
+    category_id: Optional[str] = None
+    priority: int = Field(default=100, ge=0, le=1000)
+    is_active: bool = True
+
+    @field_validator("merchant_pattern", "category")
+    @classmethod
+    def clean_text_fields(cls, value: str) -> str:
+        cleaned = value.strip()
+        if not cleaned:
+            raise ValueError("field cannot be empty")
+        return cleaned
+
+
+class FinanceCategorizationRuleUpdate(BaseModel):
+    merchant_pattern: Optional[str] = None
+    category: Optional[str] = None
+    category_id: Optional[str] = None
+    priority: Optional[int] = Field(default=None, ge=0, le=1000)
+    is_active: Optional[bool] = None
+
+    @field_validator("merchant_pattern")
+    @classmethod
+    def clean_merchant_pattern(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_text(value, max_len=160, field_name="merchant_pattern")
+
+    @field_validator("category")
+    @classmethod
+    def clean_category(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_text(value, max_len=80, field_name="category")
+
+
 class FinanceTransactionCreate(BaseModel):
     occurred_on: date
     type: str = "expense"
@@ -110,6 +217,10 @@ class FinanceTransactionCreate(BaseModel):
     merchant: Optional[str] = None
     note: Optional[str] = None
     account_id: Optional[str] = None
+    target_account_id: Optional[str] = None
+    is_recurring: bool = False
+    source: str = "manual"
+    import_hash: Optional[str] = None
 
     @field_validator("type")
     @classmethod
@@ -146,6 +257,24 @@ class FinanceTransactionCreate(BaseModel):
     def clean_note(cls, value: Optional[str]) -> Optional[str]:
         return _clean_text(value, max_len=1000, field_name="note")
 
+    @field_validator("source")
+    @classmethod
+    def valid_source(cls, value: str) -> str:
+        if value not in VALID_TRANSACTION_SOURCES:
+            raise ValueError(f"source must be one of {sorted(VALID_TRANSACTION_SOURCES)}")
+        return value
+
+    @field_validator("import_hash")
+    @classmethod
+    def clean_import_hash(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_text(value, max_len=128, field_name="import_hash")
+
+    @model_validator(mode="after")
+    def validate_transfer_accounts(self) -> "FinanceTransactionCreate":
+        if self.type == "transfer" and self.account_id and self.target_account_id == self.account_id:
+            raise ValueError("target_account_id must differ from account_id for transfers")
+        return self
+
 
 class FinanceTransactionUpdate(BaseModel):
     occurred_on: Optional[date] = None
@@ -156,6 +285,10 @@ class FinanceTransactionUpdate(BaseModel):
     merchant: Optional[str] = None
     note: Optional[str] = None
     account_id: Optional[str] = None
+    target_account_id: Optional[str] = None
+    is_recurring: Optional[bool] = None
+    source: Optional[str] = None
+    import_hash: Optional[str] = None
 
     @field_validator("type")
     @classmethod
@@ -189,12 +322,26 @@ class FinanceTransactionUpdate(BaseModel):
     def clean_note(cls, value: Optional[str]) -> Optional[str]:
         return _clean_text(value, max_len=1000, field_name="note")
 
+    @field_validator("source")
+    @classmethod
+    def valid_source(cls, value: Optional[str]) -> Optional[str]:
+        if value is not None and value not in VALID_TRANSACTION_SOURCES:
+            raise ValueError(f"source must be one of {sorted(VALID_TRANSACTION_SOURCES)}")
+        return value
+
+    @field_validator("import_hash")
+    @classmethod
+    def clean_import_hash(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_text(value, max_len=128, field_name="import_hash")
+
 
 class FinanceBudgetCreate(BaseModel):
     category: str = Field(min_length=1, max_length=80)
     period: str = "monthly"
     limit_cents: int
     rollover_enabled: bool = False
+    allocated_cents: Optional[int] = None
+    rollover_cents: int = 0
 
     @field_validator("category")
     @classmethod
@@ -216,12 +363,19 @@ class FinanceBudgetCreate(BaseModel):
     def positive_limit(cls, value: int) -> int:
         return _positive_cents(value, "limit_cents")
 
+    @field_validator("allocated_cents", "rollover_cents")
+    @classmethod
+    def non_negative_optional_cents(cls, value: Optional[int]) -> Optional[int]:
+        return _non_negative_cents(value, "cents") if value is not None else None
+
 
 class FinanceBudgetUpdate(BaseModel):
     category: Optional[str] = None
     period: Optional[str] = None
     limit_cents: Optional[int] = None
     rollover_enabled: Optional[bool] = None
+    allocated_cents: Optional[int] = None
+    rollover_cents: Optional[int] = None
 
     @field_validator("category")
     @classmethod
@@ -239,6 +393,11 @@ class FinanceBudgetUpdate(BaseModel):
     @classmethod
     def positive_limit(cls, value: Optional[int]) -> Optional[int]:
         return _positive_cents(value, "limit_cents") if value is not None else None
+
+    @field_validator("allocated_cents", "rollover_cents")
+    @classmethod
+    def non_negative_optional_cents(cls, value: Optional[int]) -> Optional[int]:
+        return _non_negative_cents(value, "cents") if value is not None else None
 
 
 class FinanceGoalCreate(BaseModel):
@@ -717,6 +876,40 @@ class FinanceBudgetTemplate(BaseModel):
     items: list[FinanceBudgetTemplateItem] = Field(default_factory=list)
 
 
+class FinanceBudgetEnvelope(BaseModel):
+    budget_id: str
+    category: str
+    period: str
+    limit_cents: int
+    allocated_cents: int
+    rollover_enabled: bool
+    rollover_cents: int
+    spent_cents: int
+    remaining_cents: int
+    usage_percent: int
+    status: str
+
+
+class FinanceForecastCategory(BaseModel):
+    category: str
+    average_monthly_spend_cents: int
+    current_spend_cents: int
+    predicted_month_end_cents: int
+    budget_limit_cents: Optional[int] = None
+    predicted_overrun_cents: int = 0
+    confidence: float = Field(ge=0, le=1)
+
+
+class FinanceForecast(BaseModel):
+    period_start: date
+    period_end: date
+    months_used: int
+    categories: list[FinanceForecastCategory] = Field(default_factory=list)
+    total_predicted_expense_cents: int = 0
+    total_budget_limit_cents: int = 0
+    total_predicted_overrun_cents: int = 0
+
+
 class FinanceDebtScheduleItem(BaseModel):
     month_number: int
     payment_cents: int
@@ -792,6 +985,10 @@ class FinanceDashboard(BaseModel):
     accounts_count: int = 0
     active_goals_count: int = 0
     subscriptions_monthly_cents: int = 0
+    cash_flow_cents: int = 0
+    top_categories: list[dict] = Field(default_factory=list)
+    upcoming_payments: list[dict] = Field(default_factory=list)
+    goals: list[dict] = Field(default_factory=list)
     recent_transactions: list[dict] = Field(default_factory=list)
     budgets: list[dict] = Field(default_factory=list)
     alerts: list[dict] = Field(default_factory=list)

@@ -17,6 +17,7 @@ Implement a complete GTD-style task system connected to goals, time, focus, anal
 - Contexts, tags, smart filters, saved filters, geolocation/context placeholder.
 - Collaboration contracts for assignee, comments, files, statuses, mentions.
 - Productivity analytics and weekly report.
+- No task-specific game mechanics in this stage. App-wide achievements are deferred to a later cross-module system.
 
 ## Acceptance Criteria
 
@@ -24,3 +25,4 @@ Implement a complete GTD-style task system connected to goals, time, focus, anal
 - Inbox processing never loses original user text.
 - Recurring tasks do not duplicate uncontrollably.
 - Analytics compare estimates with real completion history.
+- Task screens do not expose karma, XP, levels, badges, rewards, penalties, RPG mechanics, or task-specific achievements.

@@ -1,5 +1,12 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
+import {
+  createFocusSession,
+  getAllTasks,
+  getFocusSettings,
+  getFocusSummary,
+} from "../../services/api";
 import { Icon } from "./components/Icon";
 import {
   BackBtn,
@@ -12,25 +19,62 @@ import {
   TopBar,
 } from "./components/shell";
 
-const SESSION_SECONDS = 25 * 60;
-const TOTAL_SESSIONS = 4;
-
 export function PomodoroScreen() {
-  const [remaining, setRemaining] = useState(SESSION_SECONDS);
+  const queryClient = useQueryClient();
+  const settingsQuery = useQuery({
+    queryKey: ["tasks", "focus-settings"],
+    queryFn: getFocusSettings,
+  });
+  const summaryQuery = useQuery({
+    queryKey: ["tasks", "focus-summary"],
+    queryFn: () => getFocusSummary(),
+  });
+  const tasksQuery = useQuery({
+    queryKey: ["tasks", "active", "focus"],
+    queryFn: () => getAllTasks({ limit: 50 }),
+  });
+  const settings = settingsQuery.data;
+  const sessionSeconds = (settings?.pomodoro_min ?? 25) * 60;
+  const totalSessions = settings?.sessions_before_long_break ?? 4;
+  const currentTask = tasksQuery.data?.find((task) => !task.is_done);
+  const [remaining, setRemaining] = useState(sessionSeconds);
   const [running, setRunning] = useState(false);
   const [sessionIdx, setSessionIdx] = useState(1);
+  const [startedAt, setStartedAt] = useState<string | null>(null);
+  const finishMutation = useMutation({
+    mutationFn: () => {
+      if (!currentTask) return Promise.resolve({});
+      const durationMin = Math.max(1, Math.round((sessionSeconds - remaining) / 60));
+      return createFocusSession(currentTask.id, {
+        started_at: startedAt ?? new Date().toISOString(),
+        ended_at: new Date().toISOString(),
+        duration_min: durationMin,
+        mode: "pomodoro",
+        completed: true,
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["tasks", "focus-summary"] });
+      void queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+
+  useEffect(() => {
+    setRemaining(sessionSeconds);
+  }, [sessionSeconds]);
 
   useEffect(() => {
     if (!running) return;
+    if (!startedAt) setStartedAt(new Date().toISOString());
     const id = setInterval(() => {
       setRemaining((r) => (r > 0 ? r - 1 : 0));
     }, 1000);
     return () => clearInterval(id);
-  }, [running]);
+  }, [running, startedAt]);
 
   const R = 96;
   const C = 2 * Math.PI * R;
-  const progress = remaining / SESSION_SECONDS;
+  const progress = remaining / sessionSeconds;
 
   const mm = Math.floor(remaining / 60)
     .toString()
@@ -57,9 +101,9 @@ export function PomodoroScreen() {
               <IconBtn name="more" variant="on-card" ariaLabel="Ещё" />
             </>
           }
-          eyebrow="Pomodoro · 25 / 5"
+          eyebrow={`Pomodoro · ${settings?.pomodoro_min ?? 25} / ${settings?.short_break_min ?? 5}`}
           title="Фокус-сессия"
-          subtitle={`Помодоро ${sessionIdx} из ${TOTAL_SESSIONS} · уведомления отключены`}
+          subtitle={`Помодоро ${sessionIdx} из ${totalSessions} · ${settings?.dnd_enabled ? "DND включен" : "обычный режим"}`}
         />
         <ScreenBody style={{ alignItems: "center", paddingTop: 6 }}>
           <div className="card pomo-task" style={{ alignSelf: "stretch" }}>
@@ -87,7 +131,7 @@ export function PomodoroScreen() {
                   marginTop: 2,
                 }}
               >
-                Без задачи — выберите из списка
+                {currentTask?.title ?? "Без задачи — выберите из списка"}
               </div>
             </div>
             <span className="pill focus">Deep Work</span>
@@ -150,13 +194,13 @@ export function PomodoroScreen() {
                   marginTop: 6,
                 }}
               >
-                из 25:00 · сессия {sessionIdx} / {TOTAL_SESSIONS}
+                из {Math.floor(sessionSeconds / 60)}:00 · сессия {sessionIdx} / {totalSessions}
               </div>
             </div>
           </div>
 
           <div className="pomo-dots">
-            {Array.from({ length: TOTAL_SESSIONS }).map((_, i) => (
+            {Array.from({ length: totalSessions }).map((_, i) => (
               <div key={i} className={`d${i < sessionIdx ? " on" : ""}`} />
             ))}
           </div>
@@ -173,7 +217,14 @@ export function PomodoroScreen() {
             <button
               type="button"
               className="play-btn"
-              onClick={() => setRunning((r) => !r)}
+              onClick={() => {
+                if (running) {
+                  setRunning(false);
+                  finishMutation.mutate();
+                } else {
+                  setRunning(true);
+                }
+              }}
               aria-label={running ? "Пауза" : "Старт"}
             >
               <Icon
@@ -187,7 +238,7 @@ export function PomodoroScreen() {
               type="button"
               className="icon-btn side-btn"
               onClick={() =>
-                setSessionIdx((s) => Math.min(TOTAL_SESSIONS, s + 1))
+                setSessionIdx((s) => Math.min(totalSessions, s + 1))
               }
               aria-label="Следующая сессия"
             >
@@ -246,7 +297,7 @@ export function PomodoroScreen() {
                     marginTop: 2,
                   }}
                 >
-                  Короткий перерыв · 5 мин
+                  Короткий перерыв · {settings?.short_break_min ?? 5} мин
                 </div>
               </div>
             </div>
@@ -268,15 +319,12 @@ export function PomodoroScreen() {
                 >
                   Фокус за сегодня
                 </div>
-                <span className="pill ghost">
-                  <Icon name="fire" size={11} color="var(--ink-500)" /> начать
-                  стрик
-                </span>
+                <span className="pill ghost">статистика</span>
               </div>
               <div style={{ display: "flex", gap: 12, marginTop: 10 }}>
                 {[
-                  { v: "0м", l: "в фокусе" },
-                  { v: "0", l: "сессии" },
+                  { v: `${summaryQuery.data?.focus_minutes ?? 0}м`, l: "в фокусе" },
+                  { v: `${summaryQuery.data?.completed_count ?? 0}`, l: "сессии" },
                   { v: "—", l: "без отвлечений" },
                 ].map((x) => (
                   <div key={x.l} style={{ flex: 1 }}>

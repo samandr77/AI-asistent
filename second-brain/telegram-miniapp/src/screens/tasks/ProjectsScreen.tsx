@@ -1,5 +1,8 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { createTaskProject, listTaskProjects } from "../../services/api";
+import type { TaskProject } from "../../types/api";
 import { Icon } from "./components/Icon";
 import {
   AIChip,
@@ -11,25 +14,10 @@ import {
   TabBar,
   TasksApp,
   TopBar,
-  type TaskSphere,
 } from "./components/shell";
 
 type Health = "ok" | "risk" | "idle";
-
-interface Project {
-  id: string;
-  name: string;
-  sphere: TaskSphere;
-  area: "Projects" | "Areas";
-  done: number;
-  total: number;
-  deadline: string;
-  members: string[];
-  next: string;
-  health: Health;
-}
-
-const PROJECTS: Project[] = [];
+type Tab = "Projects" | "Areas" | "Resources" | "Archive";
 
 const HEALTH: Record<Health, { c: string; l: string }> = {
   ok: { c: "var(--success)", l: "В графике" },
@@ -37,18 +25,45 @@ const HEALTH: Record<Health, { c: string; l: string }> = {
   idle: { c: "var(--ink-400)", l: "Без активности" },
 };
 
-type Tab = "Projects" | "Areas" | "Resources" | "Archive";
+function projectHealth(project: TaskProject): Health {
+  if (project.status === "archived") return "idle";
+  if ((project.progress_percent ?? 0) >= 75) return "ok";
+  return (project.tasks_count ?? 0) > 0 ? "risk" : "idle";
+}
 
 export function ProjectsScreen() {
   const [tab, setTab] = useState<Tab>("Projects");
+  const queryClient = useQueryClient();
+  const projectsQuery = useQuery({
+    queryKey: ["task-projects"],
+    queryFn: listTaskProjects,
+  });
+  const createMutation = useMutation({
+    mutationFn: () =>
+      createTaskProject({
+        title: "Новый проект",
+        description: "Опишите цель проекта и добавьте первые задачи.",
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["task-projects"] });
+    },
+  });
+
+  const projects = projectsQuery.data ?? [];
+  const activeProjects = projects.filter((project) => project.status === "active");
+  const archivedProjects = projects.filter((project) => project.status === "archived");
   const counts = {
-    Projects: PROJECTS.filter((p) => p.area === "Projects").length,
-    Areas: PROJECTS.filter((p) => p.area === "Areas").length,
+    Projects: activeProjects.length,
+    Areas: 0,
     Resources: 0,
-    Archive: 0,
+    Archive: archivedProjects.length,
   };
-  const visible = PROJECTS.filter((p) => p.area === tab);
-  const totalOpen = PROJECTS.reduce((s, p) => s + (p.total - p.done), 0);
+  const visible =
+    tab === "Projects" ? activeProjects : tab === "Archive" ? archivedProjects : [];
+  const totalOpen = projects.reduce(
+    (sum, project) => sum + ((project.tasks_count ?? 0) - (project.done_count ?? 0)),
+    0,
+  );
 
   return (
     <TasksApp>
@@ -58,54 +73,59 @@ export function ProjectsScreen() {
           right={
             <>
               <IconBtn name="search" variant="on-card" ariaLabel="Поиск" />
-              <IconBtn name="plus" variant="on-card" ariaLabel="Новый проект" />
+              <IconBtn
+                name="plus"
+                variant="on-card"
+                ariaLabel="Новый проект"
+                onClick={() => createMutation.mutate()}
+              />
             </>
           }
           eyebrow="PARA · Tiago Forte"
           title="Проекты"
-          subtitle={`${PROJECTS.length} активных · ${totalOpen} задач в работе`}
+          subtitle={`${activeProjects.length} активных · ${totalOpen} задач в работе`}
         />
         <ScreenBody>
-          <AIChip
-            text={<>Соберите проекты по PARA — Tiago Forte.</>}
-            cta={null}
-          />
+          <AIChip text={<>Соберите проекты по PARA — Tiago Forte.</>} cta={null} />
 
           <div className="seg">
-            {(["Projects", "Areas", "Resources", "Archive"] as Tab[]).map(
-              (label) => (
-                <button
-                  key={label}
-                  type="button"
-                  className={`s${tab === label ? " active" : ""}`}
-                  onClick={() => setTab(label)}
-                >
-                  {label} {counts[label] ? `· ${counts[label]}` : ""}
-                </button>
-              ),
-            )}
+            {(["Projects", "Areas", "Resources", "Archive"] as Tab[]).map((label) => (
+              <button
+                key={label}
+                type="button"
+                className={`s${tab === label ? " active" : ""}`}
+                onClick={() => setTab(label)}
+              >
+                {label} {counts[label] ? `· ${counts[label]}` : ""}
+              </button>
+            ))}
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {visible.map((p) => {
-              const pct = (p.done / p.total) * 100;
-              const h = HEALTH[p.health];
+            {projectsQuery.isLoading ? (
+              <div className="empty-state">Загружаем проекты...</div>
+            ) : null}
+            {visible.map((project) => {
+              const pct = project.progress_percent ?? 0;
+              const done = project.done_count ?? 0;
+              const total = project.tasks_count ?? 0;
+              const health = HEALTH[projectHealth(project)];
               return (
-                <div key={p.id} className="project-card">
+                <div key={project.id} className="project-card">
                   <div className="head">
                     <div
                       className="ico"
-                      style={{ background: `${SPHERES[p.sphere].color}1A` }}
+                      style={{ background: `${SPHERES.work.color}1A` }}
                     >
                       <Icon
                         name="folder"
                         size={20}
-                        color={SPHERES[p.sphere].color}
+                        color={SPHERES.work.color}
                         strokeWidth={2}
                       />
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="name">{p.name}</div>
+                      <div className="name">{project.title}</div>
                       <div
                         style={{
                           display: "flex",
@@ -118,7 +138,7 @@ export function ProjectsScreen() {
                         <span
                           className="chip"
                           style={{
-                            color: h.c,
+                            color: health.c,
                             background: "transparent",
                             padding: 0,
                           }}
@@ -128,10 +148,10 @@ export function ProjectsScreen() {
                               width: 6,
                               height: 6,
                               borderRadius: 999,
-                              background: h.c,
+                              background: health.c,
                             }}
                           />
-                          {h.l}
+                          {health.l}
                         </span>
                         <span
                           className="chip"
@@ -147,24 +167,9 @@ export function ProjectsScreen() {
                             color="var(--ink-500)"
                             strokeWidth={2}
                           />
-                          {p.deadline}
+                          {project.deadline ?? "Без срока"}
                         </span>
                       </div>
-                    </div>
-                    <div className="avatars">
-                      {p.members.map((m, i) => (
-                        <div
-                          key={i}
-                          className="avatar"
-                          style={{
-                            background: m.startsWith("+")
-                              ? "var(--ink-300)"
-                              : `hsl(${i * 80 + 200}, 60%, 55%)`,
-                          }}
-                        >
-                          {m}
-                        </div>
-                      ))}
                     </div>
                   </div>
 
@@ -184,7 +189,7 @@ export function ProjectsScreen() {
                           fontWeight: 600,
                         }}
                       >
-                        {p.done} / {p.total} задач
+                        {done} / {total} задач
                       </div>
                       <div
                         style={{
@@ -197,12 +202,7 @@ export function ProjectsScreen() {
                       </div>
                     </div>
                     <div className="bar">
-                      <i
-                        style={{
-                          width: `${pct}%`,
-                          background: SPHERES[p.sphere].color,
-                        }}
-                      />
+                      <i style={{ width: `${pct}%`, background: SPHERES.work.color }} />
                     </div>
                   </div>
 
@@ -233,14 +233,14 @@ export function ProjectsScreen() {
                           marginTop: 1,
                         }}
                       >
-                        {p.next}
+                        {project.description ?? "Добавьте первый шаг проекта"}
                       </div>
                     </div>
                   </div>
                 </div>
               );
             })}
-            {visible.length === 0 ? (
+            {!projectsQuery.isLoading && visible.length === 0 ? (
               <div className="empty-state">Нет проектов в этой категории.</div>
             ) : null}
           </div>
@@ -254,7 +254,7 @@ export function ProjectsScreen() {
               fontWeight: 600,
             }}
           >
-            + новый проект из шаблона
+            Шаблоны проектов подключены через backend `/task-projects/from-template`
           </div>
         </ScreenBody>
         <TabBar active="tasks" />

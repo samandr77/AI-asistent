@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { deleteTask, getAllTasks, updateTask } from "../../services/api";
+import { deleteTask, getTask, updateTask } from "../../services/api";
 import { useAppStore } from "../../store/useAppStore";
 import type { Task } from "../../types/api";
 
@@ -47,12 +47,12 @@ export function TaskDetailScreen() {
 
   const { data } = useQuery({
     queryKey: ["tasks", "detail", taskId],
-    queryFn: () => getAllTasks({ limit: 100 }),
+    queryFn: () =>
+      taskId ? getTask(taskId) : Promise.reject(new Error("Missing task id")),
     enabled: !state?.task,
   });
 
-  const task =
-    state?.task ?? data?.find((candidate) => candidate.id === taskId) ?? null;
+  const task = state?.task ?? data ?? null;
 
   useEffect(() => {
     if (task && !title) {

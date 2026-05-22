@@ -183,14 +183,18 @@ export function FinanceTopBar({
         <Icon name="chevron-left" size={16} />
       </button>
       <div className="tg-title">{title}</div>
-      <button
-        type="button"
-        className="tg-close"
-        aria-label="Закрыть"
-        onClick={onClose}
-      >
-        <Icon name="close" size={12} />
-      </button>
+      {onClose ? (
+        <button
+          type="button"
+          className="tg-close"
+          aria-label="Закрыть"
+          onClick={onClose}
+        >
+          <Icon name="close" size={12} />
+        </button>
+      ) : (
+        <span aria-hidden="true" className="tg-bar__spacer" />
+      )}
     </div>
   );
 }

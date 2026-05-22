@@ -11,16 +11,19 @@ from auth import get_current_user_id
 from config import settings
 from database import get_supabase
 from services.stt import transcribe_audio_with_fallback
+from services.vision_ocr import ocr_image
 from services.parser import parse_dump
 from services.goal_ranker import rank_today_top3
 from services.premium import get_user_premium, get_daily_dump_limit, get_ai_tier_policy
 from services import ai_budget
+from services.health_capture import save_health_events
 from services.task_capture import save_parsed_dump
 from models.task import ParsedDump
 
 router = APIRouter()
 
 MAX_AUDIO_SIZE = 25 * 1024 * 1024
+MAX_PHOTO_SIZE = 10 * 1024 * 1024
 HAS_MULTIPART = find_spec("python_multipart") is not None or find_spec("multipart") is not None
 
 
@@ -110,6 +113,10 @@ async def save_tasks(parsed: ParsedDump, user_id: str, raw_text: str) -> tuple[s
     return dump_id, task_ids
 
 
+def _health_payload(parsed: ParsedDump, user_id: str) -> dict:
+    return save_health_events(parsed.health_events, user_id)
+
+
 @router.get("/{dump_id}/result")
 async def get_dump_result(
     dump_id: str,
@@ -165,12 +172,15 @@ async def dump_text(
         raise HTTPException(status_code=422, detail=str(e))
     await ai_budget.record_usage(user_id, result.tokens)
     dump_id, task_ids = await save_tasks(result.parsed, user_id, body.text)
+    health_payload = _health_payload(result.parsed, user_id)
     top3 = rank_today_top3(result.parsed.tasks, active_goals)
     return {
         "dump_id": dump_id,
         "tasks": [t.model_dump() for t in result.parsed.tasks],
         "today_top3": [t.model_dump() for t in top3],
         "task_ids": task_ids,
+        "health_events": [event.model_dump() for event in result.parsed.health_events],
+        **health_payload,
     }
 
 
@@ -210,6 +220,7 @@ if HAS_MULTIPART:
             raise HTTPException(status_code=422, detail=str(e))
         await ai_budget.record_usage(user_id, result.tokens)
         dump_id, task_ids = await save_tasks(result.parsed, user_id, transcription)
+        health_payload = _health_payload(result.parsed, user_id)
         top3 = rank_today_top3(result.parsed.tasks, active_goals)
         return {
             "dump_id": dump_id,
@@ -217,6 +228,53 @@ if HAS_MULTIPART:
             "tasks": [t.model_dump() for t in result.parsed.tasks],
             "today_top3": [t.model_dump() for t in top3],
             "task_ids": task_ids,
+            "health_events": [event.model_dump() for event in result.parsed.health_events],
+            **health_payload,
+        }
+
+    @router.post("/photo")
+    async def dump_photo(
+        file: UploadFile,
+        user_id: str = Depends(get_current_user_id),
+    ):
+        premium = await _enforce_dump_limit(user_id)
+        await _enforce_ai_budget(user_id)
+        image_bytes = await file.read()
+        if len(image_bytes) > MAX_PHOTO_SIZE:
+            raise HTTPException(status_code=413, detail="Image too large (max 10MB)")
+        mime = file.content_type or "image/jpeg"
+        if not mime.startswith("image/"):
+            raise HTTPException(status_code=415, detail="Only image/* files are supported")
+
+        try:
+            extracted_text = await ocr_image(image_bytes, mime)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
+        if not extracted_text.strip():
+            raise HTTPException(status_code=422, detail="Could not extract text from image")
+
+        active_goals = _fetch_active_goals(user_id)
+        tier_policy = get_ai_tier_policy(premium)
+        try:
+            result = await parse_dump(
+                extracted_text, {},
+                active_goals=active_goals, tier_policy=tier_policy,
+            )
+        except ValueError as e:
+            sentry_sdk.capture_exception(e)
+            raise HTTPException(status_code=422, detail=str(e))
+        await ai_budget.record_usage(user_id, result.tokens)
+        dump_id, task_ids = await save_tasks(result.parsed, user_id, extracted_text)
+        health_payload = _health_payload(result.parsed, user_id)
+        top3 = rank_today_top3(result.parsed.tasks, active_goals)
+        return {
+            "dump_id": dump_id,
+            "extracted_text": extracted_text,
+            "tasks": [t.model_dump() for t in result.parsed.tasks],
+            "today_top3": [t.model_dump() for t in top3],
+            "task_ids": task_ids,
+            "health_events": [event.model_dump() for event in result.parsed.health_events],
+            **health_payload,
         }
 else:
     @router.post("/voice")
@@ -226,4 +284,13 @@ else:
         raise HTTPException(
             status_code=503,
             detail="Voice upload requires python-multipart to be installed",
+        )
+
+    @router.post("/photo")
+    async def dump_photo_unavailable(
+        user_id: str = Depends(get_current_user_id),
+    ):
+        raise HTTPException(
+            status_code=503,
+            detail="Photo upload requires python-multipart to be installed",
         )

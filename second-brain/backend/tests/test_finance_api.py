@@ -88,7 +88,12 @@ async def test_create_transaction_validates_positive_amount(client):
 @pytest.mark.anyio
 async def test_create_transaction_inserts_user_id(client):
     created = {**TRANSACTION_ROW, "id": "tx-new"}
-    with patch("api.finance.get_supabase") as mock_db:
+    with (
+        patch("api.finance.get_supabase") as mock_db,
+        patch("api.finance._apply_categorization_rules", side_effect=lambda payload, user_id: payload),
+        patch("api.finance._find_duplicate_import", return_value=None),
+        patch("api.finance._remember_categorization_rule"),
+    ):
         mock_db.return_value.table.return_value.insert.return_value.execute.return_value.data = [created]
 
         resp = await client.post(
@@ -303,6 +308,65 @@ async def test_finance_alerts_return_budget_and_due_items(client):
 
 
 @pytest.mark.anyio
+async def test_list_categories_falls_back_to_presets(client):
+    with patch("api.finance._list_table", return_value=[]):
+        resp = await client.get("/finance/categories")
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data[0]["is_preset"] is True
+    assert {item["type"] for item in data} >= {"expense", "income"}
+
+
+@pytest.mark.anyio
+async def test_budget_envelopes_include_rollover_and_status(client):
+    budget = {
+        **BUDGET_ROW,
+        "allocated_cents": 100000,
+        "rollover_enabled": True,
+        "rollover_cents": 50000,
+    }
+
+    with (
+        patch("api.finance._list_table", return_value=[budget]),
+        patch("api.finance._monthly_transactions", return_value=[TRANSACTION_ROW]),
+    ):
+        resp = await client.get("/finance/budgets/envelopes")
+
+    assert resp.status_code == 200
+    item = resp.json()[0]
+    assert item["allocated_cents"] == 150000
+    assert item["spent_cents"] == 120000
+    assert item["remaining_cents"] == 30000
+    assert item["status"] == "warning"
+
+
+@pytest.mark.anyio
+async def test_forecast_uses_history_and_flags_overrun(client):
+    def monthly_transactions(user_id: str, start: date, end: date):  # noqa: ARG001
+        if start == date.today().replace(day=1):
+            return [TRANSACTION_ROW]
+        return [{**TRANSACTION_ROW, "amount_cents": 200000}]
+
+    def list_table(table: str, user_id: str, **kwargs):  # noqa: ARG001
+        if table == "finance_budgets":
+            return [{**BUDGET_ROW, "limit_cents": 150000}]
+        return []
+
+    with (
+        patch("api.finance._monthly_transactions", side_effect=monthly_transactions),
+        patch("api.finance._list_table", side_effect=list_table),
+    ):
+        resp = await client.get("/finance/forecast?months=3")
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["months_used"] == 3
+    assert data["categories"][0]["category"] == "transport"
+    assert data["categories"][0]["predicted_overrun_cents"] > 0
+
+
+@pytest.mark.anyio
 async def test_period_compare_returns_deltas(client):
     rows_by_start = {
         "2026-05-01": [
@@ -509,7 +573,12 @@ async def test_csv_import_preview_parses_rows(client):
 async def test_csv_import_confirm_creates_transactions(client):
     created = {**TRANSACTION_ROW, "id": "tx-imported"}
 
-    with patch("api.finance.get_supabase") as mock_db:
+    with (
+        patch("api.finance.get_supabase") as mock_db,
+        patch("api.finance._apply_categorization_rules", side_effect=lambda payload, user_id: payload),
+        patch("api.finance._find_duplicate_import", return_value=None),
+        patch("api.finance._remember_categorization_rule"),
+    ):
         mock_db.return_value.table.return_value.insert.return_value.execute.return_value.data = [created]
 
         resp = await client.post(

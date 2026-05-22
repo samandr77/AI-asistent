@@ -125,6 +125,7 @@ async def test_recurrence_habit_and_time_focus_routes(client):
         patch("api.tasks.task_recurrence.rollover_due_recurring", return_value=[{"id": "task-1"}]),
         patch("api.tasks.task_recurrence.list_habits", return_value=[{"id": "task-1"}]),
         patch("api.tasks.task_recurrence.habit_stats", return_value={"task_id": "task-1", "focus_minutes": 25}),
+        patch("api.tasks.task_recurrence.habit_history", return_value={"task_id": "task-1", "events": []}),
         patch("api.tasks.task_planning.capacity", return_value={"overload": False}),
         patch("api.tasks.task_planning.free_slots", return_value={"slots": []}),
         patch("api.tasks.task_focus.summary", return_value={"focus_minutes": 25}),
@@ -138,6 +139,7 @@ async def test_recurrence_habit_and_time_focus_routes(client):
         run_due = await client.post("/tasks/recurrence/run-due")
         habits = await client.get("/tasks/habits")
         stats = await client.get("/tasks/habits/task-1/stats")
+        history = await client.get("/tasks/habits/task-1/history?days=30")
         capacity = await client.get("/tasks/time-blocks/capacity?target_date=2026-05-21")
         slots = await client.get("/tasks/time-blocks/free-slots?target_date=2026-05-21")
         focus = await client.get("/tasks/focus-summary")
@@ -150,6 +152,7 @@ async def test_recurrence_habit_and_time_focus_routes(client):
     assert run_due.json()["tasks"][0]["id"] == "task-1"
     assert habits.json()[0]["id"] == "task-1"
     assert stats.json()["focus_minutes"] == 25
+    assert history.json()["events"] == []
     assert capacity.json()["overload"] is False
     assert slots.json()["slots"] == []
     assert focus.json()["focus_minutes"] == 25
@@ -199,3 +202,20 @@ async def test_capture_integration_contract(client):
     assert resp.status_code == 201
     assert capture.await_args.kwargs["source"].value == "browser"
     assert resp.json()["tasks"][0]["parser_metadata"]["external_id"] == "url-1"
+
+
+@pytest.mark.anyio
+async def test_calendar_and_due_reminder_routes(client):
+    with (
+        patch("api.tasks.task_calendar.calendar", return_value={"days": [{"date": "2026-05-21", "tasks": []}]}),
+        patch("api.tasks.task_calendar.due_reminders", return_value={"tasks": [{"id": "task-1"}]}),
+        patch("api.tasks.task_calendar.mark_reminder_sent", return_value={"task_id": "task-1", "updated": True}),
+    ):
+        calendar = await client.get("/tasks/calendar?start_date=2026-05-21&days=7")
+        reminders = await client.get("/tasks/reminders/due?now=2026-05-21T10:00:00Z")
+        sent = await client.post("/tasks/task-1/reminders/sent")
+
+    assert calendar.status_code == 200
+    assert calendar.json()["days"][0]["date"] == "2026-05-21"
+    assert reminders.json()["tasks"][0]["id"] == "task-1"
+    assert sent.json()["updated"] is True

@@ -1,3 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+
+import { getTaskCalendar } from "../../services/api";
 import {
   AIChip,
   BackBtn,
@@ -7,37 +11,46 @@ import {
   TabBar,
   TasksApp,
   TopBar,
-  type TaskSphere,
 } from "./components/shell";
-
-interface Block {
-  start: number;
-  end: number;
-  label: string;
-  sphere: TaskSphere;
-  flag?: boolean;
-}
 
 const HOURS = Array.from({ length: 14 }, (_, i) => 8 + i);
 const HOUR_H = 44;
+const today = new Date().toISOString().slice(0, 10);
 
-const BLOCKS: Block[] = [];
-
-const NOW = 10 + 18 / 60;
-
-function fmt(t: number): string {
-  const h = Math.floor(t);
-  const m = Math.round((t % 1) * 60);
-  return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+function fmt(value: string): string {
+  return new Date(value).toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-const SUMMARY = [
-  { l: "Запланировано", v: "0м", c: "var(--ink-900)" },
-  { l: "Deep Work", v: "0м", c: "var(--focus)" },
-  { l: "Свободно", v: "—", c: "var(--success)" },
-];
+function hourValue(value: string): number {
+  const dt = new Date(value);
+  return dt.getHours() + dt.getMinutes() / 60;
+}
 
 export function TimeBlockScreen() {
+  const calendarQuery = useQuery({
+    queryKey: ["tasks", "calendar", today],
+    queryFn: () => getTaskCalendar(today, 1),
+  });
+  const day = calendarQuery.data?.days[0];
+  const blocks = day?.tasks ?? [];
+  const capacity = day?.capacity;
+  const scheduledMin = capacity?.scheduled_min ?? 0;
+  const deepWorkMin = blocks
+    .filter((task) => task.deep_work)
+    .reduce((sum, task) => {
+      if (!task.scheduled_start || !task.scheduled_end) return sum;
+      return sum + Math.max(0, Math.round((new Date(task.scheduled_end).getTime() - new Date(task.scheduled_start).getTime()) / 60000));
+    }, 0);
+
+  const summary = [
+    { l: "Запланировано", v: `${scheduledMin}м`, c: "var(--ink-900)" },
+    { l: "Deep Work", v: `${deepWorkMin}м`, c: "var(--focus)" },
+    { l: "Свободно", v: `${capacity?.remaining_min ?? 0}м`, c: "var(--success)" },
+  ];
+
   return (
     <TasksApp>
       <Screen>
@@ -45,18 +58,10 @@ export function TimeBlockScreen() {
           left={<BackBtn to="/tasks" />}
           right={
             <div className="seg" style={{ padding: 2, height: 30 }}>
-              <button
-                type="button"
-                className="s"
-                style={{ padding: "4px 8px", fontSize: 11 }}
-              >
+              <button type="button" className="s active" style={{ padding: "4px 8px", fontSize: 11 }}>
                 День
               </button>
-              <button
-                type="button"
-                className="s active"
-                style={{ padding: "4px 8px", fontSize: 11 }}
-              >
+              <button type="button" className="s" style={{ padding: "4px 8px", fontSize: 11 }}>
                 Неделя
               </button>
             </div>
@@ -67,16 +72,13 @@ export function TimeBlockScreen() {
             month: "long",
           })}
           title="Тайм-блокинг"
-          subtitle="Защищайте время для глубокой работы"
+          subtitle="Внутренний календарь задач без внешних интеграций"
         />
         <ScreenBody>
-          <AIChip
-            text={<>Распланируйте день блоками — добавьте первую задачу.</>}
-            cta={null}
-          />
+          <AIChip text={<>Распланируйте день блоками — добавьте задаче время начала и конца.</>} cta={null} />
 
           <div className="summary-row">
-            {SUMMARY.map((s) => (
+            {summary.map((s) => (
               <div key={s.l} className="card flat stat">
                 <div className="l">{s.l}</div>
                 <div className="v" style={{ color: s.c }}>
@@ -87,33 +89,22 @@ export function TimeBlockScreen() {
           </div>
 
           <div className="card timeline">
-            <div
-              className="timeline-track"
-              style={{ height: HOURS.length * HOUR_H }}
-            >
+            <div className="timeline-track" style={{ height: HOURS.length * HOUR_H }}>
               {HOURS.map((h, i) => (
-                <div
-                  key={h}
-                  className="timeline-hour"
-                  style={{ top: i * HOUR_H }}
-                >
+                <div key={h} className="timeline-hour" style={{ top: i * HOUR_H }}>
                   <div className="lbl">{h.toString().padStart(2, "0")}:00</div>
                 </div>
               ))}
 
-              <div className="now-line" style={{ top: (NOW - 8) * HOUR_H }}>
-                <div className="dot" />
-                <div className="line" />
-                <div className="badge">{fmt(NOW)}</div>
-              </div>
-
-              {BLOCKS.map((b, i) => {
-                const top = (b.start - 8) * HOUR_H + 2;
-                const height = (b.end - b.start) * HOUR_H - 4;
-                const color = SPHERES[b.sphere].color;
+              {blocks.map((task) => {
+                if (!task.scheduled_start || !task.scheduled_end) return null;
+                const top = (hourValue(task.scheduled_start) - 8) * HOUR_H + 2;
+                const height = Math.max(28, (hourValue(task.scheduled_end) - hourValue(task.scheduled_start)) * HOUR_H - 4);
+                const color = task.deep_work ? SPHERES.work.color : "var(--accent)";
                 return (
-                  <div
-                    key={i}
+                  <Link
+                    key={task.id}
+                    to={`/tasks/${task.id}`}
                     className="tb-block"
                     style={{
                       top,
@@ -122,27 +113,18 @@ export function TimeBlockScreen() {
                       borderLeftColor: color,
                     }}
                   >
-                    <div className="label">
-                      {b.flag ? (
-                        <span
-                          style={{
-                            width: 5,
-                            height: 5,
-                            borderRadius: 999,
-                            background: color,
-                          }}
-                        />
-                      ) : null}
-                      {b.label}
-                    </div>
+                    <div className="label">{task.title}</div>
                     {height > 28 ? (
                       <div className="time">
-                        {fmt(b.start)} – {fmt(b.end)}
+                        {fmt(task.scheduled_start)} – {fmt(task.scheduled_end)}
                       </div>
                     ) : null}
-                  </div>
+                  </Link>
                 );
               })}
+              {!calendarQuery.isLoading && blocks.length === 0 ? (
+                <div className="empty-state">Сегодня пока нет временных блоков.</div>
+              ) : null}
             </div>
           </div>
         </ScreenBody>

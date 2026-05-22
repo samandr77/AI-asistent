@@ -78,3 +78,15 @@ async def test_weekly_draft_returns_summary(client):
     assert body["active_goals"] == 1
     assert body["okr_progress"][0]["title"] == "OKR"
     assert len(body["suggestions"]) >= 1
+
+
+@pytest.mark.anyio
+async def test_current_week_alias_does_not_raise_invalid_week(client):
+    with patch("api.reviews.get_supabase") as mock_db:
+        query = mock_db.return_value.table.return_value.select.return_value.eq.return_value.eq.return_value
+        query.execute.return_value.data = []
+
+        resp = await client.get("/reviews/weekly/current")
+
+    assert resp.status_code == 404
+    assert resp.json()["detail"] == "Weekly review not found"

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState, type ReactNode } from "react";
 
-import { getFinanceAnalytics } from "../../services/api";
+import { getFinanceAnalytics, getFinanceForecast } from "../../services/api";
 import type { FinanceAnalytics } from "../../types/api";
 import { Icon } from "./components/Icon";
 import {
@@ -133,8 +133,13 @@ export function AnalyticsScreen(): ReactNode {
     queryKey: ["finance", "analytics", period],
     queryFn: () => getFinanceAnalytics(range),
   });
+  const forecastQuery = useQuery({
+    queryKey: ["finance", "forecast"],
+    queryFn: () => getFinanceForecast({ months: 3 }),
+  });
 
   const analytics = analyticsQuery.data;
+  const forecast = forecastQuery.data;
 
   const categories = useMemo(() => {
     if (!analytics) return [];
@@ -347,6 +352,68 @@ export function AnalyticsScreen(): ReactNode {
                   </div>
                 </div>
               ))}
+            </div>
+
+            <SectionTitle title="Прогноз месяца" />
+            <div className="card">
+              {forecastQuery.isLoading ? (
+                <Skeleton height={88} />
+              ) : forecast && forecast.categories.length > 0 ? (
+                <>
+                  <div className="row between" style={{ marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontWeight: 800 }}>
+                        {fmt(
+                          centsToRub(forecast.total_predicted_expense_cents),
+                        )}{" "}
+                        ₽
+                      </div>
+                      <div className="tiny mute">
+                        ожидаемые расходы к концу месяца
+                      </div>
+                    </div>
+                    <div
+                      className={`ico ${forecast.total_predicted_overrun_cents > 0 ? "red" : "green-soft"}`}
+                    >
+                      <Icon
+                        name={
+                          forecast.total_predicted_overrun_cents > 0
+                            ? "bell"
+                            : "trend-up"
+                        }
+                        size={16}
+                        stroke={
+                          forecast.total_predicted_overrun_cents > 0
+                            ? "white"
+                            : undefined
+                        }
+                      />
+                    </div>
+                  </div>
+                  {forecast.categories.slice(0, 3).map((item) => (
+                    <div className="tx" key={item.category}>
+                      <div className="ico sm amber-soft">
+                        <Icon name="sparkles" size={14} />
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, fontSize: 14 }}>
+                          {categoryLabel(item.category)}
+                        </div>
+                        <div className="tiny mute">
+                          среднее {fmt(centsToRub(item.average_monthly_spend_cents))} ₽
+                        </div>
+                      </div>
+                      <div className="num" style={{ fontWeight: 800 }}>
+                        {fmt(centsToRub(item.predicted_month_end_cents))} ₽
+                      </div>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <div className="tiny mute">
+                  Прогноз появится после истории расходов за несколько недель.
+                </div>
+              )}
             </div>
           </>
         )}

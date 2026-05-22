@@ -254,7 +254,15 @@ export function FinanceScreen(): ReactNode {
   const remainingRub = centsToRub(dashboard?.remaining_budget_cents);
 
   const monthlyLimitRub =
-    dashboard?.budgets.reduce((sum, b) => sum + centsToRub(b.limit_cents), 0) ??
+    dashboard?.budgets.reduce(
+      (sum, b) =>
+        sum +
+        centsToRub(
+          (b.allocated_cents ?? b.limit_cents) +
+            (b.rollover_enabled ? (b.rollover_cents ?? 0) : 0),
+        ),
+      0,
+    ) ??
     0;
   const monthProgressPct =
     monthlyLimitRub > 0
@@ -270,7 +278,12 @@ export function FinanceScreen(): ReactNode {
       return {
         category: item.category,
         amount: centsToRub(item.expense_cents),
-        limit: budget ? centsToRub(budget.limit_cents) : 0,
+        limit: budget
+          ? centsToRub(
+              (budget.allocated_cents ?? budget.limit_cents) +
+                (budget.rollover_enabled ? (budget.rollover_cents ?? 0) : 0),
+            )
+          : 0,
       };
     });
 
@@ -285,7 +298,7 @@ export function FinanceScreen(): ReactNode {
       key: `alert-${idx}`,
       severity: a.severity,
       kind: a.kind,
-      title: a.message,
+      title: a.title || a.message,
       description: a.amount_cents ? fmtCentsRub(a.amount_cents) : "",
     })),
     ...recommendations.slice(0, 3).map((r) => ({
@@ -396,7 +409,6 @@ export function FinanceScreen(): ReactNode {
             tone="red"
             onClick={() => setTxSheetOpen(true)}
           />
-          <Tile icon="mic" label="Голосом" tone="red-soft" to="/dump" />
           <Tile
             icon="list"
             label="Все операции"
@@ -408,6 +420,12 @@ export function FinanceScreen(): ReactNode {
             label="Аналитика"
             tone="red-soft"
             to="/finance/analytics"
+          />
+          <Tile
+            icon="tag"
+            label="Категории"
+            tone="red-soft"
+            to="/finance/categories"
           />
         </div>
 
@@ -494,6 +512,40 @@ export function FinanceScreen(): ReactNode {
               ))
             )}
           </div>
+        </div>
+
+        <SectionTitle title="Ближайшие платежи" />
+        <div className="card">
+          {isLoading ? (
+            <Skeleton height={48} />
+          ) : dashboard?.upcoming_payments?.length ? (
+            dashboard.upcoming_payments.slice(0, 4).map((payment) => (
+              <div className="tx" key={`${payment.kind}-${payment.entity_id}`}>
+                <div className="ico amber-soft">
+                  <Icon
+                    name={payment.kind === "debt" ? "card" : "refresh"}
+                    size={16}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="name">{payment.title}</div>
+                  <div className="meta">
+                    {new Date(payment.due_date).toLocaleDateString("ru-RU", {
+                      day: "numeric",
+                      month: "long",
+                    })}
+                  </div>
+                </div>
+                <div className="amt num">
+                  −{fmt(centsToRub(payment.amount_cents))} ₽
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="tiny mute" style={{ padding: "8px 0" }}>
+              В ближайшие две недели платежей не видно.
+            </div>
+          )}
         </div>
 
         <SectionTitle title="Последние операции" action={{ label: "все" }} />

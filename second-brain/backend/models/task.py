@@ -97,8 +97,17 @@ class ParsedTask(BaseModel):
     goal_id: Optional[str] = None
 
 
+class ParsedHealthEvent(BaseModel):
+    type: str = Field(pattern=r"^(sleep_log|activity_log|workout|nutrition_meal|water_log)$")
+    event_date: Optional[date] = None
+    source_text: str = Field(default="", max_length=2000)
+    confidence: float = Field(default=0.75, ge=0, le=1)
+    data: dict[str, Any] = Field(default_factory=dict)
+
+
 class ParsedDump(BaseModel):
     tasks: List[ParsedTask]
+    health_events: List[ParsedHealthEvent] = Field(default_factory=list)
 
     @property
     def today_top3(self) -> List[ParsedTask]:

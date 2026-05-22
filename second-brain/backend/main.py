@@ -13,8 +13,10 @@ from api import (
     admin,
     auth,
     dump,
+    exercises,
     finance,
     goals,
+    health,
     kpis,
     memory,
     premium,
@@ -28,6 +30,7 @@ from api import (
     telegram_payments,
     telegram_reminders,
     telegram_webhook,
+    workouts,
 )
 from config import settings
 
@@ -74,6 +77,16 @@ def _init_sentry() -> None:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Seed system exercises catalog idempotently. Fails open — if Supabase
+    # is unavailable or the migration hasn't been applied, the app still
+    # starts (the /exercises endpoint will surface a 503 to the caller).
+    try:
+        from services.workout_exercise_library import seed_if_empty
+        inserted = seed_if_empty()
+        if inserted:
+            logger.info("seeded %d system exercises on startup", inserted)
+    except Exception as exc:  # noqa: BLE001 — startup must never fail
+        logger.warning("exercise library seed skipped: %s", exc)
     yield
 
 
@@ -103,6 +116,9 @@ app.include_router(strategy.router, prefix="/strategy", tags=["strategy"])
 app.include_router(kpis.router, prefix="/kpis", tags=["kpis"])
 app.include_router(reviews.router, prefix="/reviews", tags=["reviews"])
 app.include_router(finance.router, prefix="/finance", tags=["finance"])
+app.include_router(health.router, prefix="/health", tags=["health"])
+app.include_router(workouts.router, prefix="/workouts", tags=["workouts"])
+app.include_router(exercises.router, prefix="/exercises", tags=["exercises"])
 app.include_router(reflections.router, prefix="/reflections", tags=["reflections"])
 app.include_router(premium.router, prefix="/premium", tags=["premium"])
 app.include_router(telegram_auth.router, prefix="/telegram", tags=["telegram"])

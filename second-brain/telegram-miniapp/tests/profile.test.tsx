@@ -38,9 +38,7 @@ function renderWithProviders(element = <ProfileScreen />) {
   });
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>
-        {element}
-      </MemoryRouter>
+      <MemoryRouter>{element}</MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -93,11 +91,19 @@ describe("ProfileScreen", () => {
     renderWithProviders();
 
     expect(await screen.findByText("Alex Profile")).toBeInTheDocument();
-    expect(await screen.findByText("Prefers morning planning")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "EN" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "RU" })).not.toBeInTheDocument();
+    expect(
+      await screen.findByText(/Prefers morning planning/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "EN" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "RU" }),
+    ).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /delete account|удалить/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /delete account|удалить аккаунт/i }),
+    );
     await waitFor(() => {
       expect(mockedDeleteAccount).toHaveBeenCalledOnce();
     });

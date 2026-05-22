@@ -174,6 +174,13 @@ export function MoreScreen(): ReactNode {
       title: "Аналитика",
       subtitle: "Расходы, категории, тренды",
     },
+    {
+      to: "/finance/categories",
+      icon: "tag",
+      iconBg: "amber-soft",
+      title: "Категории",
+      subtitle: "Иерархия и правила автокатегоризации",
+    },
   ];
 
   const isLoading = dashboardQuery.isLoading || netWorthQuery.isLoading;

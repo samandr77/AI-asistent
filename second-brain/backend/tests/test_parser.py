@@ -39,6 +39,73 @@ async def test_parse_dump_returns_tasks():
 
 
 @pytest.mark.anyio
+async def test_parse_dump_returns_health_events():
+    response = AIResult(
+        text=json.dumps(
+            {
+                "tasks": [],
+                "health_events": [
+                    {
+                        "type": "nutrition_meal",
+                        "event_date": "2026-05-22",
+                        "source_text": "на обед курица с рисом",
+                        "confidence": 0.82,
+                        "data": {
+                            "logged_on": "2026-05-22",
+                            "meal_type": "lunch",
+                            "items": [{"name": "Курица с рисом", "calories": 650}],
+                        },
+                    }
+                ],
+            }
+        ),
+        tokens=120,
+        tier=AITier.cheap,
+    )
+    with patch("services.parser.complete", new=AsyncMock(return_value=response)):
+        result = await parse_dump("на обед курица с рисом", {})
+
+    assert result.parsed.tasks == []
+    assert result.parsed.health_events[0].type == "nutrition_meal"
+    assert result.parsed.health_events[0].confidence == 0.82
+
+
+@pytest.mark.anyio
+async def test_parse_dump_returns_sleep_log_event():
+    response = AIResult(
+        text=json.dumps(
+            {
+                "tasks": [],
+                "health_events": [
+                    {
+                        "type": "sleep_log",
+                        "event_date": "2026-05-22",
+                        "source_text": "лег в 23:40, проснулся в 7:10",
+                        "confidence": 0.86,
+                        "data": {
+                            "sleep_date": "2026-05-22",
+                            "bedtime": "23:40",
+                            "wake_time": "07:10",
+                            "duration_minutes": 450,
+                            "source": "ai",
+                        },
+                    }
+                ],
+            }
+        ),
+        tokens=140,
+        tier=AITier.cheap,
+    )
+    with patch("services.parser.complete", new=AsyncMock(return_value=response)):
+        result = await parse_dump("лег в 23:40, проснулся в 7:10", {})
+
+    event = result.parsed.health_events[0]
+    assert event.type == "sleep_log"
+    assert event.data["duration_minutes"] == 450
+    assert event.data["source"] == "ai"
+
+
+@pytest.mark.anyio
 async def test_parse_dump_empty_text_raises():
     with pytest.raises(ValueError, match="empty"):
         await parse_dump("", {})
